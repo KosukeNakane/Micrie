@@ -4,7 +4,7 @@ React + TypeScript + Python (Flask) を使用して構築されています。
 
 ## 技術スタック
 - Frontend: React / TypeScript / Vite
-- UI構成: Chakra UI（または任意）
+- UI構成: Chakra UI
 - Audio API: Web Audio API / AudioContext
 - Visualization: HTML Canvas / AnalyserNode
 - Backend: Python / Flask
