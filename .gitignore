@@ -1,0 +1,57 @@
+# OS / Editor
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependency directories
+client/node_modules/
+
+# Build outputs
+client/dist/
+dist/
+dist-ssr/
+build/
+out/
+coverage/
+
+# Environment variables
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Media / Temporary files
+*.wav
+*.mp3
+*.tmp
+*.bak
+
+# Testing / Tooling cache
+.cache/
+.jest/
+
+# Keras分析結果のログ
+prediction_log.csv
+
+# Python仮想環境
+.venv/
+
+# README.dev
+README.dev.md

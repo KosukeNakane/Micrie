@@ -1,0 +1,11 @@
+flask
+flask-cors
+librosa
+numpy
+ffmpeg-python
+soundfile
+crepe
+openai-whisper
+keras
+tensorflow
+torch  # whisperバックエンド用

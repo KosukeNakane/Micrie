@@ -1,0 +1,36 @@
+{
+  "name": "micrie-client",
+  "private": true,
+  "version": "0.1.0-alpha.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "3.19.1",
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.0",
+    "@tensorflow-models/speech-commands": "0.5.4",
+    "@tensorflow/tfjs": "4.22.0",
+    "framer-motion": "12.15.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "tone": "15.1.22"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.27.0",
+    "@types/react": "19.1.6",
+    "@types/react-dom": "19.1.5",
+    "@vitejs/plugin-react": "4.5.0",
+    "eslint": "9.27.0",
+    "eslint-plugin-react-hooks": "5.2.0",
+    "eslint-plugin-react-refresh": "0.4.20",
+    "globals": "16.2.0",
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.33.0",
+    "vite": "6.3.5"
+  }
+}
