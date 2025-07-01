@@ -7,6 +7,9 @@ Micrieは、歌うだけで、あなたの思い描いた音楽を形作る、�
 音声データから特徴量を抽出し、リズム・メロディを解析・分類するアプリケーションです。  
 フロントエンドは React、バックエンドは Flask（Python）で構成されています。
 
+🎥 **Micrieの紹介動画はこちらからご覧いただけます。**  
+https://www.youtube.com/watch?v=7agMd1vKpDM
+
 ---
 
 ## 📌 最新の変更（Micrie_0.1.0-alpha.2）
