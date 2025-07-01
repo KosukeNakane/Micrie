@@ -38,7 +38,11 @@ __pycache__/
 *.pyo
 
 # Media / Temporary files
+# Ignore all wav files by default
 *.wav
+# But allow public sample wavs to be tracked
+!client/public/samples/PublicSamples/
+!client/public/samples/PublicSamples/**/*.wav
 *.mp3
 *.tmp
 *.bak
@@ -47,7 +51,7 @@ __pycache__/
 .cache/
 .jest/
 
-# Keras分析結果のログ
+# Keras解析結果のログ
 prediction_log.csv
 
 # Python仮想環境
@@ -55,3 +59,7 @@ prediction_log.csv
 
 # README.dev
 README.dev.md
+
+# 開発用の個別フックファイルを無視
+client/src/hooks/useNoireSampler.ts
+client/src/hooks/useOliverDrumPlayer.ts

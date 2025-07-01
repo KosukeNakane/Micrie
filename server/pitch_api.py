@@ -55,11 +55,12 @@ def analyze_pitch():
             print("❌ 音声読み込みまたはCREPE予測でエラー:", e)
             return jsonify({'error': 'Failed to load audio or predict pitch'}), 500
 
-        # テンポ情報を元に、1小節を8分割し、各チャンクを生成
+        # テンポ情報を元に、1小節を16分割し、各チャンクを生成
         tempo = float(request.form.get("tempo", 120))  
+        bar_count = int(request.form.get("bar_count", 1))
         beat_duration = 60.0 / tempo
-        total_duration = beat_duration * 4  # 1小節 = 4拍
-        chunk_duration = total_duration / 8
+        total_duration = beat_duration * 4 * bar_count  # 1 bar = 4 beats
+        chunk_duration = total_duration / (16 * bar_count)
 
         # 1秒あたりのフレーム数を推定
         fps = len(frequency) / total_duration
@@ -69,8 +70,9 @@ def analyze_pitch():
         skip = int(frames_per_chunk * 0.1)
         margin = 0.05  # RMS計算のための50msのマージン作成(しゃくり除去)
 
+        total_chunks = 16 * bar_count
         # 各チャンクに対してピッチとRMSを計算し、信頼度に基づいて rest か note を判定
-        for i in range(8):
+        for i in range(total_chunks):
             original_start = i * frames_per_chunk
             original_end = (i + 1) * frames_per_chunk
             start = original_start
@@ -104,6 +106,7 @@ def analyze_pitch():
                 confidence_rms_score = 0.0
                 segments.append({
                     "label": "rest",
+                    "note": "rest",
                     "hz": 0.0,
                     "confidence": 0.0,
                     "confidence_rms": float(confidence_rms_score),
@@ -118,6 +121,7 @@ def analyze_pitch():
             if confidence_rms_score < 0.03:
                 segments.append({
                     "label": "rest",
+                    "note": "rest",
                     "hz": 0.0,
                     "confidence": float(confidence_rms_score),
                     "confidence_rms": float(confidence_rms_score),
@@ -129,8 +133,10 @@ def analyze_pitch():
                 log_freqs = np.log2(freqs)
                 log_weighted_avg = np.average(log_freqs, weights=weights)
                 avg_pitch = 2 ** log_weighted_avg
+                note_name = librosa.hz_to_note(avg_pitch).replace('♯', '#').replace('＃', '#')
                 segments.append({
-                    "label": librosa.hz_to_note(avg_pitch),
+                    "label": note_name,
+                    "note": note_name,
                     "hz": float(avg_pitch),
                     "confidence": float(segment_conf[peak_index]),
                     "confidence_rms": float(confidence_rms_score),

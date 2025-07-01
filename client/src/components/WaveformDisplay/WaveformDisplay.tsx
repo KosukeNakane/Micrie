@@ -2,24 +2,40 @@
 // 録音やループ再生、プレイヘッド移動、セグメントの可視化処理を統合
 import { useState, useEffect, useRef } from 'react';
 
-import * as Tone from 'tone';
+import { useAudioBuffer } from '../../hooks/useAudioBuffer';
+import { useSegment } from '../../context/SegmentContext';
+
 import styled from '@emotion/styled';
 
-import { useAudioBuffer } from '../../hooks/useAudioBuffer';
 import { useTempo } from '../../context/TempoContext';
 import { useAnalyser } from '../../hooks/useAnalyser';
-import { useDrumLoop } from '../../hooks/useDrumLoop';
-import { useMelodyLoop } from '../../hooks/useMelodyLoop';
+
+import { useDrumLoopScheduler } from '../../hooks/useDrumLoopScheduler';
+import { useMelodyLoopScheduler } from '../../hooks/useMelodyLoopScheduler';
+import { useChordLoopScheduler } from '../../hooks/useChordsLoopScheduler';
 
 import { useRecording } from '../../context/RecordingContext';
 import { useRecordingUI } from '../../context/RecordingUIContext';
-import { useSegment } from '../../context/SegmentContext';
+import { useBarCount } from '../../context/BarCountContext';
+import { useCountBarsAndBeats } from '../../context/CountBarsAndBeatsContext';
+
+import { RecordingBeatIndicator } from './RecordingBeatIndicator';
+import { RhythmSegmentEditor } from '../SegmentEditors/RhythmSegmentEditor';
+import MelodySegmentEditor from '../SegmentEditors/MelodySegmentEditor';
 
 import { WaveformViewer } from './WaveformViewer';
 import { RectButton } from '../shared/RectButton';
 import { StyledArea } from '../shared/StyledArea';
 
-import { playAudio } from '../../utils/playAudio';
+import TempoControlButton from '../ControlPanel/TempoControlButton';
+
+
+
+import { usePlaybackController } from '../../hooks/usePlaybackController';
+
+
+import { ChordPatternSelect } from './ChordPatternSelect';
+import { DrumPatternSelect } from './DrumPatternSelect';
 
 export const CenteredArea = styled(StyledArea)`
   flex-direction: column;
@@ -27,13 +43,26 @@ export const CenteredArea = styled(StyledArea)`
   margin: 20px auto;
 `;
 
-const WaveformArea = styled(StyledArea)`
+const WaveformArea = styled(StyledArea)<{ isRed: boolean }>`
   position: relative;
   height: 150px;
   overflow: hidden;
-  width: 90%;
+  box-sizing: border-box;
+  width: 100%;
   max-width: 600px;
-  margin: 0px auto;
+  margin: 0 auto;
+  background-color: ${({ isRed }) => (isRed ? 'rgba(255, 0, 0, 0.2)' : 'transparent')};
+  transition: none;
+`;
+
+const BarWaveformContainer = styled(StyledArea)`
+  position: relative;
+  height: 180px;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  align-items: flex-start;
 `;
 
 const SegmentLabel = styled(StyledArea)`
@@ -41,116 +70,55 @@ const SegmentLabel = styled(StyledArea)`
   top: 0;
   background: linear-gradient(135deg,rgba(255, 248, 56, 0.76),rgb(255, 210, 97));
   font-family: "brandon-grotesque", sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   padding: 0px 4px;
   border-radius: 4px;
-  z-index: 4;
-`;
-
-const ButtonArea = styled.div`
-  height: 40px;
-  display: flex;
-  padding: 2px;
-  text-align: center;
-  gap: 8px;
-`;
-
-const PlaybackButton = styled(RectButton)`
-  padding: 8px 16px;
-  font-weight: bold;
-  font-size: 14px;
-`;
-
-const CustomDrumButton = styled(PlaybackButton)`
-  margin-left: 8px;
-`;
-const Playhead = styled.div<{ x: number }>`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: ${({ x }) => `${x}px`};
-  width: 2px;
-  background: linear-gradient(135deg,rgba(255, 159, 56, 0.76),rgb(255, 97, 97));
-  z-index: 2;
-`;
-
-const GuideLine = styled.div<{ left: number }>`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: ${({ left }) => `${left}px`};
-  width: 1px;
-  border-left: 1px dashed #888;
-  pointer-events: none;
-  z-index: 1;
+  z-index: 10;
 `;
 
 type Props = {
   audioBlob: Blob | null;
 };
 export const WaveformDisplay = ({audioBlob}: Props) => {
+
+  const [tempoControlOpen, setTempoControlOpen] = useState(false);
+
+  const {currentBar, currentBeat}= useCountBarsAndBeats();
+
   // セグメントとループモードの状態管理
-  const { currentSegments, loopMode, setLoopMode, rhythmSegments, melodySegments } = useSegment();
+  const {
+    currentSegments,
+    loopMode,
+    // setLoopMode,
+    rhythmSegments,
+    melodySegments,
+    audioBuffers,
+  } = useSegment();
   // 録音状態の取得
   const { isRecording } = useRecording();
   const canvasRef = useAnalyser(); 
   const { tempo } = useTempo();
-  const { isPlaying, setIsPlaying, playheadX, setPlayheadX, setIsDrawing, isDrawing } = useRecordingUI();
-  const [isLooping, setIsLooping] = useState(false);
+  const { setIsDrawing, isDrawing } = useRecordingUI();
+  // コード進行のループ再生制御
+  useChordLoopScheduler(false); // 常にfalse
+  useDrumLoopScheduler();
+  useMelodyLoopScheduler();
 
-  const { startRhythm, stopRhythm } = useDrumLoop();
+  const { loopPlay, stop, isLoopPlaying } = usePlaybackController();
 
-  const { playMelody, stopMelody } = useMelodyLoop();
-
-  // PLAY/STOPボタンによる音声再生の切り替え処理
-  const togglePlay = () => {
-    if (!audioBuffer) return;
-  
-    if (!isPlaying) {
-      const canvasWidth = 600;
-      const startTime = (startX / canvasWidth) * audioBuffer.duration;
-      const endTime = (endX / canvasWidth) * audioBuffer.duration;
-  
-      playAudio(audioBuffer, startTime, endTime);
-    }
-  
-    setIsPlaying((prev) => !prev);
-  };
-
-  // LOOPボタンによるループ再生の切り替え処理
-  const toggleLoop = () => {
-    if (!isLooping) {
-      if (loopMode === 'rhythm') {
-        startRhythm();
-        Tone.getTransport().start();
-      } else if (loopMode === 'melody') {
-        playMelody();
-        Tone.getTransport().start();
-      } else if (loopMode === 'both') {
-        startRhythm();
-        playMelody();
-        Tone.getTransport().start();
-      }
-    } else {
-      if (loopMode === 'rhythm') {
-        stopRhythm();
-        Tone.getTransport().stop();   
-        Tone.getTransport().cancel(); 
-      } else if (loopMode === 'melody') {
-        stopMelody();
-        Tone.getTransport().stop();   
-        Tone.getTransport().cancel(); 
-      } else if (loopMode === 'both') {
-        stopRhythm();
-        stopMelody();
-        Tone.getTransport().stop();   
-        Tone.getTransport().cancel(); 
-      }
-    }
-    setIsLooping(!isLooping);
-  };
+  const { barCount } = useBarCount(); 
 
   const audioBuffer = useAudioBuffer(audioBlob);
+
+  useEffect(() => {
+    if (!audioBuffer) return;
+
+    if (loopMode === 'rhythm') {
+      audioBuffers.rhythm = audioBuffer;
+    } else if (loopMode === 'melody') {
+      audioBuffers.melody = audioBuffer;
+    }
+  }, [audioBuffer, loopMode, audioBuffers]);
 
 
   const [startX, setStartX] = useState(0);
@@ -166,52 +134,25 @@ export const WaveformDisplay = ({audioBlob}: Props) => {
     tempoRef.current = tempo;
   }, [tempo]);
 
-  const startTimeRef = useRef<number | null>(null);
-  const animationRef = useRef<number | null>(null);
+  // Color toggling effect in sync with tempo
+  const [isRed, setIsRed] = useState(false);
 
-  // 再生・録音中にプレイヘッドをアニメーションさせる処理
   useEffect(() => {
-    if (!isPlaying && !isRecording) {
-      if (animationRef.current !== null) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
-      setPlayheadX(0);
+    if (!isRecording) {
+      setIsRed(false);
       return;
     }
 
-    startTimeRef.current = performance.now();
-    const duration = (240 / tempoRef.current) * 1000;
+    setIsRed(true); // Start with red
 
-    const animate = (now: number) => {
-      if (!isPlaying && !isRecording) {
-        setPlayheadX(0);
-        return;
-      }
+    const interval = (60 / tempoRef.current) * 1000;
+    const timer = setInterval(() => {
+      setIsRed(prev => !prev);
+    }, interval);
 
-      const elapsed = now - (startTimeRef.current ?? now);
-      const progress = elapsed / duration;
-      const rangeX = endX - startX;
-      const x = startX + progress * rangeX;
-      setPlayheadX(x);
+    return () => clearInterval(timer);
+  }, [tempo, isRecording]);
 
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animate);
-      } else {
-        setIsPlaying(false);
-        setPlayheadX(0);
-      }
-    };
-
-    animationRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationRef.current !== null) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
-    };
-  }, [isPlaying, isRecording, tempo, audioBuffer, startX, endX]);
 
   // コンポーネントマウント時にcanvas幅とleft位置を取得
   useEffect(() => {
@@ -251,28 +192,64 @@ export const WaveformDisplay = ({audioBlob}: Props) => {
     };
   }, [dragging, startX, endX]);
 
-  // 録音停止時に再生状態と描画状態を初期化
-  useEffect(() => {
-  }, [isRecording]);
 
 // 録音停止時に再生状態と描画状態を初期化
 useEffect(() => {
   if (!isRecording) {
-    console.log()
-    setPlayheadX(0);
-    startTimeRef.current = null;
     setIsDrawing(false);
   }
-}, [isRecording, setIsDrawing, setPlayheadX]);
+}, [isRecording, setIsDrawing]);
+
+// currentBuffer更新時に自動で波形描画
+const { currentBuffer } = useSegment();
+useEffect(() => {
+  if (canvasRef.current && currentBuffer) {
+    setIsDrawing(true);
+  }
+}, [currentBuffer]);
+
 
   return (
     <CenteredArea>
-      <WaveformArea ref={waveformRef}>
+      <RecordingBeatIndicator currentBar={currentBar} currentBeat={currentBeat} />
+
+
+
+
+
+
+     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+
+      <ChordPatternSelect/>
+
+      <DrumPatternSelect/>
+
+     </div>
+
+     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '8px' }}>
+       <div style={{ display: 'flex', justifyContent: 'center', width: '160px' }}>
+         <RectButton
+           onClick={isLoopPlaying ? stop : loopPlay}
+           label={isLoopPlaying ? '■ Stop Music' : '▶︎ Play Music'}
+         />
+       </div>
+       <div style={{ display: 'flex', justifyContent: 'center', width: '160px' }}>
+         <TempoControlButton
+           isOpen={tempoControlOpen}
+           onToggle={() => setTempoControlOpen((prev) => !prev)}
+         />
+       </div>
+     </div>
+
+
+      {/* リアルタイム録音の波形表示エリア */}
+      <WaveformArea ref={waveformRef} isRed={isRed}>
+        {/* リアルタイム録音の波形 */}
         {isDrawing && (
           <canvas
             ref={canvasRef}
             width={canvasWidth}
-            height={150}
+            height={160}
             style={{
               position: 'absolute',
               top: 0,
@@ -281,82 +258,93 @@ useEffect(() => {
             }}
           />
         )}
-        {audioBuffer && <WaveformViewer audioBuffer={audioBuffer} />}
-       
-        {Array.from({ length: 7 }).map((_, i) => (
-         <GuideLine key={i} left={(canvasWidth / 8) * (i + 1)} />
-        ))}
-
-        {/* Labelの描画 */}
-        {loopMode === 'both' ? (
-          <>
-            {rhythmSegments.map((seg, i) => {
-              const x = Math.floor((i / 8) * canvasWidth);
-              return (
-                <SegmentLabel
-                  key={`rhythm-${seg.label}-${i}`}
-                  style={{ left: `${x}px`, top: `-10px` }}
-                >
-                  {seg.label}
-                </SegmentLabel>
-              );
-            })}
-            {melodySegments.map((seg, i) => {
-              const x = Math.floor((i / 8) * canvasWidth);
-              return (
-                <SegmentLabel
-                  key={`melody-${seg.label}-${i}`}
-                  style={{ left: `${x}px`, top: `15px` }}
-                >
-                  {seg.label}
-                </SegmentLabel>
-              );
-            })}
-          </>
-        ) : (
-          <>
-            {currentSegments.rhythm?.map((seg, i) => {
-              const x = Math.floor((i / 8) * canvasWidth);
-              return (
-                <SegmentLabel
-                  key={`rhythm-${seg.label}-${i}`}
-                  style={{ left: `${x}px`, top: `-10px` }}
-                >
-                  {seg.label}
-                </SegmentLabel>
-              );
-            })}
-            {currentSegments.melody?.map((seg, i) => {
-              const x = Math.floor((i / 8) * canvasWidth);
-              return (
-                <SegmentLabel
-                  key={`melody-${seg.label}-${i}`}
-                  style={{ left: `${x}px`, top: `-10px` }}
-                >
-                  {seg.label}
-                </SegmentLabel>
-              );
-            })}
-          </>
-        )}
-        <Playhead x={playheadX}/>
       </WaveformArea>
-      <ButtonArea>
-        <PlaybackButton
-          onClick={togglePlay}
-          label={isPlaying ? '■ STOP' : '▶︎ PLAY'}
-        />
-        <CustomDrumButton
-          onClick={toggleLoop}
-          label={isLooping ? '■ STOP' : '▶︎ LOOP'}
-        />
-        
-      </ButtonArea>
-      <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-        <RectButton onClick={() => setLoopMode('rhythm')} label="RHYTHM LOOP" />
-        <RectButton onClick={() => setLoopMode('melody')} label="MELODY LOOP" />
-        <CustomDrumButton onClick={() => setLoopMode('both')} label="BOTH LOOP" />
-      </div>
+
+      {/* 解析結果を1小節ごとに縦に並べて表示 */}
+      {audioBuffer &&
+        Array.from({ length: barCount }).map((_, barIndex) => (
+         <div style={{height: '220px' }}>  
+          <BarWaveformContainer key={barIndex}>
+            {/* Labelの描画 */}
+            {loopMode === 'both' ? (
+              <>
+                {/* 1小節分のラベル表示 (16分割) */}
+                {rhythmSegments
+                  .slice(barIndex * 16, barIndex * 16 + 16)
+                  .map((seg, i) => {
+                    const x = Math.floor((i / 16) * canvasWidth);
+                    return (
+                      seg.label !== 'rest' && (
+                        <SegmentLabel
+                          key={`rhythm-${seg.label}-${barIndex * 16 + i}`}
+                          style={{ left: `${x}px`, top: `-10px` }}
+                        >
+                          {seg.label}
+                        </SegmentLabel>
+                      )
+                    );
+                  })}
+                {melodySegments
+                  .slice(barIndex * 16, barIndex * 16 + 16)
+                  .map((seg, i) => {
+                    const x = Math.floor((i / 16) * canvasWidth);
+                    return (
+                      seg.label !== 'rest' && (
+                        <SegmentLabel
+                          key={`melody-${seg.label}-${barIndex * 16 + i}`}
+                          style={{ left: `${x}px`, top: `65px` }}
+                        >
+                          {seg.label}
+                        </SegmentLabel>
+                      )
+                    );
+                  })}
+              </>
+            ) : (
+              <>
+                {currentSegments.rhythm?.slice(barIndex * 16, barIndex * 16 + 16)
+                  .map((seg, i) => {
+                    const x = Math.floor((i / 16) * canvasWidth);
+                    return (
+                      seg.label !== 'rest' && (
+                        <SegmentLabel
+                          key={`rhythm-${seg.label}-${barIndex * 16 + i}`}
+                          style={{ left: `${x}px`, top: `-10px` }}
+                        >
+                          {seg.label}
+                        </SegmentLabel>
+                      )
+                    );
+                  })}
+                {currentSegments.melody?.slice(barIndex * 16, barIndex * 16 + 16)
+                  .map((seg, i) => {
+                    const x = Math.floor((i / 16) * canvasWidth);
+                    return (
+                      seg.label !== 'rest' && (
+                        <SegmentLabel
+                          key={`melody-${seg.label}-${barIndex * 16 + i}`}
+                          style={{ left: `${x}px`, top: `-10px` }}
+                        >
+                          {seg.label}
+                        </SegmentLabel>
+                      )
+                    );
+                  })}
+              </>
+            )}
+
+            <WaveformViewer barIndex={barIndex} totalBars={barCount} />
+            <div style={{ position: 'absolute', zIndex: 5,top: 0,display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {(loopMode === 'rhythm' || loopMode === 'both') && (
+                <RhythmSegmentEditor barIndex={barIndex} />
+              )}
+              {(loopMode === 'melody' || loopMode === 'both') && (
+                <MelodySegmentEditor barIndex={barIndex} width={canvasWidth} />
+              )}
+            </div>
+             </BarWaveformContainer>
+         </div>
+        ))}
     </CenteredArea>
   );
 };

@@ -1,16 +1,24 @@
 // アプリの主コンテンツを構成するコンポーネント
-// 録音、再生、リアルタイムラベル表示、分析結果表示などの要素を統合
+// 録音、再生、リアルタイムラベル表示、解析結果表示などの要素を統合
+
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import { TopNav } from "./shared/TopNav.tsx";
+import { useState } from "react";
+import { TopNav } from "./TopNav.tsx";
 import { ModeAndRecGroup } from "./ModeAndRecGroup/ModeAndRecGroup.tsx";
 import { ControlPanel } from "./ControlPanel/ControlPanel.tsx";
 import { WaveformDisplay } from "./WaveformDisplay/WaveformDisplay.tsx";
-import { AnalysisResult } from "./Analysis/AnalysisResult.tsx"; 
 import { RealtimeLabel } from "./RealtimeLabel/RealtimeLabel.tsx";
 import { useAudioRecorder } from "../hooks/useAudioRecorder";
 import { useTempo } from "../context/TempoContext.tsx";
-import { ModeToggleButtons } from "./ModeToggleButtons/ModeToggleButtons.tsx";
+
+
+
+import { RectButton } from "./shared/RectButton.tsx";
+
+import { useMelodyFileProcessing } from "../hooks/useMelodyFileProcessing";
+
+import { DeveloperToolsPanel } from "./DeveloperToolsPanel/DeveloperToolsPanel.tsx";
 
 export const AppContent = () => {
 
@@ -23,6 +31,14 @@ export const AppContent = () => {
 
   // テンポ（BPM）を取得するカスタムフック
   const { tempo } = useTempo(); 
+
+
+  const [trimmingEnabled, setTrimmingEnabled] = useState(false);
+  const [showDeveloperTools, setShowDeveloperTools] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [devAudioBlob, setDevAudioBlob] = useState<Blob | null>(null);
+
+  const { trimmedBlob } = useMelodyFileProcessing(devAudioBlob, undefined, trimmingEnabled);
 
   // ガラス風背景スタイル（ブラーと透過を含む）
   const backgroundStyle = css`
@@ -47,17 +63,40 @@ export const AppContent = () => {
   // 各UIコンポーネントを順にレンダリング
   return (
       <div css={backgroundStyle}>
-        <RealtimeLabel label = {realtimeLabel} /> 
+        <RealtimeLabel label={realtimeLabel} /> 
         <TopNav />
         <ModeAndRecGroup
           onToggleRecording={handleToggleRecording}
         />
         <WaveformDisplay 
-          audioBlob={audioBlob} 
+          audioBlob={trimmedBlob ?? devAudioBlob ?? audioBlob}
         />
         <ControlPanel />      
-        <ModeToggleButtons/>      
-        <AnalysisResult /> 
+
+        <RectButton
+          onClick={() => setShowDeveloperTools((prev) => !prev)}
+          label={showDeveloperTools ? "▴ Close Developer Tools" : "▾ Open Developer Tools"}
+        />
+
+      {showDeveloperTools && (
+        <DeveloperToolsPanel
+          tempo={tempo}
+          isPlaying={isPlaying}
+          setIsPlaying={setIsPlaying}
+          devAudioBlob={devAudioBlob}
+          setDevAudioBlob={setDevAudioBlob}
+          trimmingEnabled={trimmingEnabled}
+          setTrimmingEnabled={setTrimmingEnabled}
+        />
+      )}
+
+      <div style={{ 
+        display: "flex", 
+        gap: "16px",
+        margin: "20px", 
+        }}>
+      </div>
+
       </div>
   );
 };

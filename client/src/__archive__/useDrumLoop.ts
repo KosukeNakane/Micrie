@@ -1,3 +1,6 @@
+//現在未使用　Tone.jsでメロディーを再生する
+//client/src/hooks/useDrumLoop.ts
+
 // ドラムループの再生を管理するカスタムフック。
 // 現在のテンポとセグメント情報に基づき、kick/snare/hihatをTone.jsで繰り返し再生する。
 
@@ -15,7 +18,7 @@ export const useDrumLoop = () => {
   const synthRef = useRef<{
     kick: Tone.MembraneSynth;
     snare: Tone.NoiseSynth;
-    hihat: Tone.MetalSynth;
+    hihat: Tone.NoiseSynth;
   } | null>(null);
 
   const scheduleIdRef = useRef<number | null>(null);
@@ -94,30 +97,16 @@ export const useDrumLoop = () => {
   const startRhythm = async () => {
     if (!synthRef.current) {
       await Tone.start();
-      const hihatOptions = {
-        frequency: 400,
-        envelope: {
-          attack: 0.001,
-          decay: 0.1,
-          sustain: 0.0,
-          release: 0.8,
-          attackCurve: "exponential",
-          releaseCurve: "exponential",
-          decayCurve: "exponential"
-        },
-        harmonicity: 5.1,
-        modulationIndex: 32,
-        resonance: 4000,
-        octaves: 1.5
-      } as unknown as Tone.MetalSynthOptions;
-
       synthRef.current = {
         kick: new Tone.MembraneSynth().toDestination(),
         snare: new Tone.NoiseSynth({
           noise: { type: 'white' },
           envelope: { attack: 0.001, decay: 0.1, sustain: 0 }
         }).toDestination(),
-        hihat: new Tone.MetalSynth(hihatOptions).toDestination()
+        hihat: new Tone.NoiseSynth({
+          noise: { type: 'white' },
+          envelope: { attack: 0.0001, decay: 0.02, sustain: 0 }
+        }).toDestination()
       };
     }
 

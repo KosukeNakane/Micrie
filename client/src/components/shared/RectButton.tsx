@@ -1,5 +1,6 @@
 // スタイリング済みの長方形ボタンコンポーネント
 // active 状態や柔軟なレイアウト制御に対応
+
 import styled from '@emotion/styled';
 
 // active 状態と flexGrow に応じてスタイルが変化するカスタムボタン
@@ -7,10 +8,11 @@ export const StyledButton = styled.button<{
   active?: boolean;
   flexGrow?: number | string;
 }>`
+  box-sizing: border-box;
   font-family: "brandon-grotesque", sans-serif;
   font-weight: 500;
   font-style: normal;
-  font-size: ${({ active }) => (active ? '13px' : '14px')};
+  font-size:14px;
   flex: ${({ flexGrow }) => flexGrow ?? '0 1 auto'};
   background: ${({ active }) =>
     active
@@ -32,6 +34,10 @@ export const StyledButton = styled.button<{
     ${({ active }) =>
       !active &&
       `background: linear-gradient(135deg, rgba(172, 203, 229, 0.45), rgba(165, 178, 220, 0.74));`}
+  }
+
+  &:active {
+    transform: scale(0.96);
   }
 `;
 

@@ -1,4 +1,5 @@
-// WhisperまたはTeachableの分析モードを管理するコンテキスト
+// WhisperまたはTeachableの解析モードを管理するコンテキスト
+
 import React, { createContext, useContext, useState } from 'react';
 
 export type AnalysisMode = 'whisper' | 'keras';
@@ -9,7 +10,7 @@ const AnalysisModeContext = createContext<{
 } | null>(null);
 
 export const AnalysisModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // デフォルトでkerasモードを使用
+  // 解析モード（'whisper' または 'keras'）の状態を管理（初期値は 'keras'）
   const [Amode, setAmode] = useState<AnalysisMode>('keras');
 
   return (
@@ -19,7 +20,6 @@ export const AnalysisModeProvider: React.FC<{ children: React.ReactNode }> = ({ 
   );
 };
 
-// コンテキストを呼び出すカスタムフック。Provider外で使うとエラーを投げる
 export const useAnalysisMode = () => {
   const context = useContext(AnalysisModeContext);
   if (!context) {

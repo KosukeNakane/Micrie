@@ -1,8 +1,9 @@
 // アプリ画面上部に表示されるナビゲーションバーコンポーネント
 // 現在のタブ状態を管理し、RectButton で切り替え表示する
+
 import styled from '@emotion/styled';
 import { useState } from 'react';
-import { RectButton } from './RectButton';
+import { RectButton } from './shared/RectButton';
 
 // ナビゲーション全体のスタイリング。ガラス風背景・丸み・影付き
 const NavWrapper = styled.div`

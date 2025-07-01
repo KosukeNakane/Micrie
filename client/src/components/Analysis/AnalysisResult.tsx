@@ -1,4 +1,5 @@
-// MelodyセグメントとRhythmセグメントを統合し、分析結果を一覧表示するコンポーネント
+// MelodyセグメントとRhythmセグメントを統合し、解析結果を一覧表示するコンポーネント
+
 import { useState } from 'react';
 import { useSegment } from '../../context/SegmentContext';
 import { RectButton } from '../shared/RectButton';
@@ -8,9 +9,6 @@ export const AnalysisResult = () => {
   const { melodySegments, rhythmSegments } = useSegment();
   // 2つのセグメント配列を結合して1つのリストにまとめる
   const segments = [...melodySegments, ...rhythmSegments];
-
-  // セグメントが存在しない場合は表示をスキップ
-  // if (!segments || segments.length === 0) return null;
 
   const [showResults, setShowResults] = useState(false);
   const toggleResults = () => setShowResults((prev) => !prev);
@@ -23,7 +21,7 @@ export const AnalysisResult = () => {
       />
       {showResults && (
         <div style={{ marginTop: '20px' }}>
-          <h3>分析結果（Melody + Rhythm）:</h3>
+          <h3>解析結果（Melody + Rhythm）:</h3>
           {/* 各セグメントの属性を整形して表示（存在する属性のみ条件付きで表示） */}
           {segments.map((seg, index) => (
             <p key={index}>

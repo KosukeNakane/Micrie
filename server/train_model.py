@@ -43,6 +43,11 @@ def extract_features_from_y(y, sr):
     total_energy = np.mean(S)
     high_energy_ratio = high_energy / (total_energy + 1e-6)  # 0割防止
 
+    # 低域エネルギー（kick補強用）: 0〜250Hz帯域
+    low_freq_mask = freqs <= 250
+    low_energy = np.mean(S[low_freq_mask, :])
+    low_energy_ratio = low_energy / (total_energy + 1e-6)
+
     # 平均・標準偏差等でベクトル化
     features = np.concatenate([
         np.mean(mfccs, axis=1),
@@ -65,6 +70,7 @@ def extract_features_from_y(y, sr):
         np.std(contrast, axis=1),
         np.array([high_energy_ratio]).flatten(),
         np.array([spectral_flux]).flatten(),
+        np.array([low_energy_ratio]).flatten(),  # ★ 追加
         np.mean(chroma, axis=1),
         np.std(chroma, axis=1)
     ])
@@ -94,9 +100,15 @@ for idx, label in enumerate(CATEGORIES):
                 y_audio, sr = librosa.load(path, sr=16000)
                 rms_max = np.max(librosa.feature.rms(y=y_audio))
                 # RMS（音量）が小さい場合は無音と判定し、noiseとして扱う
-                if rms_max < 0.01:
-                    print("🔇 無音と判断: noise特徴量を返します")
-                    features = np.zeros(104)
+                if label == "kick" and rms_max < 0.007:
+                    print("🔇 Kick無音と判断 → noise特徴量")
+                    features = np.zeros(105)
+                    X.append(features)
+                    y.append(idx)
+                    continue
+                elif rms_max < 0.01:
+                    print("🔇 無音と判断 → noise特徴量")
+                    features = np.zeros(105)
                     X.append(features)
                     y.append(idx)
                     continue  # 拡張はスキップ
@@ -185,6 +197,9 @@ def predict(file_path, model, tempo):
                 "adjustedStart": round(adjusted_start, 4),
                 "scores": [0, 0, 0, 1]
             })
+            features = np.zeros(105)
+            features_list.append(features)
+            adjusted_starts.append(adjusted_start)
             continue
 
         features = extract_features_from_y(y_chunk, sr)
@@ -209,7 +224,7 @@ def predict(file_path, model, tempo):
                 "label": label_names[predicted_labels[j]],
                 "start": round(chunk_start, 2),
                 "end": round(chunk_end, 2),
-                "adjustedStart": round(adjusted_starts[j], 4),  # スナップ後の分析開始位置を追加
+                "adjustedStart": round(adjusted_starts[j], 4),  # スナップ後の解析開始位置を追加
                 "scores": [round(score, 6) for score in predictions[j].tolist()]
             })
             j += 1

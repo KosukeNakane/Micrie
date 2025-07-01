@@ -18,7 +18,7 @@ whisper_model = whisper.load_model("tiny")
 print("✅ Whisper モデル読み込み完了")
 
 # --------------------------
-# Whisperによる分析
+# Whisperによる解析
 # --------------------------
 # 音声ファイルを受け取り、Whisperでテキストに変換して返すエンドポイント
 @whisper_bp.route("/analyze_whisper", methods=["POST"])
@@ -44,6 +44,7 @@ def analyze():
     file = request.files["file"]
     # テンポから1小節の長さを計算し、8分割されたチャンクの長さを求める
     tempo = float(request.form.get("tempo", 120))  # default tempo = 120
+    bar_count = int(request.form.get("bar_count", 1))  # default 1 bar
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as tmp_webm:
         file.save(tmp_webm.name)
@@ -54,8 +55,8 @@ def analyze():
         ffmpeg.input(webm_path).output(wav_path).run(quiet=True, overwrite_output=True)
 
         beat_duration = 60.0 / tempo
-        total_duration = beat_duration * 4  # 1小節
-        chunk_duration = total_duration / 8  # 八分音符ごとに分割
+        total_duration = beat_duration * 4 * bar_count  # 小節数に応じた全体時間
+        chunk_duration = total_duration / (8 * bar_count)  # 各チャンクの長さ
 
         # Whisperが出力した文字列に対してキック・スネア・ハイハットを識別するためのキーワード群
         kick_keywords = ["ボ", "ぼ", "ぶ", "ブ", "ダ", "だ", "ド", "ど", "デ", "で", "B"]
@@ -64,8 +65,8 @@ def analyze():
 
         segments = []
 
-        # 音声を8分割し、それぞれをWhisperで文字起こしして分類する
-        for i in range(8):
+        # 音声を(8*bar_count)分割し、それぞれをWhisperで文字起こしして分類する
+        for i in range(8 * bar_count):
             start = i * chunk_duration
             end = start + chunk_duration
             chunk_path = wav_path.replace(".wav", f"_chunk{i}.wav")

@@ -9,6 +9,22 @@ import { ModeProvider } from './context/ModeContext';
 import { RecordingProvider } from './context/RecordingContext';
 import { RecordingUIProvider } from './context/RecordingUIContext';
 import { SegmentProvider } from './context/SegmentContext';
+import { BarCountProvider } from './context/BarCountContext';
+import { ScaleModeProvider } from './context/ScaleModeContext';
+import { CountBarsAndBeatsProvider } from './context/CountBarsAndBeatsContext';
+import { ChordPatternProvider } from './context/ChordPatternContext';
+import { DrumPatternProvider } from './context/DrumPatternContext';
+import { createSystem, defineConfig, defaultConfig, ChakraProvider } from "@chakra-ui/react";
+
+const config = defineConfig({
+  globalCss: {
+    "html, body": {
+      bg: "gray.100",
+      color: "gray.800",
+    },
+  },
+});
+const system = createSystem(defaultConfig, config);
 
 export const App = () => {
 
@@ -42,19 +58,31 @@ export const App = () => {
    <div css={backgroundStyle} />
    <div css={contentStyle}>
     {/* アプリ全体に渡す状態管理のコンテキストプロバイダー群 + AppContent */}
+    <ChakraProvider value={system}>
     <AnalysisModeProvider>
     <ModeProvider>
     <RecordingProvider>
-      <TempoProvider>
-      <RecordingUIProvider>
-      <SegmentProvider> 
-        <AppContent/>
-      </SegmentProvider> 
-      </RecordingUIProvider>
-      </TempoProvider>
+    <TempoProvider>
+    <RecordingUIProvider>
+    <SegmentProvider> 
+    <BarCountProvider>
+    <ScaleModeProvider>
+    <CountBarsAndBeatsProvider>
+    <ChordPatternProvider>
+    <DrumPatternProvider>
+      <AppContent/>
+    </DrumPatternProvider>
+    </ChordPatternProvider>
+    </CountBarsAndBeatsProvider>
+    </ScaleModeProvider>
+    </BarCountProvider>
+    </SegmentProvider> 
+    </RecordingUIProvider>
+    </TempoProvider>
     </RecordingProvider>
     </ModeProvider>
     </AnalysisModeProvider>
+    </ChakraProvider>
    </div>
   </div>
  );

@@ -1,9 +1,11 @@
-// Teachable Machine で学習した音声認識モデルを使用して、発話ラベルをリアルタイムで取得するカスタムフック
+// RYHTHMモードにて、Teachable Machine で学習した音声認識モデルを使用して、発話ラベルをリアルタイムで取得するカスタムフック
 // 認識されたラベルは state として返される
+
 import { useEffect, useState } from "react";
 import * as speechCommands from "@tensorflow-models/speech-commands";
 import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-backend-webgl';
+
 
 export const useTeachableModel = () => {
   const [label, setLabel] = useState<string | null>(null);

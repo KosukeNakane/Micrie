@@ -1,4 +1,5 @@
 // 現在認識されている音声ラベルを画面右上に表示するコンポーネント
+
 import styled from '@emotion/styled';
 import { useMode } from "../../context/ModeContext";
 

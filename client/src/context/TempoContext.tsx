@@ -1,4 +1,6 @@
 // テンポ（BPM）の状態を管理するコンテキスト
+// グローバルにテンポの取得・更新を可能にするためのProviderとHookを提供する
+
 import React, { createContext, useContext, useState } from 'react';
 
 const TempoContext = createContext<{
@@ -7,8 +9,8 @@ const TempoContext = createContext<{
 } | null>(null);
 
 export const TempoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 初期値80でテンポ（BPM）を管理するState
-  const [tempo, setTempo] = useState(80); 
+  // 初期テンポは90。グローバルで管理される
+  const [tempo, setTempo] = useState(90); 
 
   return (
     <TempoContext.Provider value={{ tempo, setTempo }}>
@@ -17,7 +19,6 @@ export const TempoProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
-// テンポコンテキストを取得するカスタムフック。Provider外ではエラーを投げる
 export const useTempo = () => {
   const context = useContext(TempoContext);
   if (!context) {

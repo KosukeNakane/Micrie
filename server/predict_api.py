@@ -21,16 +21,17 @@ def extract_features(y, sr):
     print("📂 特徴抽出中（推論）")
 
     # 無音判定: RMS最大値が閾値未満ならnoiseとみなす
-    if np.max(librosa.feature.rms(y=y)) < 0.05:
-        print("🔇 無音と判断: noise特徴量を返します")
-        return np.zeros(104) 
+    rms = librosa.feature.rms(y=y)
+    print("🔍 RMS max:", np.max(rms))
+    if np.max(rms) < 0.007:
+        # print("🔇 無音と判断: noise特徴量を返します")
+        return np.zeros(105)
 
     """拡張された特徴抽出関数: MFCC(13), ΔMFCC, ZCR, RMS, Centroidなど"""
     mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
     width = min(5, mfccs.shape[1] // 2 * 2 + 1)
     delta_mfccs = librosa.feature.delta(mfccs, width=width)
     zcr = librosa.feature.zero_crossing_rate(y)
-    rms = librosa.feature.rms(y=y)
     centroid = librosa.feature.spectral_centroid(y=y, sr=sr)
     bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr)
     flatness = librosa.feature.spectral_flatness(y=y)
@@ -43,6 +44,10 @@ def extract_features(y, sr):
     high_energy = np.mean(S[high_freq_mask, :])
     total_energy = np.mean(S)
     high_energy_ratio = high_energy / (total_energy + 1e-6)
+    # 低域エネルギー比
+    low_freq_mask = freqs <= 250
+    low_energy = np.mean(S[low_freq_mask, :])
+    low_energy_ratio = low_energy / (total_energy + 1e-6)
 
     spectral_flux = np.sqrt(np.mean(np.diff(S, axis=1)**2))
     chroma = librosa.feature.chroma_stft(y=y, sr=sr)
@@ -67,11 +72,12 @@ def extract_features(y, sr):
       np.mean(contrast, axis=1),
       np.std(contrast, axis=1),
       np.array([spectral_flux]).flatten(),
-      np.array([high_energy_ratio]), 
+      np.array([high_energy_ratio]),
       np.mean(chroma, axis=1),
-      np.std(chroma, axis=1)
+      np.std(chroma, axis=1),
+      np.array([low_energy_ratio])
     ])
-    if feature_vector.shape[0] != 104:
+    if feature_vector.shape[0] != 105:
         print(f"⚠️ 特徴ベクトルの次元が不正です: {feature_vector.shape}")
     return feature_vector
 
@@ -113,6 +119,7 @@ labels = ["kick", "snare", "hihat", "noise"]
 def predict():
     file = request.files["file"]
     tempo = float(request.form.get("tempo", 120))
+    bar_count = int(request.form.get("bar_count", 1))
 
     # アップロードされたファイルを一時的に保存し、webm形式からwav形式に変換
     with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as tmp_webm:
@@ -140,28 +147,29 @@ def predict():
 
         results = []
 
-        # テンポ情報に基づいて1小節を8つのチャンクに分割する設定
+        # テンポ情報に基づいて1小節×bar_countを8×bar_count個のチャンクに分割する設定
         beat_duration = 60.0 / tempo
-        total_duration = beat_duration * 4
-        chunk_duration = total_duration / 8
+        total_duration = beat_duration * 4 * bar_count
+        chunk_duration = total_duration / (8 * bar_count)
 
         # 各チャンクについて特徴量を抽出し、推論を行う
-        for i in range(8):
+        for i in range(8 * bar_count):
             nominal_start = i * chunk_duration
             nominal_end = nominal_start + chunk_duration
-            search_start = max(0, nominal_start - chunk_duration / 2)
-            search_end = nominal_start
-
-            # スナップ対象となる onset を探索（前のみ）
-            candidate_onsets = [t for t in onset_times if search_start <= t < search_end]
-            if candidate_onsets:
-                onset = max(candidate_onsets)
-                shift = onset - nominal_start
-            else:
-                shift = 0.0
-
-            adjusted_start = nominal_start + shift
-            adjusted_end = adjusted_start + chunk_duration
+            # オンセットスナップを無効化
+            # search_start = max(0, nominal_start - chunk_duration / 2)
+            # search_end = nominal_start
+            # # スナップ対象となる onset を探索（前のみ）
+            # candidate_onsets = [t for t in onset_times if search_start <= t < search_end]
+            # if candidate_onsets:
+            #     onset = max(candidate_onsets)
+            #     shift = onset - nominal_start
+            # else:
+            #     shift = 0.0
+            # adjusted_start = nominal_start + shift
+            # adjusted_end = adjusted_start + chunk_duration
+            adjusted_start = nominal_start
+            adjusted_end = nominal_end
             y_chunk = y_full[int(sr * adjusted_start):int(sr * adjusted_end)]
             y_chunk = y_chunk[:int(len(y_chunk) * 0.9)]  # チャンクの末尾10%をカット（めり込み防止）
 
@@ -174,8 +182,8 @@ def predict():
             feature_vector = feature_vector.reshape(1, -1)
 
             try:
-                print("📐 特徴ベクトル shape:", feature_vector.shape)
-                print("🔍 モデル expected input shape:", model.input_shape)
+                # print("📐 特徴ベクトル shape:", feature_vector.shape)
+                # print("🔍 モデル expected input shape:", model.input_shape)
                 pred = model.predict(feature_vector)
                 predicted_index = np.argmax(pred[0])
             except Exception as e:

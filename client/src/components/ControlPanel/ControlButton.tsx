@@ -1,61 +1,53 @@
-// オプションのドロップダウンメニューを持つコントロールボタンコンポーネント
 import styled from '@emotion/styled';
-import { StyledButton } from '../shared/RectButton.tsx';
 
+const Container = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
 
+const StyledSelect = styled.select`
+  font-family: "brandon-grotesque", sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.87), rgb(212, 221, 240));
+  color: rgba(5, 4, 69, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  box-shadow: 0 6px 10px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(20px);
+  appearance: none;
+`;
+
+const Label = styled.label`
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "brandon-grotesque", sans-serif;
+  color: rgba(5, 4, 69, 0.8);
+`;
 type ControlButtonProps = {
-  label: string;
+  label: React.ReactNode;
   options: string[];
   isOpen: boolean;
   onToggle: () => void;
+  onSelect?: (option: string) => void;
 };
 
-// ボタンとドロップダウンを包む相対配置のラッパー
-const Wrapper = styled.div`
-  position: relative;
-  display: inline-block;
-`;
-
- 
-// オプション項目をリスト表示するドロップダウンメニュー
-const Dropdown = styled.ul`
-  position: absolute;
-  top: 100%;
-  background: white;
-  border: 2px solid black;
-  border-radius: 6px;
-  margin-top: 4px;
-  list-style: none;
-  padding: 6px;
-  width: 140%;
-  z-index: 100;
-`;
-
-// 各オプション項目のスタイルとホバー効果
-const DropdownItem = styled.li`
-  padding: 6px 12px;
-  cursor: pointer;
-  &:hover {
-    background-color: #eee;
-  }
-`;
-
-// ボタンと条件付きドロップダウン表示のコンポーネント本体
-const ControlButton = ({ label, options, isOpen, onToggle  }: ControlButtonProps) => {
- return (
-    <Wrapper>
-      {/* クリックで onToggle を呼び出しドロップダウンの開閉を切り替える */}
-      <StyledButton onClick={onToggle} active={isOpen}>{label}</StyledButton>
-      {isOpen && (
-        <Dropdown>
-          {/* オプション配列をもとにドロップダウン項目を生成 */}
-          {options.map((opt) => (
-            <DropdownItem key={opt}>{opt}</DropdownItem>
-          ))}
-        </Dropdown>
-      )}
-    </Wrapper>
- );
-};
+const ControlButton = ({ label, options, onSelect }: ControlButtonProps) => {
+  return (
+    <Container>
+      <Label>{label}</Label>
+      <StyledSelect onChange={(e) => onSelect?.(e.target.value)}>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </StyledSelect>
+    </Container>
+  );
+}
 
 export default ControlButton;
