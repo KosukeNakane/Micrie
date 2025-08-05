@@ -2,12 +2,12 @@
 // 録音状態に応じてスタイルと動作を変更する
 
 import styled from '@emotion/styled';
-import { StyledButton } from '../shared/RectButton';
-import { useRecording } from '../../context/RecordingContext';
-import { useRecordingUI } from '../../context/RecordingUIContext';
-import { useTempo } from '../../context/TempoContext';
-import { useBarCount } from '../../context/BarCountContext';
-import { useCountBarsAndBeats } from '../../context/CountBarsAndBeatsContext';
+import { StyledButton } from '../../shared/RectButton';
+import { useRecording } from '../../../context/RecordingContext';
+import { useRecordingUI } from '../../../context/RecordingUIContext';
+import { useTempo } from '../../../context/TempoContext';
+import { useBarCount } from '../../../context/BarCountContext';
+import { useCountBarsAndBeats } from '../../../context/CountBarsAndBeatsContext';
 
 // 録音状態に応じて色・影・押し込み表現が変わるスタイル付き丸型ボタン
 const CircularButton = styled(StyledButton)<{ recording: boolean }>`

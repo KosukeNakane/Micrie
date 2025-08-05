@@ -3,9 +3,9 @@
 /** @jsxImportSource @emotion/react */
 import styled from '@emotion/styled';
 import { RecButton } from './RecButton'
-import { RectButton } from '../shared/RectButton';
-import { useMode } from '../../context/ModeContext';
-import { useSegment } from '../../context/SegmentContext';
+import { RectButton } from '../../shared/RectButton';
+import { useMode } from '../../../context/ModeContext';
+import { useSegment } from '../../../context/SegmentContext';
 // import { BarSelectDropdown } from '../shared/BarSelectDropdown';
 
 type Props = {

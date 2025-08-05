@@ -1,7 +1,7 @@
 // 現在認識されている音声ラベルを画面右上に表示するコンポーネント
 
 import styled from '@emotion/styled';
-import { useMode } from "../../context/ModeContext";
+import { useMode } from "../../../context/ModeContext";
 
 // コンポーネントに渡される props の型定義（label は null または文字列）
 type Props = {

@@ -1,8 +1,8 @@
 // MelodyセグメントとRhythmセグメントを統合し、解析結果を一覧表示するコンポーネント
 
 import { useState } from 'react';
-import { useSegment } from '../../context/SegmentContext';
-import { RectButton } from '../shared/RectButton';
+import { useSegment } from '../../../context/SegmentContext';
+import { RectButton } from '../../shared/RectButton';
 
 export const AnalysisResult = () => {
   // MelodyおよびRhythmのセグメント配列をコンテキストから取得

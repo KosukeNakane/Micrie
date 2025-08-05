@@ -4,8 +4,8 @@ import RcSlider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { useState, useEffect} from 'react';
 import styled from '@emotion/styled';
-import { StyledButton } from '../shared/RectButton.tsx';
-import { useTempo } from '../../context/TempoContext';
+import { StyledButton } from '../../shared/RectButton.tsx';
+import { useTempo } from '../../../context/TempoContext';
 
 type Props = {
     isOpen: boolean;

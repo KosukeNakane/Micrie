@@ -2,7 +2,7 @@
 // UI上に「Bar: X / Beat: Y」の形式で現在位置を表示する。
 
 import React from 'react';
-import { StyledArea } from '../shared/StyledArea';
+import { StyledArea } from '../../shared/StyledArea';
 
 // コンポーネントが受け取るpropsの型定義（現在のバーとビート）
 type Props = {

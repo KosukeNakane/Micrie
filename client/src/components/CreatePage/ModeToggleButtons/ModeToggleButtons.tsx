@@ -1,7 +1,7 @@
 // 解析モード（whisper または keras）を切り替えるトグルボタンコンポーネント
 
-import { RectButton } from "../shared/RectButton";
-import { useAnalysisMode } from "../../context/AnalysisModeContext";
+import { RectButton } from "../../shared/RectButton";
+import { useAnalysisMode } from "../../../context/AnalysisModeContext";
 
 export const ModeToggleButtons = () => {
   // 現在の解析モードとその更新関数を取得

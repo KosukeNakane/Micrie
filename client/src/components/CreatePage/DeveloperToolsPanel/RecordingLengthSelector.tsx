@@ -1,7 +1,7 @@
 // 録音長さ（バー数）を選択するセレクトボックスコンポーネント。
 // グローバルなbarCount状態を使用して、選択値を変更する。
 
-import { useBarCount } from "../../context/BarCountContext";
+import { useBarCount } from "../../../context/BarCountContext";
 
 export function RecordingLengthSelector(){
 

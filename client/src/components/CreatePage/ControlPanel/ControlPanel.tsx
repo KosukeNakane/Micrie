@@ -1,7 +1,7 @@
 // テンポと雰囲気（VIBE）の調整ボタンをまとめたコントロールパネルコンポーネント
 // 各ボタンはドロップダウンメニューを持ち、トグル動作で開閉を制御
 import ControlButton from './ControlButton';
-import { useScaleMode } from '../../context/ScaleModeContext';
+import { useScaleMode } from '../../../context/ScaleModeContext';
 import { useState } from 'react';
 
 export const ControlPanel = () => {

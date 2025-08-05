@@ -2,36 +2,36 @@
 // 録音やループ再生、プレイヘッド移動、セグメントの可視化処理を統合
 import { useState, useEffect, useRef } from 'react';
 
-import { useAudioBuffer } from '../../hooks/useAudioBuffer';
-import { useSegment } from '../../context/SegmentContext';
+import { useAudioBuffer } from '../../../hooks/useAudioBuffer';
+import { useSegment } from '../../../context/SegmentContext';
 
 import styled from '@emotion/styled';
 
-import { useTempo } from '../../context/TempoContext';
-import { useAnalyser } from '../../hooks/useAnalyser';
+import { useTempo } from '../../../context/TempoContext';
+import { useAnalyser } from '../../../hooks/useAnalyser';
 
-import { useDrumLoopScheduler } from '../../hooks/useDrumLoopScheduler';
-import { useMelodyLoopScheduler } from '../../hooks/useMelodyLoopScheduler';
-import { useChordLoopScheduler } from '../../hooks/useChordsLoopScheduler';
+import { useDrumLoopScheduler } from '../../../hooks/useDrumLoopScheduler';
+import { useMelodyLoopScheduler } from '../../../hooks/useMelodyLoopScheduler';
+import { useChordLoopScheduler } from '../../../hooks/useChordsLoopScheduler';
 
-import { useRecording } from '../../context/RecordingContext';
-import { useRecordingUI } from '../../context/RecordingUIContext';
-import { useBarCount } from '../../context/BarCountContext';
-import { useCountBarsAndBeats } from '../../context/CountBarsAndBeatsContext';
+import { useRecording } from '../../../context/RecordingContext';
+import { useRecordingUI } from '../../../context/RecordingUIContext';
+import { useBarCount } from '../../../context/BarCountContext';
+import { useCountBarsAndBeats } from '../../../context/CountBarsAndBeatsContext';
 
 import { RecordingBeatIndicator } from './RecordingBeatIndicator';
 import { RhythmSegmentEditor } from '../SegmentEditors/RhythmSegmentEditor';
 import MelodySegmentEditor from '../SegmentEditors/MelodySegmentEditor';
 
 import { WaveformViewer } from './WaveformViewer';
-import { RectButton } from '../shared/RectButton';
-import { StyledArea } from '../shared/StyledArea';
+import { RectButton } from '../../shared/RectButton';
+import { StyledArea } from '../../shared/StyledArea';
 
 import TempoControlButton from '../ControlPanel/TempoControlButton';
 
 
 
-import { usePlaybackController } from '../../hooks/usePlaybackController';
+import { usePlaybackController } from '../../../hooks/usePlaybackController';
 
 
 import { ChordPatternSelect } from './ChordPatternSelect';

@@ -3,7 +3,7 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { useSegment } from "../../context/SegmentContext";
+import { useSegment } from "../../../context/SegmentContext";
 import * as Tone from "tone";
 import { TiArrowSortedUp } from "react-icons/ti";
 import { TiArrowSortedDown } from "react-icons/ti";

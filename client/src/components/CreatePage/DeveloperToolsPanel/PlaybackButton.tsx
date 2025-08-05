@@ -2,8 +2,8 @@
 // 選択されたキャンバス範囲（startX〜endX）に対応する区間を再生する。
 
 import React from 'react';
-import { RectButton } from '../shared/RectButton';
-import { useSegment } from '../../context/SegmentContext';
+import { RectButton } from '../../shared/RectButton';
+import { useSegment } from '../../../context/SegmentContext';
 
 type PlaybackButtonProps = {
   isPlaying: boolean;

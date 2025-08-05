@@ -3,7 +3,7 @@
 
 import styled from '@emotion/styled';
 import { useRef, useEffect } from 'react';
-import { useSegment } from '../../context/SegmentContext';
+import { useSegment } from '../../../context/SegmentContext';
 
 // 波形描画用のスタイル付きcanvasコンポーネント
 const Canvas = styled.canvas`

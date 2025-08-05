@@ -3,7 +3,7 @@ import { AudioFileUploader } from "./AudioFileUploader";
 import { AnalysisResult } from "../Analysis/AnalysisResult";
 import { MelodyRecButton, RhythmRecButton } from "../ModeAndRecGroup/ModeAndRecGroup";
 import { PlaybackButton } from "./PlaybackButton";
-import { BarSelectDropdown } from "../shared/BarSelectDropdown";
+import { BarSelectDropdown } from "../../shared/BarSelectDropdown";
 import { TrimmingToggle } from "./TrimmingToggle";
 import MelodyReanalysisPanel from "./MelodyReanalysisPanel";
 

@@ -4,19 +4,19 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import { useState } from "react";
-import { TopNav } from "./TopNav.tsx";
+import { TopNav } from "../TopNav.tsx";
 import { ModeAndRecGroup } from "./ModeAndRecGroup/ModeAndRecGroup.tsx";
 import { ControlPanel } from "./ControlPanel/ControlPanel.tsx";
 import { WaveformDisplay } from "./WaveformDisplay/WaveformDisplay.tsx";
 import { RealtimeLabel } from "./RealtimeLabel/RealtimeLabel.tsx";
-import { useAudioRecorder } from "../hooks/useAudioRecorder";
-import { useTempo } from "../context/TempoContext.tsx";
+import { useAudioRecorder } from "../../hooks/useAudioRecorder.ts";
+import { useTempo } from "../../context/TempoContext.tsx";
 
 
 
-import { RectButton } from "./shared/RectButton.tsx";
+import { RectButton } from "../shared/RectButton.tsx";
 
-import { useMelodyFileProcessing } from "../hooks/useMelodyFileProcessing";
+import { useMelodyFileProcessing } from "../../hooks/useMelodyFileProcessing.ts";
 
 import { DeveloperToolsPanel } from "./DeveloperToolsPanel/DeveloperToolsPanel.tsx";
 

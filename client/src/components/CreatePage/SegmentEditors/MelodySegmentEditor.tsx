@@ -2,8 +2,8 @@ import React, { useMemo } from "react";
 import styled from "@emotion/styled";
 import { TiArrowSortedUp } from "react-icons/ti";
 import { TiArrowSortedDown } from "react-icons/ti";
-import { useSegment } from "../../context/SegmentContext";
-import { useScaleMode } from "../../context/ScaleModeContext";
+import { useSegment } from "../../../context/SegmentContext";
+import { useScaleMode } from "../../../context/ScaleModeContext";
 import * as Tone from "tone";
 
 const GlassButtonUp = styled.button<{ position?: "left" | "right" }>`

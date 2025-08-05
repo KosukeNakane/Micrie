@@ -2,7 +2,7 @@
 // ユーザーがボタンを押すことで、BPMなどの再解析が実行される。
 
 import React, { useState } from "react";
-import { useMelodyFileProcessing } from "../../hooks/useMelodyFileProcessing";
+import { useMelodyFileProcessing } from "../../../hooks/useMelodyFileProcessing";
 import { Button } from "@chakra-ui/react";
 
 type Props = {

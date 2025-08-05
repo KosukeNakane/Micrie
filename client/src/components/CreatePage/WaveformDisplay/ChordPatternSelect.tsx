@@ -1,35 +1,38 @@
-// ドラムパターンを選択するセレクトボックスコンポーネント。
-// React Select を使用し、選択に応じてドラムパターン状態を更新。
+// コード進行を選択するセレクトボックスコンポーネント。
+// React Select を使い、選択内容をグローバルなchordPattern状態に反映する。
 
-import Select from "react-select";
-import { useDrumPattern } from "../../context/DrumPatternContext";
+import Select from 'react-select';
+import { useChordPattern } from '../../../context/ChordPatternContext';
 
-// 選択肢として表示するドラムパターン一覧（valueとlabelのペア）
-export type DrumPattern = 'basic' | 'hiphop' | 'funk' | 'rock' | 'jazz' | 'electro';
+// 表示するコードパターンの選択肢（value: 識別子, label: 表示名）
+type ChordPattern = 'pattern1' | 'pattern2' | 'pattern3' | 'pattern4' | 'pattern5' | 'pattern6' | 'pattern7';
 
-const drumOptions: { value: DrumPattern; label: string }[] = [
-  { value: 'basic', label: 'Basic' },
-  { value: 'hiphop', label: 'Hiphop' },
-  { value: 'funk', label: 'Funk' },
-  { value: 'rock', label: 'Rock' },
-  { value: 'jazz', label: 'Jazz' },
-  { value: 'electro', label: 'Electro' },
+const chordOptions: { value: ChordPattern; label: string }[] = [
+  { value: 'pattern3', label: 'Calm Tune' },
+  { value: 'pattern1', label: 'Cool City' },
+  { value: 'pattern5', label: 'Cry Chorus' },
+  { value: 'pattern7', label: 'Emo Canon' },
+  { value: 'pattern2', label: 'Happy Pop' },
+  { value: 'pattern4', label: 'Soft Sad' },
+  { value: 'pattern6', label: 'Trendy Emo' },
 ];
 
-export const DrumPatternSelect: React.FC = () => {
-  // ドラムパターンの状態と更新関数をContextから取得
-  const { drumPattern, setDrumPattern } = useDrumPattern();
-
+export const ChordPatternSelect = () => {
+  // ChordPatternContextから現在の選択状態と更新関数を取得
+  const { chordPattern, setChordPattern } = useChordPattern();
   return (
-    <div style={{ width: '230px', marginTop: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <label style={{ fontSize: '14px' }}>Drum Pattern:</label>
+    <div style={{ width: '230px', marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <label style={{ fontSize: '14px' }}>Chord Pattern:</label>
       <div style={{ width: '140px' }}>
-        {/* ドラムパターンを選択するためのReact Select UI */}
+        {/* コードパターンを選択するReact Selectコンポーネント */}
         <Select
-          options={drumOptions}
-          value={drumOptions.find((opt) => opt.value === drumPattern)}
+          options={chordOptions}
+          value={{
+            value: chordPattern,
+            label: chordOptions.find(o => o.value === chordPattern)?.label || chordPattern,
+          }}
           onChange={(selected) => {
-            if (selected) setDrumPattern(selected.value);
+            if (selected) setChordPattern(selected.value);
           }}
           menuPlacement="auto"
           styles={{

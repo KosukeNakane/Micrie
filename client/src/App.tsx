@@ -2,7 +2,7 @@
 // 各種コンテキストプロバイダーで状態を共有しつつ、AppContentを表示する。
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { AppContent } from "./components/AppContent";
+import { AppContent } from "./components/CreatePage/CreateContent";
 import { TempoProvider } from "./context/TempoContext";
 import { AnalysisModeProvider } from './context/AnalysisModeContext';
 import { ModeProvider } from './context/ModeContext';
