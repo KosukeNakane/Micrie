@@ -2,7 +2,11 @@
 // 各種コンテキストプロバイダーで状態を共有しつつ、AppContentを表示する。
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { AppContent } from "./components/CreatePage/CreateContent";
+import { Routes, Route, Navigate} from "react-router-dom";
+import { CreateContent } from "./components/CreatePage/CreateContent";
+import { RhythmContent } from "./components/RhythmPage/RhythmContent";
+import { MelodyContent } from "./components/MelodyPage/MelodyContent.tsx";
+import { PlayContent } from "./components/PlayPage/PlayContent";
 import { TempoProvider } from "./context/TempoContext";
 import { AnalysisModeProvider } from './context/AnalysisModeContext';
 import { ModeProvider } from './context/ModeContext';
@@ -70,7 +74,13 @@ export const App = () => {
     <CountBarsAndBeatsProvider>
     <ChordPatternProvider>
     <DrumPatternProvider>
-      <AppContent/>
+      <Routes>
+        <Route path="/" element={<Navigate to="/create" replace />} />
+        <Route path="/create" element={<CreateContent />} />
+        <Route path="/rhythm" element={<RhythmContent />} />
+        <Route path="/melody" element={<MelodyContent />} />
+        <Route path="/play" element={<PlayContent />} />
+      </Routes>
     </DrumPatternProvider>
     </ChordPatternProvider>
     </CountBarsAndBeatsProvider>

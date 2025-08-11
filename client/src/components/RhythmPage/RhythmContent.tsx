@@ -2,7 +2,7 @@
 import { TopNav } from "../TopNav";
 import { glassBackground } from "../../styles/glassBackground";
 
-export const PlayContent = () => {
+export const RhythmContent = () => {
 
   return (
     <div css={glassBackground}>
