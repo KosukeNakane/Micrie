@@ -116,8 +116,8 @@ const MelodySegmentEditor: React.FC<Props> = ({ barIndex, width }) => {
       const globalIndex = barIndex * 16 + i;
       return (
         <NoteControlGroup key={globalIndex}>
-          <GlassButtonUp position={i === 0 ? "left" : i === 15 ? "right" : undefined} onClick={() => shiftNote(globalIndex, 1)}><TiArrowSortedUp/></GlassButtonUp>
-          <GlassButtonDown onClick={() => shiftNote(globalIndex, -1)}><TiArrowSortedDown/></GlassButtonDown>
+          <GlassButtonUp position={i === 0 ? "left" : i === 15 ? "right" : undefined} onClick={() => shiftNote(globalIndex, 1)}><TiArrowSortedUp /></GlassButtonUp>
+          <GlassButtonDown onClick={() => shiftNote(globalIndex, -1)}><TiArrowSortedDown /></GlassButtonDown>
           <StyledSwitchButton
             position={i === 0 ? "left" : i === 15 ? "right" : undefined}
             onClick={() => {

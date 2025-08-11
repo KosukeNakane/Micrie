@@ -10,8 +10,9 @@ type BarCountContextType = {
 
 const BarCountContext = createContext<BarCountContextType | undefined>(undefined);
 
-export function BarCountProvider({children}:{ children : React.ReactNode
-    }) { 
+export function BarCountProvider({ children }: {
+  children: React.ReactNode
+}) {
   // 小節数をステートとして保持（初期値は2）
   const [barCount, setBarCount] = useState(2);
   return (

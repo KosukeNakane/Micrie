@@ -1,7 +1,7 @@
 // スケールモード（major / minor / chromatic）を管理するコンテキスト。
 // アプリ全体でスケールモードを共有・更新できるようにする。
 
-import { createContext, useContext, useState} from 'react';
+import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
 type ScaleMode = 'major' | 'minor' | 'chromatic';

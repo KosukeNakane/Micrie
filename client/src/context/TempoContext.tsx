@@ -10,7 +10,7 @@ const TempoContext = createContext<{
 
 export const TempoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // 初期テンポは90。グローバルで管理される
-  const [tempo, setTempo] = useState(90); 
+  const [tempo, setTempo] = useState(90);
 
   return (
     <TempoContext.Provider value={{ tempo, setTempo }}>

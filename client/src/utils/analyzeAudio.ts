@@ -19,8 +19,8 @@ export const analyzeAudio = async (
     mode === 'melody'
       ? '/pitch'
       : Amode === 'whisper'
-      ? '/analyze'
-      : '/predict';
+        ? '/analyze'
+        : '/predict';
 
   // エンドポイントにPOSTリクエストを送信
   const res = await fetch(`http://localhost:5172${endpoint}`, {

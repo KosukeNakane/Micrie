@@ -21,7 +21,7 @@ export const useTeachableModel = () => {
       recognizer = speechCommands.create(
         "BROWSER_FFT",
         undefined,
-        "http://localhost:5173/model/model.json",     
+        "http://localhost:5173/model/model.json",
         "http://localhost:5173/model/metadata.json"
       );
 

@@ -50,20 +50,20 @@ export type Segment = {
 
 
 export const useAudioRecorder = () => {
-  
-  const { isRecording, setIsRecording } = useRecording(); 
+
+  const { isRecording, setIsRecording } = useRecording();
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const { setRhythmSegments, setMelodySegments } = useSegment();
   const realtimeLabel = useTeachableModel();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const recordingStartTimeRef = useRef<number | null>(null);
-  const { Amode } = useAnalysisMode();  
+  const { Amode } = useAnalysisMode();
   const { mode } = useMode();
   const { barCount } = useBarCount();
   useEffect(() => {
     return () => {
-      mediaRecorderRef.current?.stop(); 
+      mediaRecorderRef.current?.stop();
     };
   }, []);
 
@@ -179,9 +179,9 @@ export const useAudioRecorder = () => {
     // メトロノームを鳴らした後、録音を開始し一定時間後に自動停止
     const playMetronomeAndStart = async () => {
       const interval = (60 / tempo) * 1000;
-      await new Promise((res) => setTimeout(res, interval * (4.1 - 0.005 * (tempo - 60 )))); //rhythm bluetooth 0.0057 | スピーカー 0.002 (経験値) melody bluetooth 0.0067
-      console.log(4.4 + (-0.0035) * (tempo - 60 ))
-      console.log((4.4 + (-0.015) * (tempo - 60 )))
+      await new Promise((res) => setTimeout(res, interval * (4.1 - 0.005 * (tempo - 60)))); //rhythm bluetooth 0.0057 | スピーカー 0.002 (経験値) melody bluetooth 0.0067
+      console.log(4.4 + (-0.0035) * (tempo - 60))
+      console.log((4.4 + (-0.015) * (tempo - 60)))
       recordingStartTimeRef.current = Date.now();
       mediaRecorder.start();
       setIsRecording(true);
@@ -190,10 +190,10 @@ export const useAudioRecorder = () => {
         mediaRecorder.stop();
         setIsRecording(false);
       }, duration * 1000);
-     };
-
-     await playMetronomeAndStart();
     };
+
+    await playMetronomeAndStart();
+  };
   // 録音を停止し、必要に応じて無音を追加。音声Blobを更新する。
   const stopRecording = async (tempo: number) => {
     if (!mediaRecorderRef.current) return;

@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAudioEngine } from './useAudioEngine.ts';
 import { useChordsPlayer } from './useChordsPlayer';
-import { useMelodyPlayer } from './useMelodyPlayer'; 
+import { useMelodyPlayer } from './useMelodyPlayer';
 import { useDrumPlayer } from './useDrumPlayer';
 import { useTempo } from '../context/TempoContext';
 import { useSegment } from '../context/SegmentContext';
@@ -35,11 +35,11 @@ export const usePlaybackController = () => {
   // 音列をスケールモードに応じて定量化（quantize）する
   const quantizedMelody = useMemo(() => {
     return scaleMode === 'chromatic'
-      ? extractQuantizedNotes(rawMelody, 'major', { major: {}, minor: {} }) 
+      ? extractQuantizedNotes(rawMelody, 'major', { major: {}, minor: {} })
       : extractQuantizedNotes(rawMelody, scaleMode, {
-          major: majorPentatonicMap,
-          minor: minorPentatonicMap
-        });
+        major: majorPentatonicMap,
+        minor: minorPentatonicMap
+      });
   }, [rawMelody, scaleMode]);
 
   // デバッグ用ログ：定量化されたメロディーを表示
@@ -88,7 +88,7 @@ export const usePlaybackController = () => {
 
     const alignedStart = Tone.getTransport().seconds;
     Tone.getTransport().scheduleRepeat((time) => playOnce(time), loopLengthInBeats, alignedStart);
-    Tone.getTransport().start(undefined, alignedStart); 
+    Tone.getTransport().start(undefined, alignedStart);
     setIsLoopPlaying(true);
   };
 

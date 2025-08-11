@@ -69,7 +69,7 @@ const StyledSwitchButton = styled.button<{ position?: "left" | "right" }>`
 const drumOrder = ["kick", "snare", "hihat"];
 
 type Props = {
- barIndex: number;
+  barIndex: number;
 };
 
 const synths = {
@@ -113,41 +113,41 @@ export const RhythmSegmentEditor = ({ barIndex }: Props) => {
   }
 
   return (
-   <div style={{
+    <div style={{
       // display: "flex",
       // width: "600px",
       // justifyContent: "space-between"
     }}>
-    <div style={{
-      display: "flex",
-      // marginTop: "-3px",
-      // borderBottom: "1px solid #ccc",
-      height: "200px",
-      width: "600px",
-      // justifyContent: "space-between"
-    }}>
-      {currentSegments.rhythm.slice(barIndex * 8, barIndex * 8 + 8).map((seg, i) => {
-        const globalIndex = barIndex * 8 + i;
-        return (
-          <div
-            key={globalIndex}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              width: "75px",
-              boxSizing: "border-box",
-              borderTopLeftRadius: i === 0 ? "10px" : undefined,
-              borderBottomLeftRadius: i === 0 ? "10px" : undefined,
-              borderTopRightRadius: i === 7 ? "10px" : undefined,
-              borderBottomRightRadius: i === 7 ? "10px" : undefined,
-              overflow: "hidden",
-            }}
-          >
-            
-          <GlassButtonUp onClick={() => shiftDrum(globalIndex, 1)}><TiArrowSortedUp/></GlassButtonUp>
-          <GlassButtonDown onClick={() => shiftDrum(globalIndex, -1)}><TiArrowSortedDown/></GlassButtonDown>
-            {/* <span
+      <div style={{
+        display: "flex",
+        // marginTop: "-3px",
+        // borderBottom: "1px solid #ccc",
+        height: "200px",
+        width: "600px",
+        // justifyContent: "space-between"
+      }}>
+        {currentSegments.rhythm.slice(barIndex * 8, barIndex * 8 + 8).map((seg, i) => {
+          const globalIndex = barIndex * 8 + i;
+          return (
+            <div
+              key={globalIndex}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                width: "75px",
+                boxSizing: "border-box",
+                borderTopLeftRadius: i === 0 ? "10px" : undefined,
+                borderBottomLeftRadius: i === 0 ? "10px" : undefined,
+                borderTopRightRadius: i === 7 ? "10px" : undefined,
+                borderBottomRightRadius: i === 7 ? "10px" : undefined,
+                overflow: "hidden",
+              }}
+            >
+
+              <GlassButtonUp onClick={() => shiftDrum(globalIndex, 1)}><TiArrowSortedUp /></GlassButtonUp>
+              <GlassButtonDown onClick={() => shiftDrum(globalIndex, -1)}><TiArrowSortedDown /></GlassButtonDown>
+              {/* <span
               style={{ margin: "0 8px", cursor: "pointer", zIndex: 100, position: "relative", fontFamily: '"brandon-grotesque", sans-serif' }}
               onClick={() => {
                 if (seg.label && seg.label !== "noise") {
@@ -164,24 +164,24 @@ export const RhythmSegmentEditor = ({ barIndex }: Props) => {
               {typeof seg.label !== "string" || seg.label === "noise" ? "rest" : seg.label}
             </span>
           */}
-            <StyledSwitchButton
-              position={i === 0 ? "left" : i === 7 ? "right" : undefined}
-              onClick={() => {
-                if (seg.label === "noise") {
-                  updateRhythmSegment(globalIndex, { label: previousNotesRef.current[globalIndex] || "kick" });
-                } else {
-                  previousNotesRef.current[globalIndex] = typeof seg.label === "string" ? seg.label : "kick";
-                  updateRhythmSegment(globalIndex, { label: "noise" });
-                }
-              }}
-            >
-              switch
-            </StyledSwitchButton>
+              <StyledSwitchButton
+                position={i === 0 ? "left" : i === 7 ? "right" : undefined}
+                onClick={() => {
+                  if (seg.label === "noise") {
+                    updateRhythmSegment(globalIndex, { label: previousNotesRef.current[globalIndex] || "kick" });
+                  } else {
+                    previousNotesRef.current[globalIndex] = typeof seg.label === "string" ? seg.label : "kick";
+                    updateRhythmSegment(globalIndex, { label: "noise" });
+                  }
+                }}
+              >
+                switch
+              </StyledSwitchButton>
 
-          </div>
-        );
-      })}
+            </div>
+          );
+        })}
+      </div>
     </div>
-   </div>
   );
 };

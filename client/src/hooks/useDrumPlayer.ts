@@ -59,7 +59,7 @@ export const useDrumPlayer = () => {
   useEffect(() => {
     const drumFiles: { [key in DrumType]: string } = {
       kick: '/samples/PublicSamples/Drums/kick135.wav',
-      hihat:'/samples/PublicSamples/Drums/Half_Open_Hi-Hat.wav',
+      hihat: '/samples/PublicSamples/Drums/Half_Open_Hi-Hat.wav',
       snare: '/samples/PublicSamples/Drums/Snare14.wav'
     };
 

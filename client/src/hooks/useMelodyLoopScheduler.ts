@@ -7,7 +7,7 @@ import { useTempo } from '../context/TempoContext';
 import { useScaleMode } from '../context/ScaleModeContext';
 
 export const useMelodyLoopScheduler = () => {
-  const {scaleMode} = useScaleMode();
+  const { scaleMode } = useScaleMode();
   // スケールモードの最新値を保持する参照（再レンダーなしで利用するため）
   const scaleModeRef = useRef(scaleMode);
   useEffect(() => {

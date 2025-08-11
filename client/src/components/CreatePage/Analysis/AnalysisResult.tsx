@@ -14,7 +14,7 @@ export const AnalysisResult = () => {
   const toggleResults = () => setShowResults((prev) => !prev);
 
   return (
-    <div style={{marginTop: '10px'}}>
+    <div style={{ marginTop: '10px' }}>
       <RectButton
         label={showResults ? 'Hide Analysis' : 'Show Analysis'}
         onClick={toggleResults}

@@ -29,8 +29,8 @@ export const useDrumLoopScheduler = () => {
     const selectedSegments = loopMode === 'rhythm'
       ? currentSegments.rhythm
       : loopMode === 'melody'
-      ? []
-      : currentSegments.rhythm;
+        ? []
+        : currentSegments.rhythm;
 
     return selectedSegments
       .filter((step): step is { label: string; start: number; end: number } =>

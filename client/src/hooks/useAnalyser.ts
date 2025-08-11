@@ -15,29 +15,29 @@ export const useAnalyser = (): React.RefObject<HTMLCanvasElement | null> => {
 
   // 描画ループ（analyserRef が既に存在する前提で動作）
   useEffect(() => {
-    if (!canvasRef.current) return; 
+    if (!canvasRef.current) return;
     const ctx = canvasRef.current.getContext("2d");
     if (!ctx || !analyserRef.current) return;
     const draw = () => {
       const dataArray = dataArrayRef.current;
       if (!dataArray) return;
-  
+
       analyserRef.current!.getByteTimeDomainData(dataArray);
       ctx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
       ctx.beginPath();
-  
+
       for (let i = 0; i < dataArray.length; i++) {
         const x = (i / dataArray.length) * canvasRef.current!.width;
         const y = (dataArray[i] / 255) * canvasRef.current!.height;
         ctx.lineTo(x, y);
       }
-  
+
       ctx.stroke();
       requestAnimationFrame(draw);
     };
-  
+
     draw();
-  }, [canvasRef.current]);  
+  }, [canvasRef.current]);
 
   // マイク入力とAnalyserNodeを初期化し、描画処理を開始する
   useEffect(() => {
@@ -50,7 +50,7 @@ export const useAnalyser = (): React.RefObject<HTMLCanvasElement | null> => {
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 2048;
 
-      source.connect(analyser); 
+      source.connect(analyser);
 
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);

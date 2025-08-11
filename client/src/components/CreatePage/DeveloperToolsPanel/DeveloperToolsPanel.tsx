@@ -32,25 +32,25 @@ export const DeveloperToolsPanel = ({
       <AudioFileUploader onAudioFileSelected={setDevAudioBlob} />
       <MelodyReanalysisPanel audioBlob={devAudioBlob} />
       <div style={{ marginTop: '16px' }}>
-            <TrimmingToggle
-                enabled={trimmingEnabled}
-                onChange={setTrimmingEnabled}
-            />
+        <TrimmingToggle
+          enabled={trimmingEnabled}
+          onChange={setTrimmingEnabled}
+        />
       </div>
       <div style={{ marginTop: '16px' }}>
-            <MelodyRecButton /> <RhythmRecButton />
+        <MelodyRecButton /> <RhythmRecButton />
       </div>
       <div style={{ marginTop: '16px' }}>
-            <PlaybackButton
-                isPlaying={isPlaying}
-                setIsPlaying={setIsPlaying}
-                startX={0}
-                endX={(60 / tempo) * 2 * 1000}
-                audioBlob={devAudioBlob}
-            />
-      </div>  
+        <PlaybackButton
+          isPlaying={isPlaying}
+          setIsPlaying={setIsPlaying}
+          startX={0}
+          endX={(60 / tempo) * 2 * 1000}
+          audioBlob={devAudioBlob}
+        />
+      </div>
       <div style={{ marginTop: '16px' }}>
-           <BarSelectDropdown />
+        <BarSelectDropdown />
       </div>
       <AnalysisResult />
     </div>

@@ -10,7 +10,7 @@ import { useBarCount } from '../../../context/BarCountContext';
 import { useCountBarsAndBeats } from '../../../context/CountBarsAndBeatsContext';
 
 // 録音状態に応じて色・影・押し込み表現が変わるスタイル付き丸型ボタン
-const CircularButton = styled(StyledButton)<{ recording: boolean }>`
+const CircularButton = styled(StyledButton) <{ recording: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,9 +89,9 @@ export const RecButton = ({ onClick }: { onClick: () => void }) => {
 
     await playMetronome(tempo);
 
-          setCurrentBar(0);
-          setCurrentBeat(0);
-    
+    setCurrentBar(0);
+    setCurrentBeat(0);
+
   };
 
   // 録音状態に応じてスタイルを変更したボタンを表示

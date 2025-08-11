@@ -2,7 +2,7 @@
 // 各種コンテキストプロバイダーで状態を共有しつつ、AppContentを表示する。
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { Routes, Route, Navigate} from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { CreateContent } from "./components/CreatePage/CreateContent";
 import { RhythmContent } from "./components/RhythmPage/RhythmContent";
 import { MelodyContent } from "./components/MelodyPage/MelodyContent.tsx";
@@ -32,15 +32,15 @@ const system = createSystem(defaultConfig, config);
 
 export const App = () => {
 
- // アプリ全体のベーススタイル（背景ぼかし含むレイヤー構成）
- const appStyle = css`
+  // アプリ全体のベーススタイル（背景ぼかし含むレイヤー構成）
+  const appStyle = css`
   position: relative;
   min-height: 100vh;
   overflow: hidden;
  `;
 
- /* ぼかしフィルター付きの背景画像 */
- const backgroundStyle = css`
+  /* ぼかしフィルター付きの背景画像 */
+  const backgroundStyle = css`
   position: absolute;
   inset: 0;
   background-image: url(/background.jpg);
@@ -51,49 +51,49 @@ export const App = () => {
   z-index: 0;
  `;
 
- /* 背景の上に重ねるUIのコンテンツレイヤー */
- const contentStyle = css`
+  /* 背景の上に重ねるUIのコンテンツレイヤー */
+  const contentStyle = css`
   position: relative;
   z-index: 1;
  `;
 
- return (
-  <div css={appStyle}>
-   <div css={backgroundStyle} />
-   <div css={contentStyle}>
-    {/* アプリ全体に渡す状態管理のコンテキストプロバイダー群 + AppContent */}
-    <ChakraProvider value={system}>
-    <AnalysisModeProvider>
-    <ModeProvider>
-    <RecordingProvider>
-    <TempoProvider>
-    <RecordingUIProvider>
-    <SegmentProvider> 
-    <BarCountProvider>
-    <ScaleModeProvider>
-    <CountBarsAndBeatsProvider>
-    <ChordPatternProvider>
-    <DrumPatternProvider>
-      <Routes>
-        <Route path="/" element={<Navigate to="/create" replace />} />
-        <Route path="/create" element={<CreateContent />} />
-        <Route path="/rhythm" element={<RhythmContent />} />
-        <Route path="/melody" element={<MelodyContent />} />
-        <Route path="/play" element={<PlayContent />} />
-      </Routes>
-    </DrumPatternProvider>
-    </ChordPatternProvider>
-    </CountBarsAndBeatsProvider>
-    </ScaleModeProvider>
-    </BarCountProvider>
-    </SegmentProvider> 
-    </RecordingUIProvider>
-    </TempoProvider>
-    </RecordingProvider>
-    </ModeProvider>
-    </AnalysisModeProvider>
-    </ChakraProvider>
-   </div>
-  </div>
- );
+  return (
+    <div css={appStyle}>
+      <div css={backgroundStyle} />
+      <div css={contentStyle}>
+        {/* アプリ全体に渡す状態管理のコンテキストプロバイダー群 + AppContent */}
+        <ChakraProvider value={system}>
+          <AnalysisModeProvider>
+            <ModeProvider>
+              <RecordingProvider>
+                <TempoProvider>
+                  <RecordingUIProvider>
+                    <SegmentProvider>
+                      <BarCountProvider>
+                        <ScaleModeProvider>
+                          <CountBarsAndBeatsProvider>
+                            <ChordPatternProvider>
+                              <DrumPatternProvider>
+                                <Routes>
+                                  <Route path="/" element={<Navigate to="/create" replace />} />
+                                  <Route path="/create" element={<CreateContent />} />
+                                  <Route path="/rhythm" element={<RhythmContent />} />
+                                  <Route path="/melody" element={<MelodyContent />} />
+                                  <Route path="/play" element={<PlayContent />} />
+                                </Routes>
+                              </DrumPatternProvider>
+                            </ChordPatternProvider>
+                          </CountBarsAndBeatsProvider>
+                        </ScaleModeProvider>
+                      </BarCountProvider>
+                    </SegmentProvider>
+                  </RecordingUIProvider>
+                </TempoProvider>
+              </RecordingProvider>
+            </ModeProvider>
+          </AnalysisModeProvider>
+        </ChakraProvider>
+      </div>
+    </div>
+  );
 };

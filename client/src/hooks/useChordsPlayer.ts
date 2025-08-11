@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 
 // Tone.jsをimport（必要ならnpmでインストールしておくこと）
 // @ts-ignore
-import * as Tone from 'tone';
+// import * as Tone from 'tone';
 import { usePianoSampler } from './usePianoSampler';
 import { useChordPattern } from '../context/ChordPatternContext';
 import { useMemo } from 'react';

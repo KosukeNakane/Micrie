@@ -2,15 +2,15 @@
 // スライダーまたは数値入力によりテンポ（BPM）を変更可能
 import RcSlider from 'rc-slider';
 import 'rc-slider/assets/index.css';
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { StyledButton } from '../../shared/RectButton.tsx';
 import { useTempo } from '../../../context/TempoContext';
 
 type Props = {
-    isOpen: boolean;
-    onToggle: () => void;
-  };
+  isOpen: boolean;
+  onToggle: () => void;
+};
 
 // ボタンとドロップダウンを包む相対位置のコンテナ
 const Wrapper = styled.div`
@@ -55,11 +55,11 @@ const TempoControlButton = ({ isOpen, onToggle }: Props) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (/^\d*$/.test(value)) {
-        setTempoInput(value);
-        const numeric = Number(value);
-        if (numeric >= 20 && numeric <= 140) {
-          setTempo(numeric);
-        }
+      setTempoInput(value);
+      const numeric = Number(value);
+      if (numeric >= 20 && numeric <= 140) {
+        setTempo(numeric);
+      }
     }
   };
 
