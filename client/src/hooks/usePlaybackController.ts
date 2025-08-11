@@ -70,7 +70,7 @@ export const usePlaybackController = () => {
   const loopPlay = () => {
     if (!audioCtx || isLoopPlaying) return;
 
-    // const totalSteps = rawMelody.length; //現在は2小節で固定しているため未使用
+    const totalSteps = rawMelody.length; //現在は2小節で固定しているため未使用
     const loopLengthInBeats = "2m";
 
     const playOnce = (time: number) => {
