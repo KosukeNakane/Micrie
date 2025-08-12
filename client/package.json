@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.1.0-alpha.1",
   "type": "module",
+  "engines": {
+    "node": ">=18 <21"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -26,6 +29,7 @@
     "react-router-dom": "^7.7.1",
     "react-select": "^5.10.1",
     "tone": "15.1.22",
+    "util": "^0.12.5",
     "webaudiofont": "^3.0.4"
   },
   "devDependencies": {
