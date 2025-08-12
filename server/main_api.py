@@ -12,16 +12,29 @@ from predict_api import predict_bp
 from pitch_api import pitch_bp
 
 import os
+import re
 
-# Flaskアプリケーションのインスタンスを生成し、CORSを有効化
+
+# Allow only local dev and Vercel origins (Preview + Production). If you have a fixed
+# production domain (e.g., https://micrie.vercel.app), set it via ENV `PROD_ORIGIN`.
 app = Flask(__name__)
+allowed_origins = [
+    "http://localhost:5173",
+    re.compile(r"^https://.*\.vercel\.app$")
+]
+prod_origin = os.getenv("PROD_ORIGIN")
+if prod_origin:
+    allowed_origins.append(prod_origin)
+
 CORS(
     app,
     resources={r"/*": {
-        "origins": [
-            "http://localhost:5173",
-            r"https://.*\.vercel\.app"
-        ]
+        "origins": allowed_origins,
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "expose_headers": ["Content-Type"],
+        "supports_credentials": False,
+        "max_age": 86400
     }}
 )
 
