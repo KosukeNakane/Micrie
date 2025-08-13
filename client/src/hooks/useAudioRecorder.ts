@@ -12,6 +12,7 @@ import { useTeachableModel } from './useTeachableModel';
 import { useAnalysisMode } from '../context/AnalysisModeContext';
 import { useMode } from '../context/ModeContext';
 import { useBarCount } from '../context/BarCountContext';
+import { apiFetch } from '../lib/apiClient';
 
 // 音声Blobの末尾に無音を追加して、期待される録音時間に調整する
 const appendSilenceToBlob = async (originalBlob: Blob, sampleRate: number, durationSec: number): Promise<Blob> => {
@@ -92,7 +93,7 @@ export const useAudioRecorder = () => {
               formData.append("file", blob);
               formData.append("tempo", tempo.toString());
               formData.append("bar_count", barCount.toString());
-              fetch("${baseUrl}/analyze", {
+              apiFetch("analyze", {
                 method: "POST",
                 body: formData,
               })
@@ -111,7 +112,7 @@ export const useAudioRecorder = () => {
               formData.append("file", blob);
               formData.append("tempo", tempo.toString());
               formData.append("bar_count", barCount.toString());
-              fetch("${baseUrl}/predict", {
+              apiFetch("predict", {
                 method: "POST",
                 body: formData,
               })
@@ -137,7 +138,7 @@ export const useAudioRecorder = () => {
             formData.append("file", blob);
             formData.append("tempo", tempo.toString());
             formData.append("bar_count", barCount.toString());
-            fetch("${baseUrl}/pitch", {
+            apiFetch("pitch", {
               method: "POST",
               body: formData,
             })
