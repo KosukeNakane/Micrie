@@ -14,6 +14,23 @@ from pitch_api import pitch_bp
 import os
 import re
 
+# ----- Server-side Keras model (always enabled, lazy-loaded) -----
+from pathlib import Path
+import tensorflow as tf
+
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_FILE = os.getenv("MODEL_FILE", "micrie_model.keras")
+MODEL_PATH = BASE_DIR / "model" / MODEL_FILE
+
+_model = None  # 初回アクセス時に読み込む（遅延ロード）
+def get_model():
+    global _model
+    if _model is None:
+        print(f"📦 モデル読み込み中: {MODEL_PATH}")
+        _model = tf.keras.models.load_model(str(MODEL_PATH))
+        print("✅ モデル読み込み完了")
+    return _model
+
 
 # Allow only local dev and Vercel origins (Preview + Production). If you have a fixed
 # production domain (e.g., https://micrie.vercel.app), set it via ENV `PROD_ORIGIN`.
@@ -38,6 +55,8 @@ CORS(
     }}
 )
 
+app.config["GET_MODEL"] = get_model
+
 app.register_blueprint(whisper_bp)  # Whisper API（音声認識）を登録
 app.register_blueprint(predict_bp)  # Predict API（音声分類）を登録
 app.register_blueprint(pitch_bp)    # Pitch API（音高推定）を登録
@@ -46,6 +65,15 @@ app.register_blueprint(pitch_bp)    # Pitch API（音高推定）を登録
 @app.get("/health")
 def health():
     return jsonify({"ok": True})
+
+# Optional: model warmup endpoint (任意の起動後ウォームアップ用)
+@app.get("/warmup")
+def warmup():
+    try:
+        get_model()
+        return jsonify({"warmed": True})
+    except Exception as e:
+        return jsonify({"warmed": False, "error": str(e)}), 500
 
 # スクリプトとして実行された場合に Flask サーバーを起動
 if __name__ == '__main__':

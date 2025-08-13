@@ -18,7 +18,7 @@ pitch_bp = Blueprint("pitch", __name__)
 
 # 音声ファイルを受け取り、ピッチ推定結果をJSONで返すエンドポイント
 @pitch_bp.route('/pitch', methods=['POST'])
-@cross_origin(origins='http://localhost:5173')
+@cross_origin()  # Use app-level CORS (localhost:5173, *.vercel.app, PROD_ORIGIN, etc.)
 def analyze_pitch():
     print("✅ /pitch にリクエスト来たよ！")
     print("📦 リクエスト内容：", request.files)
