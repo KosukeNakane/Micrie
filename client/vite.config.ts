@@ -9,6 +9,18 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    resolve: {
+      alias: {
+        util: 'util/',
+        process: 'rollup-plugin-node-polyfills/polyfills/process-es6',
+      }
+    },
+    optimizeDeps: {
+      include: ['util', 'process']
+    },
+    define: {
+      'process.env': {},
+    },
     server: {
       proxy: {
         '/analyze': {
@@ -17,6 +29,5 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-  }
+  };
 });
-

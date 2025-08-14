@@ -142,11 +142,11 @@ export const useAudioRecorder = () => {
               method: "POST",
               body: formData,
             })
-              .then((res) => {
-                if (!res.ok) throw new Error("サーバーエラー: " + res.status);
-                return res.json();
-              })
               .then((data) => {
+                console.log("Pitch API response:", data);
+                if (!data || !Array.isArray(data.pitch_series)) {
+                  throw new Error("Pitch APIのレスポンス形式が不正です");
+                }
                 const totalDuration = (60 / tempo) * 4 * barCount;
                 const chunkDuration = totalDuration / data.pitch_series.length;
                 const segments = data.pitch_series.map((seg: any, index: number) => {

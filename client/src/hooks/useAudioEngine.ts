@@ -24,7 +24,18 @@ export const useAudioEngine = () => {
     }
 
     // サウンドフォントファイルを読み込み
-    playerRef.current.loader.startLoad(audioCtxRef.current, _tone_0000_Aspirin_sf2_file);
+    console.log("_tone_0000_Aspirin_sf2_file value:", _tone_0000_Aspirin_sf2_file);
+    if (_tone_0000_Aspirin_sf2_file?.url) {
+      playerRef.current.loader.startLoad(
+        audioCtxRef.current,
+        _tone_0000_Aspirin_sf2_file.url
+      );
+    } else {
+      playerRef.current.loader.decodeAfterLoading(
+        audioCtxRef.current,
+        _tone_0000_Aspirin_sf2_file
+      );
+    }
     // 読み込み完了時のコールバックを登録
     playerRef.current.loader.waitLoad(() => {
       console.log('Sound font loaded');
