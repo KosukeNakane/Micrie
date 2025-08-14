@@ -34,8 +34,6 @@ import { usePlaybackController } from '../../../hooks/usePlaybackController';
 import { ChordPatternSelect } from './ChordPatternSelect';
 import { DrumPatternSelect } from './DrumPatternSelect';
 
-import * as Tone from "tone";
-import { useGlobalAudio } from "../../../context/GlobalAudioContext";
 
 export const CenteredArea = styled(StyledArea)`
   flex-direction: column;
@@ -110,7 +108,6 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
 
   const audioBuffer = useAudioBuffer(audioBlob);
 
-  const engine = useGlobalAudio();
 
   useEffect(() => {
     if (!audioBuffer) return;
@@ -212,16 +209,10 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
 
 
   const handleToggleLoop = async () => {
-    // ユーザー操作内でのオーディオ解禁（Tone.js と WebAudio の両方）
-    if (Tone.context.state !== "running") {
-      await Tone.start();
-    }
-    await engine.ensureStarted();
-
     if (isLoopPlaying) {
       stop();
     } else {
-      loopPlay();
+      await loopPlay();
     }
   };
 

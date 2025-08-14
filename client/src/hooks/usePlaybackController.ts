@@ -1,7 +1,7 @@
 // 各プレイヤー（コード・メロディ・ドラム）を制御し、ループ再生機能を提供するカスタムフック。
 // メロディーは定量化（Quantize）され、スケールモードに応じてピッチマップが適用される。
 
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 // import { useAudioEngine } from './useAudioEngine.ts';
 import { useChordsPlayer } from './useChordsPlayer';
 import { useMelodyPlayer } from './useMelodyPlayer';
@@ -13,11 +13,15 @@ import { useScaleMode } from '../context/ScaleModeContext';
 import { majorPentatonicMap, minorPentatonicMap } from '../utils/pitchMaps.ts';
 import * as Tone from 'tone';
 import { GlobalAudioEngine } from '../audio/GlobalAudioEngine';
+import { useTransportStore } from '../stores/useTransportStore';
+
 const DEBUG = false; // trueでデバッグログ
 
-
-
 export const usePlaybackController = () => {
+  // Zustand: 再生状態の単一の真実を利用
+  const isLoopPlaying = useTransportStore((s) => s.isLoopPlaying);
+  const setLoopPlaying = useTransportStore((s) => s.setLoopPlaying);
+
   // const { audioCtx } = useAudioEngine();
   const { tempo } = useTempo();
   const { currentSegments } = useSegment();
@@ -25,7 +29,7 @@ export const usePlaybackController = () => {
 
   // Melodyセグメントから音名（または'rest'）のみを抽出し配列化
   const rawMelody = useMemo(() => {
-    return currentSegments.melody.map(seg => {
+    return currentSegments.melody.map((seg) => {
       if (typeof seg.note === 'string' && /^[A-G]#?\d$/.test(seg.note)) {
         return seg.note;
       } else {
@@ -40,7 +44,7 @@ export const usePlaybackController = () => {
       ? extractQuantizedNotes(rawMelody, 'major', { major: {}, minor: {} })
       : extractQuantizedNotes(rawMelody, scaleMode, {
         major: majorPentatonicMap,
-        minor: minorPentatonicMap
+        minor: minorPentatonicMap,
       });
   }, [rawMelody, scaleMode]);
 
@@ -57,9 +61,6 @@ export const usePlaybackController = () => {
   const { playMelody } = useMelodyPlayer();
   const { playDrumLoop } = useDrumPlayer();
 
-
-  const [isLoopPlaying, setIsLoopPlaying] = useState(false);
-
   // ループ再生を開始する関数
   // 各トラックを時間に合わせて再生し、2小節ごとに繰り返す
   const loopPlay = async () => {
@@ -74,7 +75,7 @@ export const usePlaybackController = () => {
     const ac = GlobalAudioEngine.instance.audioContext;
     if (!ac) return; // 予防
 
-    const loopLengthInBeats = "2m";
+    const loopLengthInBeats = '2m';
 
     const playOnce = (time: number) => {
       playChords(time, chordDuration);
@@ -92,15 +93,25 @@ export const usePlaybackController = () => {
     const alignedStart = Tone.getTransport().seconds;
     Tone.getTransport().scheduleRepeat((time) => playOnce(time), loopLengthInBeats, alignedStart);
     Tone.getTransport().start(undefined, alignedStart);
-    setIsLoopPlaying(true);
+
+    // ✅ Zustandへ同期
+    setLoopPlaying(true);
   };
 
   // ループ再生を停止し、Transportスケジュールもクリア
   const stop = () => {
     Tone.getTransport().stop();
     Tone.getTransport().cancel();
-    setIsLoopPlaying(false);
+    // ✅ Zustandへ同期
+    setLoopPlaying(false);
   };
+
+  // 画面復帰時などに「実エンジンの状態」をZustandへ同期
+  useEffect(() => {
+    const actuallyPlaying = Tone.getTransport().state === 'started';
+    setLoopPlaying(actuallyPlaying);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return { loopPlay, stop, isLoopPlaying };
 };
