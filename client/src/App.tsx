@@ -18,6 +18,9 @@ import { ScaleModeProvider } from './context/ScaleModeContext';
 import { CountBarsAndBeatsProvider } from './context/CountBarsAndBeatsContext';
 import { ChordPatternProvider } from './context/ChordPatternContext';
 import { DrumPatternProvider } from './context/DrumPatternContext';
+
+import { EffectsProvider } from './context/EffectsContext.tsx';
+
 import { createSystem, defineConfig, defaultConfig, ChakraProvider } from "@chakra-ui/react";
 
 const config = defineConfig({
@@ -74,13 +77,15 @@ export const App = () => {
                           <CountBarsAndBeatsProvider>
                             <ChordPatternProvider>
                               <DrumPatternProvider>
-                                <Routes>
-                                  <Route path="/" element={<Navigate to="/create" replace />} />
-                                  <Route path="/create" element={<CreateContent />} />
-                                  <Route path="/rhythm" element={<RhythmContent />} />
-                                  <Route path="/melody" element={<MelodyContent />} />
-                                  <Route path="/play" element={<PlayContent />} />
-                                </Routes>
+                                <EffectsProvider>
+                                  <Routes>
+                                    <Route path="/" element={<Navigate to="/create" replace />} />
+                                    <Route path="/create" element={<CreateContent />} />
+                                    <Route path="/rhythm" element={<RhythmContent />} />
+                                    <Route path="/melody" element={<MelodyContent />} />
+                                    <Route path="/play" element={<PlayContent />} />
+                                  </Routes>
+                                </EffectsProvider>
                               </DrumPatternProvider>
                             </ChordPatternProvider>
                           </CountBarsAndBeatsProvider>
