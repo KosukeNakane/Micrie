@@ -2,7 +2,7 @@
 // 現在のタブ状態を管理し、RectButton で切り替え表示する
 
 import styled from '@emotion/styled';
-import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { RectButton } from './shared/RectButton';
 
 // ナビゲーション全体のスタイリング。ガラス風背景・丸み・影付き
@@ -23,8 +23,8 @@ const NavWrapper = styled.div`
 `;
 
 export const TopNav = () => {
-  // 現在アクティブなタブを管理するステート
-  const [activeTab, setActiveTab] = useState<'CREATE' | 'RHYTHM' | 'MELODY' | 'PLAY'>('CREATE');
+  const navigate = useNavigate();
+  const location = useLocation();
   // ナビゲーションに表示するタブの一覧
   const tabs = ['CREATE', 'RHYTHM', 'MELODY', 'PLAY'];
 
@@ -35,8 +35,18 @@ export const TopNav = () => {
         <RectButton
           key={tab}
           label={tab}
-          active={activeTab === tab}
-          onClick={() => setActiveTab(tab as any)}
+          active={
+            (tab === 'CREATE' && location.pathname === '/create') ||
+            (tab === 'RHYTHM' && location.pathname === '/rhythm') ||
+            (tab === 'MELODY' && location.pathname === '/melody') ||
+            (tab === 'PLAY' && location.pathname === '/play')
+          }
+          onClick={() => {
+            if (tab === 'CREATE') navigate('/create');
+            else if (tab === 'RHYTHM') navigate('/rhythm');
+            else if (tab === 'MELODY') navigate('/melody');
+            else if (tab === 'PLAY') navigate('/play');
+          }}
         />
       ))}
     </NavWrapper>

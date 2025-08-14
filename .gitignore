@@ -63,3 +63,5 @@ README.dev.md
 # 開発用の個別フックファイルを無視
 client/src/hooks/useNoireSampler.ts
 client/src/hooks/useOliverDrumPlayer.ts
+
+node_modules/

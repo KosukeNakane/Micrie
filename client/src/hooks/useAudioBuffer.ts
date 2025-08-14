@@ -20,20 +20,20 @@ export const useAudioBuffer = (audioBlob: Blob | null) => {
       }
       return;
     }
-    
+
     // 非同期で audioBlob を AudioBuffer に変換する関数
     const decode = async () => {
 
       const audioCtx = new AudioContext();
       const arrayBuffer = await audioBlob.arrayBuffer();
       const decoded = await audioCtx.decodeAudioData(arrayBuffer);
-      
+
       setAudioBuffer(decoded);
       if (recMode === "melody" || recMode === "rhythm") {
         setContextAudioBuffer(recMode, decoded);
       }
     };
-    
+
     decode();
   }, [audioBlob]);
 

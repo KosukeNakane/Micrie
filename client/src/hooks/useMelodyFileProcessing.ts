@@ -6,6 +6,16 @@ import { useBarCount } from "../context/BarCountContext";
 import { useTempo } from "../context/TempoContext";
 import { useAudioBuffer } from "./useAudioBuffer";
 
+// ---- debug flag & memoization (module scope) ----
+const DEBUG = false; // true にするとログが出ます
+
+// トリミング結果を Blob 単位でキャッシュ（同じ Blob + 同じ想定長なら再計算しない）
+type TrimMemo = { duration: number; trimmed: Blob };
+const trimMemo = new WeakMap<Blob, TrimMemo>();
+
+// サーバー送信まで完了した "処理済み" の印（同じ Blob + 同じ想定長なら再送しない）
+const processedDuration = new WeakMap<Blob, number>();
+
 export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: number, enableTrimming: boolean = false) => {
   const { setMelodySegments, setContextAudioBuffer } = useSegment();
   const { barCount } = useBarCount();
@@ -25,15 +35,16 @@ export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: num
   // audioBlobが指定されたときに処理を開始
   useEffect(() => {
     if (!audioBlob) {
-      console.log("🔁 audioBlob が設定されていないため、処理をスキップします。");
+      if (DEBUG) console.log("🔁 audioBlob が未設定のため、処理をスキップ");
       return;
     }
+    if (DEBUG) console.log("🎬 audioBlob の処理を開始します");
 
-    console.log("🎬 audioBlob の処理を開始します");
+    const controller = new AbortController();
+    const { signal } = controller;
 
-    // 音声の長さを expectedSec に合わせて切り詰め or パディングし、WebM に再エンコード
     const adjustAudioLength = async (blob: Blob, expectedSec: number): Promise<Blob> => {
-      console.log("⏳ 音声長を調整中...");
+      if (DEBUG) console.log("⏳ 音声長を調整中...");
       const audioCtx = new AudioContext();
       const arrayBuffer = await blob.arrayBuffer();
       const decoded = await audioCtx.decodeAudioData(arrayBuffer);
@@ -43,13 +54,13 @@ export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: num
 
       let trimmed: AudioBuffer;
       if (decoded.length > expectedLength) {
-        console.log("✂️ 音声をトリミングします");
+        if (DEBUG) console.log("✂️ 音声をトリミングします");
         trimmed = audioCtx.createBuffer(decoded.numberOfChannels, expectedLength, sampleRate);
         for (let ch = 0; ch < decoded.numberOfChannels; ch++) {
           trimmed.copyToChannel(decoded.getChannelData(ch).slice(0, expectedLength), ch);
         }
       } else {
-        console.log("📏 無音を追加して音声をパディングします");
+        if (DEBUG) console.log("📏 無音を追加して音声をパディングします");
         trimmed = audioCtx.createBuffer(decoded.numberOfChannels, expectedLength, sampleRate);
         for (let ch = 0; ch < decoded.numberOfChannels; ch++) {
           const sourceData = decoded.getChannelData(ch);
@@ -59,7 +70,7 @@ export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: num
         }
       }
 
-      console.log("🎙️ WebM 形式で再エンコード中...");
+      if (DEBUG) console.log("🎙️ WebM 形式で再エンコード中...");
       const realCtx = new AudioContext();
       const dest = realCtx.createMediaStreamDestination();
       const src = realCtx.createBufferSource();
@@ -74,7 +85,10 @@ export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: num
 
       return new Promise((resolve) => {
         recorder.onstop = () => {
-          resolve(new Blob(chunks, { type: "audio/webm" }));
+          const out = new Blob(chunks, { type: "audio/webm" });
+          realCtx.close().catch(() => { });
+          audioCtx.close().catch(() => { });
+          resolve(out);
         };
         recorder.start();
         src.start();
@@ -84,10 +98,23 @@ export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: num
       });
     };
 
-    // 全体処理のメインロジック：長さ調整・送信・レスポンス処理
+    // ここで想定長を算出して、同一パラメータなら処理をスキップ
+    const expectedDuration = (60 / tempo) * 4 * barCount;
+
+    const already = processedDuration.get(audioBlob);
+    if (already !== undefined && Math.abs(already - expectedDuration) < 1e-6) {
+      if (DEBUG) console.log("✅ 既処理のため再送・再計算をスキップ");
+      const memo = trimMemo.get(audioBlob);
+      if (enableTrimming && memo && Math.abs(memo.duration - expectedDuration) < 1e-6) {
+        setTrimmedBlob(memo.trimmed);
+      } else if (!enableTrimming) {
+        setTrimmedBlob(audioBlob);
+      }
+      return;
+    }
+
     const process = async () => {
-      console.log("📐 tempo と barCount に基づいて想定長を計算します");
-      const expectedDuration = (60 / tempo) * 4 * barCount;
+      if (DEBUG) console.log("📐 tempo と barCount に基づいて想定長を計算します");
 
       let adjustedBlob: Blob;
       if (enableTrimming) {
@@ -96,13 +123,18 @@ export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: num
         adjustedBlob = audioBlob;
       }
 
+      if (enableTrimming) {
+        trimMemo.set(audioBlob, { duration: expectedDuration, trimmed: adjustedBlob });
+      }
+      processedDuration.set(audioBlob, expectedDuration);
+
       setTrimmedBlob(adjustedBlob);
 
-      console.log("📤 adjustedBlob をサーバーに送信します");
+      if (DEBUG) console.log("📤 adjustedBlob をサーバーに送信します");
 
       // Blob が小さすぎる場合は不正とみなしてスキップ
       if (adjustedBlob.size < 1000) {
-        console.warn("⚠️ adjustedBlob が小さすぎるため、送信を中止します");
+        if (DEBUG) console.warn("⚠️ adjustedBlob が小さすぎるため、送信を中止します");
         return;
       }
 
@@ -114,15 +146,16 @@ export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: num
       fetch("${baseUrl}/pitch", {
         method: "POST",
         body: formData,
+        signal,
       })
         .then((res) => {
-          console.log("📥 サーバーからの応答を受信しました");
+          if (DEBUG) console.log("📥 サーバーからの応答を受信しました");
           if (!res.ok) throw new Error("サーバーエラー: " + res.status);
           return res.json();
         })
-        // pitch_series をもとに時間情報付きのセグメントを生成
+        //pitch_series をもとに時間情報付きのセグメントを生成
         .then((data) => {
-          console.log("🧠 pitch_series の解析結果を処理します");
+          if (DEBUG) console.log("🧠 pitch_series の解析結果を処理します");
           const totalDuration = (60 / tempo) * 4 * barCount;
           const chunkDuration = totalDuration / data.pitch_series.length;
           const segments = data.pitch_series.map((seg: any, index: number) => {
@@ -144,11 +177,14 @@ export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: num
           setMelodySegments(segments);
         })
         .catch((err) => {
-          console.error("❌ Pitch解析エラー:", err);
+          if (DEBUG) console.error("❌ Pitch解析エラー:", err);
         });
     };
 
     process();
+    return () => {
+      try { controller.abort(); } catch { }
+    };
   }, [audioBlob, triggerKey]);
 
   // 外部で再利用できるようトリミング済みBlobを返す
