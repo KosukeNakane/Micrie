@@ -9,3 +9,4 @@ openai-whisper
 keras
 tensorflow
 torch  # whisperバックエンド用
+gunicorn

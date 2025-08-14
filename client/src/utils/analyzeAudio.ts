@@ -1,5 +1,6 @@
 // 音声データをバックエンドに送信して、リズムまたはメロディーの解析を行う関数。
 // 解析モード（whisper/keras）に応じて適切なエンドポイントへ送信する。
+const baseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
 export const analyzeAudio = async (
   blob: Blob,
@@ -23,7 +24,7 @@ export const analyzeAudio = async (
         : '/predict';
 
   // エンドポイントにPOSTリクエストを送信
-  const res = await fetch(`http://localhost:5172${endpoint}`, {
+  const res = await fetch(`${baseUrl}${endpoint}`, {
     method: 'POST',
     body: formData,
   });

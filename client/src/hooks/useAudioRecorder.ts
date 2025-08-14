@@ -12,6 +12,7 @@ import { useTeachableModel } from './useTeachableModel';
 import { useAnalysisMode } from '../context/AnalysisModeContext';
 import { useMode } from '../context/ModeContext';
 import { useBarCount } from '../context/BarCountContext';
+import { apiFetch } from '../lib/apiClient';
 
 // 音声Blobの末尾に無音を追加して、期待される録音時間に調整する
 const appendSilenceToBlob = async (originalBlob: Blob, sampleRate: number, durationSec: number): Promise<Blob> => {
@@ -92,7 +93,7 @@ export const useAudioRecorder = () => {
               formData.append("file", blob);
               formData.append("tempo", tempo.toString());
               formData.append("bar_count", barCount.toString());
-              fetch("http://localhost:5172/analyze", {
+              apiFetch("analyze", {
                 method: "POST",
                 body: formData,
               })
@@ -111,7 +112,7 @@ export const useAudioRecorder = () => {
               formData.append("file", blob);
               formData.append("tempo", tempo.toString());
               formData.append("bar_count", barCount.toString());
-              fetch("http://localhost:5172/predict", {
+              apiFetch("predict", {
                 method: "POST",
                 body: formData,
               })
@@ -137,15 +138,15 @@ export const useAudioRecorder = () => {
             formData.append("file", blob);
             formData.append("tempo", tempo.toString());
             formData.append("bar_count", barCount.toString());
-            fetch("http://localhost:5172/pitch", {
+            apiFetch("pitch", {
               method: "POST",
               body: formData,
             })
-              .then((res) => {
-                if (!res.ok) throw new Error("サーバーエラー: " + res.status);
-                return res.json();
-              })
               .then((data) => {
+                console.log("Pitch API response:", data);
+                if (!data || !Array.isArray(data.pitch_series)) {
+                  throw new Error("Pitch APIのレスポンス形式が不正です");
+                }
                 const totalDuration = (60 / tempo) * 4 * barCount;
                 const chunkDuration = totalDuration / data.pitch_series.length;
                 const segments = data.pitch_series.map((seg: any, index: number) => {

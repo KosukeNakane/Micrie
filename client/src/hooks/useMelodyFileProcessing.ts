@@ -111,7 +111,7 @@ export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: num
       formData.append("tempo", tempo.toString());
       formData.append("bar_count", barCount.toString());
 
-      fetch("http://localhost:5172/pitch", {
+      fetch("${baseUrl}/pitch", {
         method: "POST",
         body: formData,
       })
