@@ -1,15 +1,17 @@
 /** @jsxImportSource @emotion/react */
 
+import { useEffect } from "react";
+
 import { TopNav } from "../TopNav";
 import { glassBackground } from "../../styles/glassBackground";
 import { VerticalFader } from "./VerticalFader/VerticalFader";
 import { useEffects, type EffectKey } from "../../context/EffectsContext";
+import { useGlobalAudio } from "../../context/GlobalAudioContext";
 
 const LABELS: EffectKey[] = ["CRUSH", "COMB", "FILTER", "REVERB", "DIRTY", "CUTTER"];
 
 const Faders = () => {
   const { effects, setEffect } = useEffects();
-
   return (
     <div
       css={{
@@ -40,6 +42,15 @@ const Faders = () => {
 };
 
 export const PlayContent = () => {
+  const engine = useGlobalAudio();
+
+  useEffect(() => {
+    (async () => {
+      await engine.ensureStarted();
+      // ここでは停止や切断はしない。画面遷移しても継続再生させるため。
+    })();
+  }, [engine]);
+
   return (
     <div css={glassBackground}>
       {/* ナビゲーション */}

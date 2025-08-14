@@ -2,7 +2,7 @@
 // メロディーは定量化（Quantize）され、スケールモードに応じてピッチマップが適用される。
 
 import { useState, useEffect, useMemo } from 'react';
-import { useAudioEngine } from './useAudioEngine.ts';
+// import { useAudioEngine } from './useAudioEngine.ts';
 import { useChordsPlayer } from './useChordsPlayer';
 import { useMelodyPlayer } from './useMelodyPlayer';
 import { useDrumPlayer } from './useDrumPlayer';
@@ -12,11 +12,13 @@ import { extractQuantizedNotes } from '../utils/noteSegmentation';
 import { useScaleMode } from '../context/ScaleModeContext';
 import { majorPentatonicMap, minorPentatonicMap } from '../utils/pitchMaps.ts';
 import * as Tone from 'tone';
+import { GlobalAudioEngine } from '../audio/GlobalAudioEngine';
+const DEBUG = false; // trueでデバッグログ
 
 
 
 export const usePlaybackController = () => {
-  const { audioCtx } = useAudioEngine();
+  // const { audioCtx } = useAudioEngine();
   const { tempo } = useTempo();
   const { currentSegments } = useSegment();
   const { scaleMode } = useScaleMode();
@@ -44,7 +46,7 @@ export const usePlaybackController = () => {
 
   // デバッグ用ログ：定量化されたメロディーを表示
   useEffect(() => {
-    console.log('🎹 quantizedMelody:', quantizedMelody);
+    if (DEBUG) console.log('🎹 quantizedMelody:', quantizedMelody);
   }, [quantizedMelody]);
 
   // テンポに基づく音価の算出（コード＝8分音符、メロディ＝16分音符）
@@ -58,19 +60,20 @@ export const usePlaybackController = () => {
 
   const [isLoopPlaying, setIsLoopPlaying] = useState(false);
 
-  useEffect(() => {
-    return () => {
-      Tone.getTransport().stop();
-      Tone.getTransport().cancel();
-    };
-  }, []);
-
   // ループ再生を開始する関数
   // 各トラックを時間に合わせて再生し、2小節ごとに繰り返す
-  const loopPlay = () => {
-    if (!audioCtx || isLoopPlaying) return;
+  const loopPlay = async () => {
+    if (isLoopPlaying) return;
 
-    // const totalSteps = rawMelody.length; //現在は2小節で固定しているため未使用
+    // 🔓 ユーザー操作直下で呼ばれる想定：オーディオを解禁
+    if (Tone.getContext().state !== 'running') {
+      await Tone.start();
+    }
+    await GlobalAudioEngine.instance.ensureStarted();
+
+    const ac = GlobalAudioEngine.instance.audioContext;
+    if (!ac) return; // 予防
+
     const loopLengthInBeats = "2m";
 
     const playOnce = (time: number) => {

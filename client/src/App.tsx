@@ -21,6 +21,8 @@ import { DrumPatternProvider } from './context/DrumPatternContext';
 
 import { EffectsProvider } from './context/EffectsContext.tsx';
 
+import { GlobalAudioProvider } from './context/GlobalAudioContext.tsx';
+
 import { createSystem, defineConfig, defaultConfig, ChakraProvider } from "@chakra-ui/react";
 
 const config = defineConfig({
@@ -66,37 +68,39 @@ export const App = () => {
       <div css={contentStyle}>
         {/* アプリ全体に渡す状態管理のコンテキストプロバイダー群 + AppContent */}
         <ChakraProvider value={system}>
-          <AnalysisModeProvider>
-            <ModeProvider>
-              <RecordingProvider>
-                <TempoProvider>
-                  <RecordingUIProvider>
-                    <SegmentProvider>
-                      <BarCountProvider>
-                        <ScaleModeProvider>
-                          <CountBarsAndBeatsProvider>
-                            <ChordPatternProvider>
-                              <DrumPatternProvider>
-                                <EffectsProvider>
-                                  <Routes>
-                                    <Route path="/" element={<Navigate to="/create" replace />} />
-                                    <Route path="/create" element={<CreateContent />} />
-                                    <Route path="/rhythm" element={<RhythmContent />} />
-                                    <Route path="/melody" element={<MelodyContent />} />
-                                    <Route path="/play" element={<PlayContent />} />
-                                  </Routes>
-                                </EffectsProvider>
-                              </DrumPatternProvider>
-                            </ChordPatternProvider>
-                          </CountBarsAndBeatsProvider>
-                        </ScaleModeProvider>
-                      </BarCountProvider>
-                    </SegmentProvider>
-                  </RecordingUIProvider>
-                </TempoProvider>
-              </RecordingProvider>
-            </ModeProvider>
-          </AnalysisModeProvider>
+          <GlobalAudioProvider>
+            <AnalysisModeProvider>
+              <ModeProvider>
+                <RecordingProvider>
+                  <TempoProvider>
+                    <RecordingUIProvider>
+                      <SegmentProvider>
+                        <BarCountProvider>
+                          <ScaleModeProvider>
+                            <CountBarsAndBeatsProvider>
+                              <ChordPatternProvider>
+                                <DrumPatternProvider>
+                                  <EffectsProvider>
+                                    <Routes>
+                                      <Route path="/" element={<Navigate to="/create" replace />} />
+                                      <Route path="/create" element={<CreateContent />} />
+                                      <Route path="/rhythm" element={<RhythmContent />} />
+                                      <Route path="/melody" element={<MelodyContent />} />
+                                      <Route path="/play" element={<PlayContent />} />
+                                    </Routes>
+                                  </EffectsProvider>
+                                </DrumPatternProvider>
+                              </ChordPatternProvider>
+                            </CountBarsAndBeatsProvider>
+                          </ScaleModeProvider>
+                        </BarCountProvider>
+                      </SegmentProvider>
+                    </RecordingUIProvider>
+                  </TempoProvider>
+                </RecordingProvider>
+              </ModeProvider>
+            </AnalysisModeProvider>
+          </GlobalAudioProvider>
         </ChakraProvider>
       </div>
     </div>

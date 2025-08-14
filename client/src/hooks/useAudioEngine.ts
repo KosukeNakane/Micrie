@@ -1,50 +1,24 @@
 // WebAudioFont を使ったシンセサイザーの初期化を行うカスタムフック。
-// AudioContextとWebAudioFontPlayerのインスタンスを生成・返却する。
+// ただし AudioContext / WebAudioFontPlayer はローカルに作らず、
+// グローバル永続エンジン（GlobalAudioEngine）を使って共有する。
 
-import { useEffect, useRef } from 'react';
-
-declare const _tone_0000_Aspirin_sf2_file: any;
+import { useEffect, useMemo } from 'react';
+import { GlobalAudioEngine } from '../audio/GlobalAudioEngine';
 
 export const useAudioEngine = () => {
-  // AudioContext を保持する参照
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  // WebAudioFontPlayer インスタンスを保持する参照
-  const playerRef = useRef<any>(null);
+  const engine = useMemo(() => GlobalAudioEngine.instance, []);
 
   useEffect(() => {
-    // AudioContext が未初期化の場合に新規作成（Safari 対応も含む）
-    if (!audioCtxRef.current) {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      audioCtxRef.current = new AudioContextClass();
-    }
-
-    // WebAudioFontPlayer が未初期化の場合にインスタンス生成
-    if (!playerRef.current) {
-      playerRef.current = new (window as any).WebAudioFontPlayer();
-    }
-
-    // サウンドフォントファイルを読み込み
-    console.log("_tone_0000_Aspirin_sf2_file value:", _tone_0000_Aspirin_sf2_file);
-    if (_tone_0000_Aspirin_sf2_file?.url) {
-      playerRef.current.loader.startLoad(
-        audioCtxRef.current,
-        _tone_0000_Aspirin_sf2_file.url
-      );
-    } else {
-      playerRef.current.loader.decodeAfterLoading(
-        audioCtxRef.current,
-        _tone_0000_Aspirin_sf2_file
-      );
-    }
-    // 読み込み完了時のコールバックを登録
-    playerRef.current.loader.waitLoad(() => {
-      console.log('Sound font loaded');
-    });
+    (async () => {
+      await engine.ensureStarted();
+      await engine.initWebAudioFont();
+      // ここでは stop/disconnect は一切しない（遷移しても継続させるため）
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // AudioContext とプレイヤーを返却
   return {
-    audioCtx: audioCtxRef.current,
-    player: playerRef.current
-  };
+    audioCtx: engine.audioContext,
+    player: engine.player,
+  } as const;
 };
