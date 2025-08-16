@@ -1,4 +1,4 @@
-//現在未使用　Tone.jsでメロディーを再生する
+//現在未使用 Tone.jsでメロディーを再生する
 //client/src/hooks/useDrumLoop.ts
 
 // ドラムループの再生を管理するカスタムフック。
@@ -6,8 +6,9 @@
 
 import { useEffect, useRef, useState, useMemo } from 'react';
 import * as Tone from 'tone';
-import { useTempo } from '@entities/tempo/model/TempoContext';
+
 import { useSegment } from '@entities/segment/model/SegmentContext';
+import { useTempo } from '@entities/tempo/model/TempoContext';
 
 export const useDrumLoop = () => {
   const { tempo } = useTempo();
@@ -30,8 +31,8 @@ export const useDrumLoop = () => {
     const selectedSegments = loopMode === 'rhythm'
       ? currentSegments.rhythm
       : loopMode === 'melody'
-      ? []
-      : currentSegments.rhythm;
+        ? []
+        : currentSegments.rhythm;
 
     return selectedSegments
       .filter((step): step is { label: string; start: number; end: number } =>

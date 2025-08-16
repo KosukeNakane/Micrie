@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
-import { TopNav } from "@widgets/top-nav/ui/TopNav";
 import { glassBackground } from "@shared/styles/glassBackground";
+import { TopNav } from "@widgets/top-nav/ui/TopNav";
 
 export const MelodyPage = () => {
   return (

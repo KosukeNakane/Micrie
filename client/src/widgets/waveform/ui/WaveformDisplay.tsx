@@ -1,29 +1,19 @@
 // 波形表示・再生・ループ・セグメントラベル描画を担うメインUIコンポーネント
-import { useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
+import { useState, useEffect, useRef } from 'react';
 
-import { useAudioBuffer } from '@entities/audio/model/useAudioBuffer';
-import { useSegment } from '@entities/segment/model/SegmentContext';
-import { useTempo } from '@entities/tempo/model/TempoContext';
-import { useAnalyser } from '@entities/audio/model/useAnalyser';
-import { useDrumLoopScheduler } from '@features/playback/model/useDrumLoopScheduler';
-import { useMelodyLoopScheduler } from '@features/playback/model/useMelodyLoopScheduler';
-import { useChordLoopScheduler } from '@features/playback/model/useChordsLoopScheduler';
-import { useRecording } from '@entities/audio/model/RecordingContext';
-import { useRecordingUI } from '@entities/audio/model/RecordingUIContext';
-import { useBarCount } from '@entities/bar-count/model/BarCountContext';
-import { useCountBarsAndBeats } from '@entities/count-bars-and-beats/model/CountBarsAndBeatsContext';
-
-import { RecordingBeatIndicator } from '@features/recording/ui/RecordingBeatIndicator';
-import { RhythmSegmentEditor } from '@features/segment-edit/ui/RhythmSegmentEditor';
-import MelodySegmentEditor from '@features/segment-edit/ui/MelodySegmentEditor';
-import { WaveformViewer } from '@features/waveform/ui/WaveformViewer';
-import { RectButton } from '@shared/ui/RectButton';
-import { StyledArea } from '@shared/ui/StyledArea';
-import TempoControlButton from '@features/tempo/ui/TempoControlButton';
-import { usePlaybackController } from '@features/playback/model/usePlaybackController';
-import { ChordPatternSelect } from '@features/pattern-select/ui/ChordPatternSelect';
-import { DrumPatternSelect } from '@features/pattern-select/ui/DrumPatternSelect';
+import { useAudioBuffer, useAnalyser, useRecording, useRecordingUI } from '@entities/audio';
+import { useBarCount } from '@entities/bar-count';
+import { useCountBarsAndBeats } from '@entities/count-bars-and-beats';
+import { useSegment } from '@entities/segment';
+import { useTempo } from '@entities/tempo';
+import { ChordPatternSelect, DrumPatternSelect } from '@features/pattern-select';
+import { useDrumLoopScheduler, useMelodyLoopScheduler, useChordsLoopScheduler as useChordLoopScheduler, usePlaybackController } from '@features/playback';
+import { RecordingBeatIndicator } from '@features/recording';
+import { RhythmSegmentEditor, MelodySegmentEditor } from '@features/segment-edit';
+import { TempoControlButton } from '@features/tempo';
+import { WaveformViewer } from '@features/waveform';
+import { RectButton, StyledArea } from '@shared/ui';
 
 export const CenteredArea = styled(StyledArea)`
   flex-direction: column;
@@ -159,17 +149,17 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
             {loopMode === 'both' ? (
               <>
                 {rhythmSegments.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
-                  const x = Math.floor((i / 16) * canvasWidth);
+                  const x = Math.floor(((i + 0.5) / 16) * canvasWidth);
                   return seg.label !== 'rest' && (
-                    <SegmentLabel key={`rhythm-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `-10px` }}>
+                    <SegmentLabel key={`rhythm-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `-10px`, transform: 'translateX(-50%)' }}>
                       {seg.label}
                     </SegmentLabel>
                   );
                 })}
                 {melodySegments.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
-                  const x = Math.floor((i / 16) * canvasWidth);
+                  const x = Math.floor(((i + 0.5) / 16) * canvasWidth);
                   return seg.label !== 'rest' && (
-                    <SegmentLabel key={`melody-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `65px` }}>
+                    <SegmentLabel key={`melody-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `65px`, transform: 'translateX(-50%)' }}>
                       {seg.label}
                     </SegmentLabel>
                   );
@@ -178,17 +168,17 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
             ) : (
               <>
                 {currentSegments.rhythm?.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
-                  const x = Math.floor((i / 16) * canvasWidth);
+                  const x = Math.floor(((i + 0.5) / 16) * canvasWidth);
                   return seg.label !== 'rest' && (
-                    <SegmentLabel key={`rhythm-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `-10px` }}>
+                    <SegmentLabel key={`rhythm-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `-10px`, transform: 'translateX(-50%)' }}>
                       {seg.label}
                     </SegmentLabel>
                   );
                 })}
                 {currentSegments.melody?.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
-                  const x = Math.floor((i / 16) * canvasWidth);
+                  const x = Math.floor(((i + 0.5) / 16) * canvasWidth);
                   return seg.label !== 'rest' && (
-                    <SegmentLabel key={`melody-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `-10px` }}>
+                    <SegmentLabel key={`melody-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `-10px`, transform: 'translateX(-50%)' }}>
                       {seg.label}
                     </SegmentLabel>
                   );

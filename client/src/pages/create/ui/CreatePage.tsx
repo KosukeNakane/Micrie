@@ -2,19 +2,19 @@
 // 録音、再生、リアルタイムラベル表示、解析結果表示などの要素を統合
 
 /** @jsxImportSource @emotion/react */
-import { glassBackground } from "@shared/styles/glassBackground";
 import { useState, useEffect } from "react";
+
 import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
-import { TopNav } from "@widgets/top-nav/ui/TopNav";
-import { ModeAndRecGroup } from "@widgets/create/mode-and-rec-group/ui/ModeAndRecGroup";
-import { ControlPanel } from "@widgets/create/control-panel/ui/ControlPanel";
-import { WaveformDisplay } from "@features/waveform/ui/WaveformDisplay";
-import { RealtimeLabel } from "@features/recording/ui/RealtimeLabel";
-import { useAudioRecorder } from "@features/recording/model/useAudioRecorder";
 import { useTempo } from "@entities/tempo/model/TempoContext";
-import { RectButton } from "@shared/ui/RectButton";
 import { useMelodyFileProcessing } from "@features/analysis/model/useMelodyFileProcessing";
-import { DeveloperToolsPanel } from "@widgets/create/developer-tools-panel/ui/DeveloperToolsPanel";
+import { RealtimeLabel, useAudioRecorder } from "@features/recording";
+import { glassBackground } from "@shared/styles";
+import { RectButton } from "@shared/ui/RectButton";
+import { ControlPanel } from "@widgets/create/control-panel";
+import { DeveloperToolsPanel } from "@widgets/create/developer-tools-panel";
+import { ModeAndRecGroup } from "@widgets/create/mode-and-rec-group";
+import { TopNav } from "@widgets/top-nav";
+import { WaveformDisplay } from "@widgets/waveform";
 
 export const CreatePage = () => {
 

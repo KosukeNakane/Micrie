@@ -1,7 +1,8 @@
-//現在未使用　Tone.jsでメロディーを再生する
+//現在未使用 Tone.jsでメロディーを再生する
 //client/src/hooks/useChordsLoop.ts
 
 import { useEffect, useRef } from 'react';
+
 import { useTempo } from '@entities/tempo/model/TempoContext';
 
 declare const _tone_0000_Aspirin_sf2_file: any;
@@ -47,7 +48,7 @@ export const useChordsLoop = (
       playerRef.current = new (window as any).WebAudioFontPlayer();
     }
     playerRef.current.loader.startLoad(audioCtxRef.current, _tone_0000_Aspirin_sf2_file);
-    playerRef.current.loader.waitLoad(() => {});
+    playerRef.current.loader.waitLoad(() => { });
   }, []);
 
   useEffect(() => {

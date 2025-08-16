@@ -1,10 +1,11 @@
 // TEMPOの値を調整するためのボタンとドロップダウンUIコンポーネント（初期実装）
+import styled from '@emotion/styled';
 import RcSlider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { useState, useEffect } from 'react';
-import styled from '@emotion/styled';
-import { StyledButton } from '@shared/ui/RectButton';
+
 import { useTempo } from '@entities/tempo/model/TempoContext';
+import { StyledButton } from '@shared/ui/RectButton';
 
 type Props = {
   isOpen: boolean;

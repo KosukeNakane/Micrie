@@ -20,7 +20,10 @@ export class GlobalAudioEngine {
   private loopSrc: MediaElementAudioSourceNode | null = null;
   private loopGain: GainNode | null = null;
 
-  private constructor() {}
+  private constructor() {
+    // シングルトン実装のための空コンストラクタ。
+    // 外部からの new を禁止し、`instance` 経由でのみ生成・参照させる意図で空実装としている。
+  }
 
   async ensureStarted() {
     if (!this.ctx) {
@@ -64,8 +67,11 @@ export class GlobalAudioEngine {
   noteOff(voiceHandle: any) {
     if (!this.wafPlayer || !voiceHandle) return;
     try {
+      // WebAudioFont のキューを masterGain（全体出力）に対して一括キャンセルする。
       this.wafPlayer.cancelQueue(this.ctx, this.masterGain);
-    } catch {}
+    } catch (e) {
+      // UI/UX を中断させないための意図的な no-op。
+    }
   }
 
   async loadLoop(url: string, { loop = true, volume = 1 }: { loop?: boolean; volume?: number } = {}) {

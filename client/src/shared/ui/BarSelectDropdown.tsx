@@ -1,10 +1,13 @@
 // 録音する小節(bar)数を選択するドロップダウン形式のセレクター。
 // グローバル状態 barCount を変更する機能を持つ。
 
-import { useState } from 'react';
 import styled from '@emotion/styled';
-import { RectButton } from './RectButton';
+import { useState } from 'react';
+
 import { useBarCount } from '@entities/bar-count/model/BarCountContext';
+
+import { RectButton } from './RectButton';
+
 
 // ドロップダウン全体を囲むコンテナ。position: relative でメニューを内包。
 const DropdownContainer = styled.div`

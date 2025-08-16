@@ -1,19 +1,20 @@
-//現在未使用　Tone.jsでメロディーを再生する
+//現在未使用 Tone.jsでメロディーを再生する
 //client/src/hooks/useMelodyLoop.ts
 
 // メロディループを制御するカスタムフック
 // currentSegments.melody のノート情報を基に、テンポに合わせてTone.jsで繰り返し再生する
 
 import { useRef, useState, useEffect, useMemo } from 'react';
-import { useSegment } from '@entities/segment/model/SegmentContext';
-// import * as Tone from 'tone';
-import { useTempo } from '@entities/tempo/model/TempoContext';
+
 import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
+import { useSegment } from '@entities/segment/model/SegmentContext';
+import { useTempo } from '@entities/tempo/model/TempoContext';
+// import * as Tone from 'tone';
 
 // import WebAudioFontPlayer from 'webaudiofont';
 
 export const useMelodyLoop = () => {
-  const {scaleMode} = useScaleMode();
+  const { scaleMode } = useScaleMode();
   const scaleModeRef = useRef(scaleMode);
   useEffect(() => {
     scaleModeRef.current = scaleMode;

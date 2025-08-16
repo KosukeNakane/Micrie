@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Box, chakra } from "@chakra-ui/react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Props = {
     value: number;

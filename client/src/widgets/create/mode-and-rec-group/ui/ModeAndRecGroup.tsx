@@ -1,5 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import styled from '@emotion/styled';
+
 import { RecButton } from '@features/recording/ui/RecButton';
 
 type Props = {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+
 import { useSegment } from '@entities/segment/model/SegmentContext';
 
 export const useAudioBuffer = (audioBlob: Blob | null) => {

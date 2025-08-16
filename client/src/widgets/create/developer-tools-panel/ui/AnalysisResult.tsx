@@ -1,6 +1,7 @@
 // MelodyセグメントとRhythmセグメントを統合し、解析結果を一覧表示するコンポーネント
 
 import { useState } from 'react';
+
 import { useSegment } from '@entities/segment/model/SegmentContext';
 import { RectButton } from '@shared/ui/RectButton';
 

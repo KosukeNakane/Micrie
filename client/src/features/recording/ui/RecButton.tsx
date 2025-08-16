@@ -2,12 +2,13 @@
 // 録音状態に応じてスタイルと動作を変更する
 
 import styled from '@emotion/styled';
-import { StyledButton } from '@shared/ui/RectButton';
+
 import { useRecording } from '@entities/audio/model/RecordingContext';
 import { useRecordingUI } from '@entities/audio/model/RecordingUIContext';
-import { useTempo } from '@entities/tempo/model/TempoContext';
 import { useBarCount } from '@entities/bar-count/model/BarCountContext';
 import { useCountBarsAndBeats } from '@entities/count-bars-and-beats/model/CountBarsAndBeatsContext';
+import { useTempo } from '@entities/tempo/model/TempoContext';
+import { StyledButton } from '@shared/ui/RectButton';
 
 // 録音状態に応じて色・影・押し込み表現が変わるスタイル付き丸型ボタン
 const CircularButton = styled(StyledButton)<{ recording: boolean }>`

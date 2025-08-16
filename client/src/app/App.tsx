@@ -1,8 +1,9 @@
 // Micrie アプリのルートコンポーネント。
 // 各種コンテキストプロバイダーで状態を共有しつつ、AppContentを表示する。
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
 import { createSystem, defineConfig, defaultConfig, ChakraProvider } from "@chakra-ui/react";
+import { css } from '@emotion/react';
+
 import { Providers } from '@app/providers/Providers';
 import { AppRouter } from '@app/routes/AppRouter';
 

@@ -183,7 +183,7 @@ npm run dev
 #### Scale 切り替えボタン
 - 音程全体を特定のスケールにリマッピングします。（基本的にはMajorを推奨）
 
-#### ▾ Open Developer Tools　/ ▴ Close Developer Tools
+#### ▾ Open Developer Tools / ▴ Close Developer Tools
 - 開発者向けの詳細機能を開閉できます。
 
 ---

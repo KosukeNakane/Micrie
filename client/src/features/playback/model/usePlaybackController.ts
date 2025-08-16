@@ -1,15 +1,16 @@
 import { useEffect, useMemo } from 'react';
-import { useChordsPlayer } from '@features/playback/model/useChordsPlayer';
-import { useMelodyPlayer } from '@features/playback/model/useMelodyPlayer';
-import { useDrumPlayer } from '@features/playback/model/useDrumPlayer';
-import { useTempo } from '@entities/tempo/model/TempoContext';
-import { useSegment } from '@entities/segment/model/SegmentContext';
-import { extractQuantizedNotes } from '@shared/lib/noteSegmentation';
-import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
-import { majorPentatonicMap, minorPentatonicMap } from '@shared/lib/pitchMaps';
 import * as Tone from 'tone';
+
 import { GlobalAudioEngine } from '@entities/audio/lib/GlobalAudioEngine';
+import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
+import { useSegment } from '@entities/segment/model/SegmentContext';
+import { useTempo } from '@entities/tempo/model/TempoContext';
 import { useTransportStore } from '@entities/transport/model/useTransportStore';
+import { useChordsPlayer } from '@features/playback/model/useChordsPlayer';
+import { useDrumPlayer } from '@features/playback/model/useDrumPlayer';
+import { useMelodyPlayer } from '@features/playback/model/useMelodyPlayer';
+import { extractQuantizedNotes } from '@shared/lib/noteSegmentation';
+import { majorPentatonicMap, minorPentatonicMap } from '@shared/lib/pitchMaps';
 
 const DEBUG = false;
 

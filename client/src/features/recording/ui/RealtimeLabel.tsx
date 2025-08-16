@@ -1,5 +1,6 @@
 // 現在認識されている音声ラベルを画面右上に表示
 import styled from '@emotion/styled';
+
 import { useMode } from '@entities/mode/model/ModeContext';
 
 type Props = { label: string | null };

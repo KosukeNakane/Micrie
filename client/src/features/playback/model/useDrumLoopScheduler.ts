@@ -3,8 +3,9 @@
 
 import { useEffect, useRef, useState, useMemo } from 'react';
 import * as Tone from 'tone';
-import { useTempo } from '@entities/tempo/model/TempoContext';
+
 import { useSegment } from '@entities/segment/model/SegmentContext';
+import { useTempo } from '@entities/tempo/model/TempoContext';
 
 export const useDrumLoopScheduler = () => {
   const { tempo } = useTempo();
