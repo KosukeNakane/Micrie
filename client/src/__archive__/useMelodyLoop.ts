@@ -5,10 +5,10 @@
 // currentSegments.melody のノート情報を基に、テンポに合わせてTone.jsで繰り返し再生する
 
 import { useRef, useState, useEffect, useMemo } from 'react';
-import { useSegment } from '../context/SegmentContext';
+import { useSegment } from '@entities/segment/model/SegmentContext';
 // import * as Tone from 'tone';
-import { useTempo } from '../context/TempoContext';
-import { useScaleMode } from '../context/ScaleModeContext';
+import { useTempo } from '@entities/tempo/model/TempoContext';
+import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 
 // import WebAudioFontPlayer from 'webaudiofont';
 
