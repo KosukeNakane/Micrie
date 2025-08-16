@@ -2,7 +2,7 @@
 //client/src/hooks/useChordsLoop.ts
 
 import { useEffect, useRef } from 'react';
-import { useTempo } from '../context/TempoContext';
+import { useTempo } from '@entities/tempo/model/TempoContext';
 
 declare const _tone_0000_Aspirin_sf2_file: any;
 
