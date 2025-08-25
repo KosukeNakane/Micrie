@@ -2,9 +2,10 @@
 // currentSegments.melody のノート情報を基に、テンポに合わせてTone.jsで繰り返し再生する
 
 import { useRef, useState, useEffect, useMemo } from 'react';
+
+import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 import { useSegment } from '@entities/segment/model/SegmentContext';
 import { useTempo } from '@entities/tempo/model/TempoContext';
-import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 
 export const useMelodyLoopScheduler = () => {
     const { scaleMode } = useScaleMode();

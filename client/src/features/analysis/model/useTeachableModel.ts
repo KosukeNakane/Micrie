@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import * as speechCommands from "@tensorflow-models/speech-commands";
 import * as tf from '@tensorflow/tfjs';
+import * as speechCommands from "@tensorflow-models/speech-commands";
+import { useEffect, useState } from "react";
 import '@tensorflow/tfjs-backend-webgl';
 
 export const useTeachableModel = () => {

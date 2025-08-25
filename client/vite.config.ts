@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     resolve: {
       alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
         util: 'util/',
         process: 'rollup-plugin-node-polyfills/polyfills/process-es6',
         '@app': fileURLToPath(new URL('./src/app', import.meta.url)),

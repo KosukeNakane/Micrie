@@ -1,11 +1,12 @@
-import { ModeToggleButtons } from "@widgets/create/mode-toggle-buttons/ui/ModeToggleButtons";
-import { AudioFileUploader } from "./AudioFileUploader";
-import { AnalysisResult } from "@widgets/create/developer-tools-panel/ui/AnalysisResult";
-import { MelodyRecButton, RhythmRecButton } from "@widgets/create/mode-and-rec-group/ui/ModeAndRecGroupButtons";
-import { PlaybackButton } from "./PlaybackButton";
 import { BarSelectDropdown } from "@shared/ui/BarSelectDropdown";
-import { TrimmingToggle } from "./TrimmingToggle";
+import { MelodyRecButton, RhythmRecButton } from "@widgets/create/mode-and-rec-group/";
+import { ModeToggleButtons } from "@widgets/create/mode-toggle-buttons";
+
+import { AnalysisResult } from "./AnalysisResult";
+import { AudioFileUploader } from "./AudioFileUploader";
 import { MelodyReanalysisPanel } from "./MelodyReanalysisPanel";
+import { PlaybackButton } from "./PlaybackButton";
+import { TrimmingToggle } from "./TrimmingToggle";
 
 interface DeveloperToolsPanelProps {
   tempo: number;

@@ -21,6 +21,7 @@
     "@emotion/styled": "^11.14.0",
     "@tensorflow-models/speech-commands": "0.5.4",
     "@tensorflow/tfjs": "^3.21.0",
+    "@tensorflow/tfjs-backend-webgl": "^3.21.0",
     "framer-motion": "^12.15.0",
     "rc-slider": "^11.1.8",
     "react": "19.1.0",
@@ -39,11 +40,20 @@
     "@types/react-dom": "19.1.5",
     "@vitejs/plugin-react": "4.5.0",
     "eslint": "9.27.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-react-refresh": "0.4.20",
+    "eslint-plugin-unused-imports": "^4.1.4",
     "globals": "16.2.0",
     "typescript": "5.8.3",
     "typescript-eslint": "8.33.0",
     "vite": "6.3.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "typedoc": "^0.24.0"
+    }
   }
 }

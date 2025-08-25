@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { useRef, useEffect } from 'react';
+
 import { useSegment } from '@entities/segment/model/SegmentContext';
 
 const Canvas = styled.canvas`

@@ -1,6 +1,7 @@
 // テンポとスケール（VIBE）等のコントロールをまとめたパネル
-import ControlButton from './ControlButton';
 import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
+
+import { ControlButton } from './ControlButton';
 
 export const ControlPanel = () => {
   const { scaleMode, setScaleMode } = useScaleMode();

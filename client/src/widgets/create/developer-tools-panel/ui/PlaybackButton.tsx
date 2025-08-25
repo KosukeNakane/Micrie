@@ -1,6 +1,7 @@
 import React from 'react';
-import { RectButton } from '@shared/ui/RectButton';
+
 import { useSegment } from '@entities/segment/model/SegmentContext';
+import { RectButton } from '@shared/ui/RectButton';
 
 type PlaybackButtonProps = {
   isPlaying: boolean;

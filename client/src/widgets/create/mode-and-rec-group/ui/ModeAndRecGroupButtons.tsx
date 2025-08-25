@@ -1,6 +1,6 @@
-import { RectButton } from '@shared/ui/RectButton';
 import { useMode } from '@entities/mode/model/ModeContext';
 import { useSegment } from '@entities/segment/model/SegmentContext';
+import { RectButton } from '@shared/ui/RectButton';
 
 export const RhythmRecButton = () => {
   const { mode, setMode } = useMode();

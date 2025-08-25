@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+
 import { GlobalAudioEngine } from '@entities/audio/lib/GlobalAudioEngine';
 
 export const useAudioEngine = () => {

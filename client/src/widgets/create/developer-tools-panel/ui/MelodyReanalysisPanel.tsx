@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { useMelodyFileProcessing } from "@features/analysis/model/useMelodyFileProcessing";
 import { Button } from "@chakra-ui/react";
+import React, { useState } from "react";
+
+import { useMelodyFileProcessing } from "@features/analysis/model/useMelodyFileProcessing";
 
 type Props = { audioBlob: Blob | null };
 

@@ -1,4 +1,5 @@
 import Select from 'react-select';
+
 import { useDrumPattern } from '@entities/pattern/model/DrumPatternContext';
 
 export type DrumPattern = 'basic' | 'hiphop' | 'funk' | 'rock' | 'jazz' | 'electro';

@@ -1,8 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { CreatePage } from '@pages/create/ui/CreatePage';
-import { RhythmPage } from '@pages/rhythm/ui/RhythmPage';
-import { MelodyPage } from '@pages/melody/ui/MelodyPage';
-import { PlayPage } from '@pages/play/ui/PlayPage';
+
+import { CreatePage } from '@pages/create';
+import { MelodyPage } from '@pages/melody';
+import { PlayPage } from '@pages/play';
+import { RhythmPage } from '@pages/rhythm';
 
 export const AppRouter = () => (
   <Routes>
@@ -13,4 +14,3 @@ export const AppRouter = () => (
     <Route path="/play" element={<PlayPage />} />
   </Routes>
 );
-

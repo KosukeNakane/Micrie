@@ -2,11 +2,12 @@
 
 import { useEffect } from "react";
 
-import { TopNav } from "@widgets/top-nav/ui/TopNav";
-import { glassBackground } from "@shared/styles/glassBackground";
-import { VerticalFader } from "@features/effects/ui/VerticalFader";
-import { useEffects, type EffectKey } from "@entities/effects/model/EffectsContext";
 import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
+import { useEffects, type EffectKey } from "@entities/effects/model/EffectsContext";
+import { VerticalFader } from "@features/effects/ui/VerticalFader";
+import { glassBackground } from "@shared/styles/glassBackground";
+import { TopNav } from "@widgets/top-nav/ui/TopNav";
+
 
 const LABELS: EffectKey[] = ["CRUSH", "COMB", "FILTER", "REVERB", "DIRTY", "CUTTER"];
 

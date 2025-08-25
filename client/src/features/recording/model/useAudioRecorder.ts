@@ -6,12 +6,13 @@
 // 3. toggleRecording: 録音の開始/停止をトグルする
 
 import { useEffect, useRef, useState } from 'react';
-import { useSegment } from '@entities/segment/model/SegmentContext';
-import { useRecording } from '@entities/audio/model/RecordingContext';
-import { useTeachableModel } from '@features/analysis/model/useTeachableModel';
+
 import { useAnalysisMode } from '@entities/analysis/model/AnalysisModeContext';
-import { useMode } from '@entities/mode/model/ModeContext';
+import { useRecording } from '@entities/audio/model/RecordingContext';
 import { useBarCount } from '@entities/bar-count/model/BarCountContext';
+import { useMode } from '@entities/mode/model/ModeContext';
+import { useSegment } from '@entities/segment/model/SegmentContext';
+import { useTeachableModel } from '@features/analysis/model/useTeachableModel';
 import { apiFetch } from '@shared/api/apiClient';
 
 // 音声Blobの末尾に無音を追加して、期待される録音時間に調整する

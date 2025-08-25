@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useSegment } from "@entities/segment/model/SegmentContext";
-import { useBarCount } from "@entities/bar-count/model/BarCountContext";
-import { useTempo } from "@entities/tempo/model/TempoContext";
+
 import { useAudioBuffer } from "@entities/audio/model/useAudioBuffer";
+import { useBarCount } from "@entities/bar-count/model/BarCountContext";
+import { useSegment } from "@entities/segment/model/SegmentContext";
+import { useTempo } from "@entities/tempo/model/TempoContext";
 import { apiFetch } from "@shared/api/apiClient";
 
 const DEBUG = false;
@@ -41,7 +42,7 @@ export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: num
       srcNode.buffer = trimmed; srcNode.connect(dest); srcNode.connect(realCtx.destination);
       const recorder = new MediaRecorder(dest.stream); const chunks: Blob[] = [];
       recorder.ondataavailable = (e) => chunks.push(e.data);
-      return new Promise((resolve) => { recorder.onstop = () => { const out = new Blob(chunks, { type: "audio/webm" }); realCtx.close().catch(() => {}); audioCtx.close().catch(() => {}); resolve(out); }; recorder.start(); srcNode.start(); setTimeout(() => recorder.stop(), expectedSec * 1000); });
+      return new Promise((resolve) => { recorder.onstop = () => { const out = new Blob(chunks, { type: "audio/webm" }); realCtx.close().catch(() => { }); audioCtx.close().catch(() => { }); resolve(out); }; recorder.start(); srcNode.start(); setTimeout(() => recorder.stop(), expectedSec * 1000); });
     };
 
     const expectedDuration = (60 / tempo) * 4 * barCount;
@@ -76,7 +77,12 @@ export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: num
     };
 
     process();
-    return () => { try { controller.abort(); } catch {} };
+    return () => {
+      // クリーンアップ: すでに中断済みでなければ abort() を呼ぶ。
+      if (!controller.signal.aborted) {
+        controller.abort();
+      }
+    };
   }, [audioBlob, triggerKey]);
 
   return { trimmedBlob };

@@ -2,9 +2,10 @@
 // 一定テンポで現在のコード位置を更新し、他コンポーネントで参照できるようにする。
 
 import { useEffect, useRef } from 'react';
+
 import { useTempo } from '@entities/tempo/model/TempoContext';
 
-export const useChordLoopScheduler = (isChordsPlaying: boolean) => {
+export const useChordsLoopScheduler = (isChordsPlaying: boolean) => {
     const { tempo } = useTempo();
 
     // コード配列の長さ（ステップ数）に合わせてループ範囲を設定

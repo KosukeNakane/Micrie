@@ -1,9 +1,19 @@
-import React, { useMemo, memo } from "react";
 import styled from "@emotion/styled";
+import React, { useMemo, memo } from "react";
 import { TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
-import { useSegment } from "@entities/segment/model/SegmentContext";
-import { useScaleMode } from "@entities/scale-mode/model/ScaleModeContext";
 import * as Tone from "tone";
+
+import { useScaleMode } from "@entities/scale-mode/model/ScaleModeContext";
+import { useSegment } from "@entities/segment/model/SegmentContext";
+
+const NoteControlGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: calc(100% / 16);
+  box-sizing: border-box;
+  overflow: hidden;
+`;
 
 const GlassButtonUp = styled.button<{ position?: "left" | "right" }>`
   background: rgba(255, 255, 255, 0.1);
@@ -74,7 +84,7 @@ const MelodySegmentEditor: React.FC<Props> = ({ barIndex, width }) => {
     return currentSegments.melody.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
       const globalIndex = barIndex * 16 + i;
       return (
-        <div key={globalIndex} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: `calc(100% / 16)` }}>
+        <NoteControlGroup key={globalIndex}>
           <GlassButtonUp position={i === 0 ? "left" : i === 15 ? "right" : undefined} onClick={() => shiftNote(globalIndex, 1)}><TiArrowSortedUp /></GlassButtonUp>
           <GlassButtonDown onClick={() => shiftNote(globalIndex, -1)}><TiArrowSortedDown /></GlassButtonDown>
           <StyledSwitchButton position={i === 0 ? "left" : i === 15 ? "right" : undefined} onClick={() => {
@@ -89,7 +99,7 @@ const MelodySegmentEditor: React.FC<Props> = ({ barIndex, width }) => {
           }}>
             {seg.note === "rest" ? "○" : "●"}
           </StyledSwitchButton>
-        </div>
+        </NoteControlGroup>
       );
     });
   }, [currentSegments.melody, barIndex, scaleMode]);
@@ -102,4 +112,3 @@ const MelodySegmentEditor: React.FC<Props> = ({ barIndex, width }) => {
 };
 
 export default memo(MelodySegmentEditor);
-

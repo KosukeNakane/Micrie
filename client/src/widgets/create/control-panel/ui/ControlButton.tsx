@@ -35,7 +35,7 @@ const Label = styled.label`
   color: rgba(5, 4, 69, 0.8);
 `;
 
-export default function ControlButton({ label, options, value, onSelect }: Props) {
+export function ControlButton({ label, options, value, onSelect }: Props) {
   return (
     <Container>
       <Label>{label}</Label>

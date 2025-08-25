@@ -1,5 +1,5 @@
-import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 import { usePianoSampler } from '@entities/audio/model/usePianoSampler';
+import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 import { majorPentatonicMap, minorPentatonicMap } from '@shared/lib/pitchMaps';
 
 declare const _tone_0000_Aspirin_sf2_file: any;
