@@ -5,7 +5,7 @@ import { RecordingUIProvider } from '@entities/audio/model/RecordingUIContext';
 import { BarCountProvider } from '@entities/bar-count/model/BarCountContext';
 import { CountBarsAndBeatsProvider } from '@entities/count-bars-and-beats/model/CountBarsAndBeatsContext';
 import { EffectsProvider } from '@entities/effects/model/EffectsContext';
-import { ReverbBinder } from '@features/effects';
+import { ReverbBinder, CutFiltersBinder } from '@features/effects';
 import { ToneMasterBridge } from '@features/playback/model/ToneMasterBridge';
 import { ModeProvider } from '@entities/mode/model/ModeContext';
 import { ChordPatternProvider } from '@entities/pattern/model/ChordPatternContext';
@@ -35,6 +35,7 @@ export const Providers = ({ children }: Props) => (
                         <DrumPatternProvider>
                           <EffectsProvider>
                             <ReverbBinder />
+                            <CutFiltersBinder />
                             {children}
                           </EffectsProvider>
                         </DrumPatternProvider>

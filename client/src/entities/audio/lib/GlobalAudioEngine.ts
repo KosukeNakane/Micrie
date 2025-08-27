@@ -28,6 +28,14 @@ export class GlobalAudioEngine {
   private dryGain: GainNode | null = null;
   private reverbWet = 0; // 0..1
 
+  // Cut filters (master-wide): masterGain -> [lowcut] -> [hicut] -> (reverb/dry)
+  private lowcutEnabled = false;
+  private hicutEnabled = false;
+  private lowcutAmount = 0; // 0..1 (0 = bypass)
+  private hicutAmount = 0; // 0..1 (0 = bypass)
+  private lowcutNode: BiquadFilterNode | null = null;
+  private hicutNode: BiquadFilterNode | null = null;
+
   private constructor() {
     // シングルトン実装のための空コンストラクタ。
     // 外部からの new を禁止し、`instance` 経由でのみ生成・参照させる意図で空実装としている。
@@ -175,16 +183,32 @@ export class GlobalAudioEngine {
 
   private connectMasterToOutput() {
     if (!this.masterGain || !this.outputGain) return;
+    // いったん関係ノードを切断
     try { this.masterGain.disconnect(); } catch (_) { /* no-op */ }
+    try { this.lowcutNode?.disconnect(); } catch (_) { /* no-op */ }
+    try { this.hicutNode?.disconnect(); } catch (_) { /* no-op */ }
+    try { this.dryGain?.disconnect(); } catch (_) { /* no-op */ }
+    try { this.wetGain?.disconnect(); } catch (_) { /* no-op */ }
+
+    // フィルタチェーンを構成
+    let tail: AudioNode = this.masterGain;
+    if (this.lowcutEnabled && this.lowcutNode) {
+      tail.connect(this.lowcutNode);
+      tail = this.lowcutNode;
+    }
+    if (this.hicutEnabled && this.hicutNode) {
+      tail.connect(this.hicutNode);
+      tail = this.hicutNode;
+    }
+
     if (!this.reverbEnabled) {
-      this.masterGain.connect(this.outputGain);
+      tail.connect(this.outputGain);
       return;
     }
     if (!this.convolver || !this.wetGain || !this.dryGain) return;
-    try { this.dryGain.disconnect(); } catch (_) { /* no-op */ }
-    try { this.wetGain.disconnect(); } catch (_) { /* no-op */ }
-    this.masterGain.connect(this.dryGain);
-    this.masterGain.connect(this.convolver);
+    // reverb の wet/dry 分岐
+    tail.connect(this.dryGain);
+    tail.connect(this.convolver);
     this.convolver.connect(this.wetGain);
     this.dryGain.connect(this.outputGain);
     this.wetGain.connect(this.outputGain);
@@ -208,6 +232,69 @@ export class GlobalAudioEngine {
       await this.ensureReverbNodes();
       this.applyReverbWetGains();
     }
+  }
+
+  // --- Hicut / Lowcut (master) ----------------------------------------
+  private ensureCutNodes() {
+    if (!this.ctx) return;
+    if (!this.lowcutNode) {
+      this.lowcutNode = this.ctx.createBiquadFilter();
+      this.lowcutNode.type = 'highpass';
+      this.lowcutNode.Q.value = Math.SQRT1_2; // バタワース相当
+    }
+    if (!this.hicutNode) {
+      this.hicutNode = this.ctx.createBiquadFilter();
+      this.hicutNode.type = 'lowpass';
+      this.hicutNode.Q.value = Math.SQRT1_2;
+    }
+  }
+
+  private mapLowcutHz(amount: number) {
+    // 0 -> bypass, 1 -> ~1000Hz。指数マッピング
+    const min = 20;
+    const max = 1000;
+    const a = Math.max(0, Math.min(1, amount));
+    return min * Math.pow(max / min, a);
+  }
+
+  private mapHicutHz(amount: number) {
+    // 0 -> bypass (~20kHz), 1 -> ~2kHz。指数マッピング（上から絞る）
+    const nyq = this.ctx ? this.ctx.sampleRate / 2 : 22050;
+    const min = 2000;
+    const max = Math.min(20000, nyq);
+    const a = Math.max(0, Math.min(1, amount));
+    // amount=0 => max, amount=1 => min
+    return max * Math.pow(min / max, a);
+  }
+
+  async setLowcutAmount(amount01: number) {
+    this.lowcutAmount = Math.max(0, Math.min(1, amount01));
+    this.lowcutEnabled = this.lowcutAmount > 0.0001;
+    await this.ensureStarted();
+    if (!this.ctx) return;
+    this.ensureCutNodes();
+    if (this.lowcutNode) {
+      const hz = this.mapLowcutHz(this.lowcutAmount);
+      this.lowcutNode.frequency.value = hz;
+      this.lowcutNode.type = 'highpass';
+      this.lowcutNode.Q.value = Math.SQRT1_2;
+    }
+    this.connectMasterToOutput();
+  }
+
+  async setHicutAmount(amount01: number) {
+    this.hicutAmount = Math.max(0, Math.min(1, amount01));
+    this.hicutEnabled = this.hicutAmount > 0.0001;
+    await this.ensureStarted();
+    if (!this.ctx) return;
+    this.ensureCutNodes();
+    if (this.hicutNode) {
+      const hz = this.mapHicutHz(this.hicutAmount);
+      this.hicutNode.frequency.value = hz;
+      this.hicutNode.type = 'lowpass';
+      this.hicutNode.Q.value = Math.SQRT1_2;
+    }
+    this.connectMasterToOutput();
   }
 
   // バッファをエンジンのマスターチェーン経由でワンショット再生
