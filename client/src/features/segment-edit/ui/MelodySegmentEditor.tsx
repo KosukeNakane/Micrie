@@ -4,6 +4,7 @@ import { TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
 import * as Tone from "tone";
 
 import { useScaleMode } from "@entities/scale-mode/model/ScaleModeContext";
+import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
 import { useSegment } from "@entities/segment/model/SegmentContext";
 
 const NoteControlGroup = styled.div`
@@ -60,6 +61,7 @@ type Props = { barIndex: number; width: number };
 const MelodySegmentEditor: React.FC<Props> = ({ barIndex, width }) => {
   const { currentSegments, updateMelodySegment } = useSegment();
   const { scaleMode } = useScaleMode();
+  const engine = useGlobalAudio();
 
   const shiftNote = (index: number, semitone: number) => {
     const note = currentSegments.melody[index].note;
@@ -71,6 +73,8 @@ const MelodySegmentEditor: React.FC<Props> = ({ barIndex, width }) => {
       const newMidi = midi + semitone;
       const newNote = Tone.Frequency(newMidi, "midi").toNote();
       updateMelodySegment(index, { note: newNote, label: newNote });
+      // プレビュー再生時にマスターがミュートされていると無音になるため、念のため解除
+      (async () => { try { await engine.setMasterMuted(false); } catch {} })();
       synth.triggerAttackRelease(newNote, "8n");
     } catch (error) { console.warn("Note conversion error:", error); }
   };

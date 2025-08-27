@@ -59,7 +59,7 @@ type Props = { audioBlob: Blob | null };
 export const WaveformDisplay = ({ audioBlob }: Props) => {
   const [tempoControlOpen, setTempoControlOpen] = useState(false);
   const { currentBar, currentBeat } = useCountBarsAndBeats();
-  const { currentSegments, loopMode, rhythmSegments, melodySegments, audioBuffers } = useSegment();
+  const { currentSegments, loopMode, rhythmSegments, melodySegments, setContextAudioBuffer } = useSegment();
   const { isRecording } = useRecording();
   const canvasRef = useAnalyser();
   const { tempo } = useTempo();
@@ -74,9 +74,8 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
 
   useEffect(() => {
     if (!audioBuffer) return;
-    if (loopMode === 'rhythm') audioBuffers.rhythm = audioBuffer;
-    else if (loopMode === 'melody') audioBuffers.melody = audioBuffer;
-  }, [audioBuffer, loopMode, audioBuffers]);
+    setContextAudioBuffer(loopMode === 'rhythm' ? 'rhythm' : 'melody', audioBuffer);
+  }, [audioBuffer, loopMode, setContextAudioBuffer]);
 
   const waveformRef = useRef<HTMLDivElement>(null);
   const waveformLeftRef = useRef(0);
@@ -140,7 +139,7 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
         )}
       </WaveformArea>
 
-      {audioBuffer && Array.from({ length: barCount }).map((_, barIndex) => (
+      {Array.from({ length: barCount }).map((_, barIndex) => (
         <div style={{ height: '220px' }} key={barIndex}>
           <BarWaveformContainer>
             {loopMode === 'both' ? (
