@@ -24,7 +24,8 @@ const Faders = () => {
         boxShadow: "0 8px 16px 0 rgba(31, 38, 135, 0.37)",
         background: "linear-gradient(135deg, rgba(255,255,255,0.35), rgba(140,194,209,0.25))",
         padding: 16,
-        marginTop: 12,
+        width: 600,
+        margin: "12px auto 0",
       }}
     >
       <div css={{ display: "flex", gap: "12px", alignItems: "flex-end", justifyContent: "center" }}>

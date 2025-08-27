@@ -47,6 +47,7 @@ export const usePlaybackController = () => {
     // Tone.Transport とアプリのテンポを同期
     Tone.getTransport().bpm.value = tempo;
     await GlobalAudioEngine.instance.ensureStarted();
+    await GlobalAudioEngine.instance.setMasterMuted(false);
 
     const loopLengthInBeats = '2m';
     const playOnce = (time: number) => {
@@ -68,6 +69,8 @@ export const usePlaybackController = () => {
   };
 
   const stop = () => {
+    // 即時ミュートして現在鳴っている音も瞬時に無音化
+    GlobalAudioEngine.instance.setMasterMuted(true);
     Tone.getTransport().stop();
     Tone.getTransport().cancel();
     setLoopPlaying(false);

@@ -13,6 +13,8 @@ export class GlobalAudioEngine {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null; // 合流点（プリ・エフェクト）
   private outputGain: GainNode | null = null; // 最終出力（ポスト・エフェクト）
+  private masterMuted = false;
+  private prevOutputGain = 1;
 
   private wafPlayer: any | null = null;
   private wafLoaded = false;
@@ -72,7 +74,7 @@ export class GlobalAudioEngine {
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.value = 1; // プリ段
       this.outputGain = this.ctx.createGain();
-      this.outputGain.gain.value = 1; // マスター音量
+      this.outputGain.gain.value = 1; // マスター音量（mute時は0に退避）
       // 初期はドライ直結
       this.masterGain.connect(this.outputGain);
       this.outputGain.connect(this.ctx.destination);
@@ -157,6 +159,25 @@ export class GlobalAudioEngine {
   get audioContext() { return this.ctx; }
   get player() { return this.wafPlayer; }
   get masterInput(): AudioNode | null { return this.masterGain; }
+
+  // 即時ミュート/解除（現在鳴っている音も即サイレンス化）。
+  async setMasterMuted(muted: boolean) {
+    await this.ensureStarted();
+    if (!this.ctx || !this.outputGain) return;
+    if (muted === this.masterMuted) return;
+    const now = this.ctx.currentTime;
+    if (muted) {
+      this.prevOutputGain = this.outputGain.gain.value;
+      this.outputGain.gain.cancelScheduledValues(now);
+      this.outputGain.gain.setTargetAtTime(0, now, 0.01);
+      this.masterMuted = true;
+    } else {
+      const target = this.prevOutputGain > 0 ? this.prevOutputGain : 1;
+      this.outputGain.gain.cancelScheduledValues(now);
+      this.outputGain.gain.setTargetAtTime(target, now, 0.02);
+      this.masterMuted = false;
+    }
+  }
 
   async unlock() {
     await this.ensureStarted();
