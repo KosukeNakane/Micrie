@@ -9,7 +9,7 @@ import { glassBackground } from "@shared/styles/glassBackground";
 import { TopNav } from "@widgets/top-nav/ui/TopNav";
 
 
-const LABELS: EffectKey[] = ["CRUSH", "COMB", "FILTER", "REVERB", "DIRTY", "CUTTER"];
+const LABELS: EffectKey[] = ["CRUSH", "COMB", "HICUT", "LOWCUT", "REVERB", "DIRTY"];
 
 const Faders = () => {
   const { effects, setEffect } = useEffects();

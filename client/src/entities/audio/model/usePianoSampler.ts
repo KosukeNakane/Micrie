@@ -1,8 +1,16 @@
 import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
+import { useGlobalAudio } from './GlobalAudioContext';
 
 let _sampler: Tone.Sampler | null = null;
 let _loaded = false;
+
+const ensureToneContext = (ctx: AudioContext) => {
+  if (Tone.getContext().rawContext !== ctx) {
+    const toneCtx = new Tone.Context({ context: ctx as any });
+    Tone.setContext(toneCtx);
+  }
+};
 
 const getOrCreateSampler = () => {
   if (_sampler) return _sampler;
@@ -25,12 +33,36 @@ const getOrCreateSampler = () => {
     },
     release: 1,
     onload: () => { if (!_loaded) { _loaded = true; console.log('Piano Sampler loaded'); } },
-  }).toDestination();
+  });
   return _sampler;
 };
 
 export const usePianoSampler = () => {
   const samplerRef = useRef<Tone.Sampler | null>(null);
-  useEffect(() => { samplerRef.current = getOrCreateSampler(); return () => {}; }, []);
+  const engine = useGlobalAudio();
+
+  useEffect(() => {
+    (async () => {
+      await engine.ensureStarted();
+      const ctx = engine.audioContext!;
+      ensureToneContext(ctx);
+
+      // 既存のサンプラーが他Contextなら破棄
+      if (_sampler && (_sampler.context.rawContext !== Tone.getContext().rawContext)) {
+        _sampler.dispose();
+        _sampler = null;
+        _loaded = false;
+      }
+
+      const sampler = getOrCreateSampler();
+      // 出力をエンジンの master に接続
+      try { sampler.disconnect(); } catch {}
+      const input = engine.masterInput as unknown as AudioNode | null;
+      if (input) sampler.connect(input as any);
+      samplerRef.current = sampler;
+    })();
+    return () => {};
+  }, [engine]);
+
   return samplerRef;
 };

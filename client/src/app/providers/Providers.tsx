@@ -5,6 +5,8 @@ import { RecordingUIProvider } from '@entities/audio/model/RecordingUIContext';
 import { BarCountProvider } from '@entities/bar-count/model/BarCountContext';
 import { CountBarsAndBeatsProvider } from '@entities/count-bars-and-beats/model/CountBarsAndBeatsContext';
 import { EffectsProvider } from '@entities/effects/model/EffectsContext';
+import { ReverbBinder } from '@features/effects';
+import { ToneMasterBridge } from '@features/playback/model/ToneMasterBridge';
 import { ModeProvider } from '@entities/mode/model/ModeContext';
 import { ChordPatternProvider } from '@entities/pattern/model/ChordPatternContext';
 import { DrumPatternProvider } from '@entities/pattern/model/DrumPatternContext';
@@ -18,6 +20,8 @@ type Props = { children: ReactNode };
 
 export const Providers = ({ children }: Props) => (
   <GlobalAudioProvider>
+    {/* Tone のコンテキストを最優先でエンジンに統一 */}
+    <ToneMasterBridge />
     <AnalysisModeProvider>
       <ModeProvider>
         <RecordingProvider>
@@ -30,6 +34,7 @@ export const Providers = ({ children }: Props) => (
                       <ChordPatternProvider>
                         <DrumPatternProvider>
                           <EffectsProvider>
+                            <ReverbBinder />
                             {children}
                           </EffectsProvider>
                         </DrumPatternProvider>
@@ -45,4 +50,3 @@ export const Providers = ({ children }: Props) => (
     </AnalysisModeProvider>
   </GlobalAudioProvider>
 );
-

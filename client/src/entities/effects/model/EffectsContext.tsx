@@ -1,9 +1,9 @@
 import React, { createContext, useCallback, useContext, useMemo, useReducer } from "react";
 
-export type EffectKey = "CRUSH" | "COMB" | "FILTER" | "REVERB" | "DIRTY" | "CUTTER";
+export type EffectKey = "CRUSH" | "COMB" | "HICUT" | "LOWCUT" | "REVERB" | "DIRTY";
 export type EffectState = Record<EffectKey, number>;
 
-const INITIAL_STATE: EffectState = { CRUSH: 0, COMB: 0, FILTER: 0, REVERB: 0, DIRTY: 0, CUTTER: 0 };
+const INITIAL_STATE: EffectState = { CRUSH: 0, COMB: 0, HICUT: 0, LOWCUT: 0, REVERB: 0, DIRTY: 0 };
 
 type Action =
   | { type: "SET_VALUE"; key: EffectKey; value: number }
