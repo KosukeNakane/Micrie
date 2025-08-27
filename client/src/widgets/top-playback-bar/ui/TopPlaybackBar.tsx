@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { RectButton } from '@shared/ui/RectButton';
 import { usePlaybackController } from '@features/playback/model/usePlaybackController';
-import { TempoControlButton } from '@features/tempo';
+import { TempoControl } from '@features/tempo';
 
 const BarWrapper = styled.div`
   backdrop-filter: blur(20px);
@@ -57,7 +57,6 @@ export const TopPlaybackBar = () => {
   const { loopPlay, stop, reset, isLoopPlaying } = usePlaybackController();
   const [ratio, setRatio] = useState(0);
   const rafRef = useRef<number | null>(null);
-  const [tempoControlOpen, setTempoControlOpen] = useState(false);
 
   useEffect(() => {
     const tick = () => {
@@ -99,8 +98,8 @@ export const TopPlaybackBar = () => {
         </ProgressWrap>
       </ControlsRow>
       <TempoRow>
-        <div style={{ width: 160 }}>
-          <TempoControlButton isOpen={tempoControlOpen} onToggle={() => setTempoControlOpen((prev) => !prev)} />
+        <div style={{ width: 200 }}>
+          <TempoControl />
         </div>
       </TempoRow>
     </BarWrapper>

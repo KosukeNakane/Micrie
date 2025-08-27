@@ -5,40 +5,39 @@ import 'rc-slider/assets/index.css';
 import { useState, useEffect } from 'react';
 
 import { useTempo } from '@entities/tempo/model/TempoContext';
-import { StyledButton } from '@shared/ui/RectButton';
 
 type Props = {
-  isOpen: boolean;
-  onToggle: () => void;
+  // Legacy props kept for compatibility; ignored now
+  isOpen?: boolean;
+  onToggle?: () => void;
 };
 
 const Wrapper = styled.div`
-  position: relative;
   display: inline-block;
 `;
 
-const Dropdown = styled.div`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: white;
-  border-radius: 6px;
-  margin-top: 4px;
-  padding: 12px;
-  width: 200px;
-  z-index: 100;
-`;
-
 const Label = styled.label`
+  font-family: "brandon-grotesque", sans-serif;
+  font-weight: 500;
+  font-style: normal;
   font-size: 14px;
+  color: rgba(5, 4, 69, 0.8);
   margin-bottom: 4px;
   display: block;
 `;
 
 const NumberInput = styled.input`
   width: 50%;
+  font-family: "brandon-grotesque", sans-serif;
+  font-weight: 500;
+  font-style: normal;
   font-size: 16px;
+  color: rgba(5, 4, 69, 0.8);
   text-align: center;
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 34px;
 `;
 
 const StyledRcSliderWrapper = styled.div`
@@ -67,7 +66,7 @@ const StyledRcSliderWrapper = styled.div`
   }
 `;
 
-const TempoControlButton = ({ isOpen, onToggle }: Props) => {
+const TempoControlButton = (_props: Props) => {
   const { tempo, setTempo } = useTempo();
   const [tempoInput, setTempoInput] = useState(String(tempo));
 
@@ -86,28 +85,21 @@ const TempoControlButton = ({ isOpen, onToggle }: Props) => {
 
   return (
     <Wrapper>
-      <StyledButton onClick={onToggle} active={isOpen} style={{ width: '160px', justifyContent: 'center' }}>
-        TEMPO: BPM {tempo}
-      </StyledButton>
-      {isOpen && (
-        <Dropdown>
-          <Label>TEMPO: {tempo} BPM</Label>
-          <StyledRcSliderWrapper>
-            <RcSlider
-              min={20}
-              max={160}
-              value={tempo}
-              onChange={(value) => {
-                if (typeof value === 'number') {
-                  setTempo(value);
-                  setTempoInput(String(value));
-                }
-              }}
-            />
-          </StyledRcSliderWrapper>
-          <NumberInput type="text" min="20" max="160" value={tempoInput} onChange={handleInputChange} />
-        </Dropdown>
-      )}
+      <Label>TEMPO <NumberInput type="text" min="20" max="160" value={tempoInput} onChange={handleInputChange} />BPM</Label>
+      <StyledRcSliderWrapper>
+        <RcSlider
+          min={20}
+          max={160}
+          value={tempo}
+          onChange={(value) => {
+            if (typeof value === 'number') {
+              setTempo(value);
+              setTempoInput(String(value));
+            }
+          }}
+        />
+      </StyledRcSliderWrapper>
+
     </Wrapper>
   );
 };

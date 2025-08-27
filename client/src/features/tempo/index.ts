@@ -1,2 +1,2 @@
-export { default as TempoControlButton } from './ui/TempoControlButton';
+export { default as TempoControl } from './ui/TempoControl';
 
