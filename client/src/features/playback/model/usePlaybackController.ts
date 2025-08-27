@@ -121,10 +121,17 @@ export const usePlaybackController = () => {
     setLoopPlaying(false);
   };
 
+  const reset = () => {
+    // 停止（位置リセット0:0:0）
+    GlobalAudioEngine.instance.setMasterMuted(true);
+    Tone.getTransport().stop();
+    setLoopPlaying(false);
+  };
+
   useEffect(() => {
     const actuallyPlaying = Tone.getTransport().state === 'started';
     setLoopPlaying(actuallyPlaying);
   }, [setLoopPlaying]);
 
-  return { loopPlay, stop, isLoopPlaying };
+  return { loopPlay, stop, reset, isLoopPlaying };
 };

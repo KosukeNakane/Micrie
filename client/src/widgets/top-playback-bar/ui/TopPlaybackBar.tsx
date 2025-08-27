@@ -41,7 +41,7 @@ const ProgressDot = styled.div<{ x: number }>`
 `;
 
 export const TopPlaybackBar = () => {
-  const { loopPlay, stop, isLoopPlaying } = usePlaybackController();
+  const { loopPlay, stop, reset, isLoopPlaying } = usePlaybackController();
   const [ratio, setRatio] = useState(0);
   const rafRef = useRef<number | null>(null);
 
@@ -73,10 +73,12 @@ export const TopPlaybackBar = () => {
     if (isLoopPlaying) stop();
     else await loopPlay();
   };
+  const onStop = () => { reset(); setRatio(0); };
 
   return (
     <BarWrapper>
-      <RectButton onClick={onToggle} label={isLoopPlaying ? '⏸ Pause' : '▶︎ Play'} />
+      <RectButton onClick={onToggle} label={isLoopPlaying ? '⏸ Pause' : '▶︎ Play'} widthPx={70} />
+      <RectButton onClick={onStop} label={'■ Stop'} widthPx={70} />
       <ProgressWrap aria-label="loop progress">
         <ProgressDot x={ratio} />
       </ProgressWrap>
