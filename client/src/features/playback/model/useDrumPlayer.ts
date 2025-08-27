@@ -1,7 +1,8 @@
 import { useEffect, useRef, useMemo } from 'react';
-import * as Tone from 'tone';
+// import * as Tone from 'tone';
 
 import { useDrumPattern } from '@entities/pattern/model/DrumPatternContext';
+import { useGlobalAudio } from '@entities/audio/model/GlobalAudioContext';
 import { useTempo } from '@entities/tempo/model/TempoContext';
 
 type DrumType = 'kick' | 'snare' | 'hihat';
@@ -47,7 +48,7 @@ export const useDrumPlayer = () => {
       snare: '/samples/PublicSamples/Drums/Snare14.wav'
     };
     const loadAll = async () => {
-      const ctx = Tone.getContext().rawContext;
+      const ctx = engine.audioContext!;
       const entries = await Promise.all((Object.entries(drumFiles) as [DrumType, string][]) .map(async ([type, url]) => {
         const res = await fetch(url); const arrayBuffer = await res.arrayBuffer(); const audioBuffer = await ctx.decodeAudioData(arrayBuffer); return [type, audioBuffer] as const; }));
       buffersRef.current = Object.fromEntries(entries);
@@ -55,15 +56,19 @@ export const useDrumPlayer = () => {
     loadAll();
   }, []);
 
+  const engine = useGlobalAudio();
   const playDrumLoop = (startTime: number) => {
     const pattern = drumPatterns[drumPattern] || drumPatterns['basic'];
-    const ctx = Tone.getContext().rawContext; const beatDuration = 60 / tempo;
+    const ctx = engine.audioContext!; const beatDuration = 60 / tempo;
     pattern.forEach(({ type, time }) => {
       const buffer = buffersRef.current[type]; if (!buffer) return;
-      const source = ctx.createBufferSource(); source.buffer = buffer; source.connect(ctx.destination); source.start(startTime + time * beatDuration);
+      const source = ctx.createBufferSource(); source.buffer = buffer;
+      // エンジンの master に合流させる
+      const input = engine.masterInput as unknown as AudioNode | null;
+      if (input) source.connect(input); else source.connect(ctx.destination);
+      source.start(startTime + time * beatDuration);
     });
   };
 
   return { playDrumLoop };
 };
-

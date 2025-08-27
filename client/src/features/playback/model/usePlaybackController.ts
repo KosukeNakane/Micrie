@@ -44,6 +44,8 @@ export const usePlaybackController = () => {
   const loopPlay = async () => {
     if (isLoopPlaying) return;
     if (Tone.getContext().state !== 'running') await Tone.start();
+    // Tone.Transport とアプリのテンポを同期
+    Tone.getTransport().bpm.value = tempo;
     await GlobalAudioEngine.instance.ensureStarted();
 
     const loopLengthInBeats = '2m';
@@ -78,4 +80,3 @@ export const usePlaybackController = () => {
 
   return { loopPlay, stop, isLoopPlaying };
 };
-

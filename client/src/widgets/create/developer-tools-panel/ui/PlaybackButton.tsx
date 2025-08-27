@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useSegment } from '@entities/segment/model/SegmentContext';
+import { useGlobalAudio } from '@entities/audio/model/GlobalAudioContext';
 import { RectButton } from '@shared/ui/RectButton';
 
 type PlaybackButtonProps = {
@@ -14,11 +15,10 @@ type PlaybackButtonProps = {
 export const PlaybackButton: React.FC<PlaybackButtonProps> = ({ isPlaying, setIsPlaying, startX, endX }) => {
   const { audioBuffers } = useSegment();
   const recordedBuffer = audioBuffers.melody;
+  const engine = useGlobalAudio();
   const playAudio = (buffer: AudioBuffer, startTime: number, endTime: number) => {
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const source = audioCtx.createBufferSource();
-    source.buffer = buffer; source.connect(audioCtx.destination);
-    const duration = endTime - startTime; source.start(0, startTime, duration);
+    const duration = Math.max(0, endTime - startTime);
+    engine.playBufferSegment(buffer, startTime, startTime + duration);
   };
   const togglePlay = () => {
     if (!recordedBuffer) return;

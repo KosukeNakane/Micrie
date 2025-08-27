@@ -4,6 +4,7 @@
 import { createSystem, defineConfig, defaultConfig, ChakraProvider } from "@chakra-ui/react";
 import { css } from '@emotion/react';
 
+import AudioUnlockGate from "@/features/audio-unlock/ui/AudioUnlockGate";
 import { Providers } from '@app/providers/Providers';
 import { AppRouter } from '@app/routes/AppRouter';
 
@@ -49,6 +50,7 @@ export const App = () => {
       <div css={backgroundStyle} />
       <div css={contentStyle}>
         {/* アプリ全体に渡す状態管理のコンテキストプロバイダー群 + ルーティング */}
+        <AudioUnlockGate /> {/* AudioContextのロック解除を促すUI */}
         <ChakraProvider value={system}>
           <Providers>
             <AppRouter />
