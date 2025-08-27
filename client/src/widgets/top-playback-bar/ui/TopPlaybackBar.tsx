@@ -46,10 +46,20 @@ export const TopPlaybackBar = () => {
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const loopLen = Tone.Time('2m').toSeconds();
     const tick = () => {
-      const t = Tone.getTransport().seconds;
-      const r = loopLen > 0 ? ((t % loopLen) / loopLen) : 0;
+      // 進捗は楽譜時間ベースで算出（テンポ変更に頑強）
+      const pos = Tone.getTransport().position as unknown as string; // "bars:beats:sixteenths"
+      const [barsStr, beatsStr, sixStr] = (pos || '0:0:0').split(':');
+      const bars = Number(barsStr) || 0;
+      const beats = Number(beatsStr) || 0;
+      const six = Number(sixStr) || 0;
+      // timeSignature（拍子）を考慮（デフォルト4/4）
+      // @ts-ignore
+      const ts = (Tone.getTransport().timeSignature ?? 4) as number | [number, number];
+      const beatsPerBar = Array.isArray(ts) ? ts[0] : ts;
+      const totalBeats = bars * beatsPerBar + beats + six / 4;
+      const loopBeats = beatsPerBar * 2; // 2小節ループ
+      const r = loopBeats > 0 ? ((totalBeats % loopBeats) / loopBeats) : 0;
       setRatio(r);
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -66,7 +76,7 @@ export const TopPlaybackBar = () => {
 
   return (
     <BarWrapper>
-      <RectButton onClick={onToggle} label={isLoopPlaying ? '■ Stop' : '▶︎ Play'} />
+      <RectButton onClick={onToggle} label={isLoopPlaying ? '⏸ Pause' : '▶︎ Play'} />
       <ProgressWrap aria-label="loop progress">
         <ProgressDot x={ratio} />
       </ProgressWrap>

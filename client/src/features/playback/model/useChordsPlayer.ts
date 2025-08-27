@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 
 import { usePianoSampler } from '@entities/audio/model/usePianoSampler';
 import { useChordPattern } from '@entities/pattern/model/ChordPatternContext';
@@ -30,6 +30,10 @@ export const useChordsPlayer = () => {
     });
   };
 
-  return { playChords };
-};
+  // 単一コードを所定時間に鳴らす（Part用）
+  const playChordAt = useCallback((notes: string[], time: number, duration: number) => {
+    notes.forEach(note => pianoSamplerRef.current?.triggerAttackRelease(note, duration, time));
+  }, [pianoSamplerRef]);
 
+  return { playChords, playChordAt, chords };
+};
