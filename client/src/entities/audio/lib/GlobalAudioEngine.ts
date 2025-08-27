@@ -36,6 +36,30 @@ export class GlobalAudioEngine {
   private lowcutNode: BiquadFilterNode | null = null;
   private hicutNode: BiquadFilterNode | null = null;
 
+  // DIRTY (distortion) — inserted after lowcut, before hicut
+  private dirtyEnabled = false;
+  private dirtyAmount = 0; // 0..1
+  private dirtyPreGain: GainNode | null = null;
+  private dirtyShaper: WaveShaperNode | null = null;
+  private dirtyPostGain: GainNode | null = null;
+
+  // CRUSH (bitcrusher) — inserted after lowcut and before DIRTY
+  private bitcrusherEnabled = false;
+  private bitcrusherAmount = 0; // 0..1
+  private bitcrusherNode: AudioWorkletNode | null = null;
+
+  // COMB (flanger/comb filter) — inserted after DIRTY, before hicut
+  private combEnabled = false;
+  private combAmount = 0; // 0..1
+  private combIn: GainNode | null = null;
+  private combDelay: DelayNode | null = null;
+  private combFeedback: GainNode | null = null;
+  private combWet: GainNode | null = null;
+  private combDry: GainNode | null = null;
+  private combOut: GainNode | null = null;
+  private combLFO: OscillatorNode | null = null;
+  private combLFOGain: GainNode | null = null;
+
   private constructor() {
     // シングルトン実装のための空コンストラクタ。
     // 外部からの new を禁止し、`instance` 経由でのみ生成・参照させる意図で空実装としている。
@@ -186,7 +210,18 @@ export class GlobalAudioEngine {
     // いったん関係ノードを切断
     try { this.masterGain.disconnect(); } catch (_) { /* no-op */ }
     try { this.lowcutNode?.disconnect(); } catch (_) { /* no-op */ }
+    try { this.bitcrusherNode?.disconnect(); } catch (_) { /* no-op */ }
+    try { this.dirtyPreGain?.disconnect(); } catch (_) { /* no-op */ }
+    try { this.dirtyShaper?.disconnect(); } catch (_) { /* no-op */ }
+    try { this.dirtyPostGain?.disconnect(); } catch (_) { /* no-op */ }
     try { this.hicutNode?.disconnect(); } catch (_) { /* no-op */ }
+    // comb nodes
+    try { this.combIn?.disconnect(); } catch (_) { /* no-op */ }
+    try { this.combDelay?.disconnect(); } catch (_) { /* no-op */ }
+    try { this.combFeedback?.disconnect(); } catch (_) { /* no-op */ }
+    try { this.combWet?.disconnect(); } catch (_) { /* no-op */ }
+    try { this.combDry?.disconnect(); } catch (_) { /* no-op */ }
+    try { this.combOut?.disconnect(); } catch (_) { /* no-op */ }
     try { this.dryGain?.disconnect(); } catch (_) { /* no-op */ }
     try { this.wetGain?.disconnect(); } catch (_) { /* no-op */ }
 
@@ -195,6 +230,35 @@ export class GlobalAudioEngine {
     if (this.lowcutEnabled && this.lowcutNode) {
       tail.connect(this.lowcutNode);
       tail = this.lowcutNode;
+    }
+    // optional bitcrusher (CRUSH)
+    if (this.bitcrusherEnabled && this.bitcrusherNode) {
+      tail.connect(this.bitcrusherNode);
+      tail = this.bitcrusherNode;
+    }
+    // optional DIRTY (waveshaper)
+    if (this.dirtyEnabled && this.dirtyPreGain && this.dirtyShaper && this.dirtyPostGain) {
+      tail.connect(this.dirtyPreGain);
+      this.dirtyPreGain.connect(this.dirtyShaper);
+      this.dirtyShaper.connect(this.dirtyPostGain);
+      tail = this.dirtyPostGain;
+    }
+    // optional COMB (flanger-like)
+    if (this.combEnabled && this.combIn && this.combDelay && this.combFeedback && this.combWet && this.combDry && this.combOut) {
+      // feed input into comb block
+      tail.connect(this.combIn);
+      // wet path: input -> delay -> wet -> out
+      this.combIn.connect(this.combDelay);
+      this.combDelay.connect(this.combWet);
+      this.combWet.connect(this.combOut);
+      // dry path: input -> dry -> out
+      tail.connect(this.combDry);
+      this.combDry.connect(this.combOut);
+      // feedback: delay -> feedback -> input
+      this.combDelay.connect(this.combFeedback);
+      this.combFeedback.connect(this.combIn);
+      // tail is now combOut
+      tail = this.combOut;
     }
     if (this.hicutEnabled && this.hicutNode) {
       tail.connect(this.hicutNode);
@@ -293,6 +357,143 @@ export class GlobalAudioEngine {
       this.hicutNode.frequency.value = hz;
       this.hicutNode.type = 'lowpass';
       this.hicutNode.Q.value = Math.SQRT1_2;
+    }
+    this.connectMasterToOutput();
+  }
+
+  // --- DIRTY (distortion) ---------------------------------------------
+  private ensureDirtyNodes() {
+    if (!this.ctx) return;
+    if (!this.dirtyPreGain) {
+      this.dirtyPreGain = this.ctx.createGain();
+    }
+    if (!this.dirtyShaper) {
+      this.dirtyShaper = this.ctx.createWaveShaper();
+      this.dirtyShaper.oversample = '4x';
+    }
+    if (!this.dirtyPostGain) {
+      this.dirtyPostGain = this.ctx.createGain();
+    }
+  }
+
+  private makeDistortionCurve(amount: number) {
+    // amount 0..1 -> k 0..150
+    const a = Math.max(0, Math.min(1, amount));
+    const k = a * 150;
+    const n_samples = 2048;
+    const curve = new Float32Array(n_samples);
+    const deg = Math.PI / 180;
+    for (let i = 0; i < n_samples; ++i) {
+      const x = (i * 2) / n_samples - 1; // -1..1
+      curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+    }
+    return curve;
+  }
+
+  async setDirtyAmount(amount01: number) {
+    this.dirtyAmount = Math.max(0, Math.min(1, amount01));
+    this.dirtyEnabled = this.dirtyAmount > 0.0001;
+    await this.ensureStarted();
+    if (!this.ctx) return;
+    this.ensureDirtyNodes();
+    if (this.dirtyPreGain && this.dirtyShaper && this.dirtyPostGain) {
+      // Map amount to drive and make-up gain
+      const drive = 1 + this.dirtyAmount * 19; // 1..20x
+      const makeup = 1 / Math.sqrt(1 + this.dirtyAmount * 15); // tame output
+      this.dirtyPreGain.gain.value = drive;
+      this.dirtyShaper.curve = this.makeDistortionCurve(this.dirtyAmount);
+      this.dirtyPostGain.gain.value = makeup;
+    }
+    this.connectMasterToOutput();
+  }
+
+  // --- CRUSH (bitcrusher) ---------------------------------------------
+  private async ensureBitcrusherNodes() {
+    if (!this.ctx) return;
+    if (this.bitcrusherNode) return;
+    try {
+      await this.ctx.audioWorklet.addModule('/worklets/bitcrusher-processor.js');
+      this.bitcrusherNode = new AudioWorkletNode(this.ctx, 'bitcrusher-processor');
+    } catch (_) {
+      // AudioWorklet 未対応などの環境では無効化
+      this.bitcrusherNode = null;
+    }
+  }
+
+  private mapBitcrusherParams(amount: number) {
+    const a = Math.max(0, Math.min(1, amount));
+    const bits = 16 - Math.floor(a * 12); // 16..4bit
+    const factor = 1 + Math.floor(a * 15); // 1..16x downsample
+    return { bits: Math.max(1, bits), factor: Math.max(1, factor) };
+  }
+
+  async setCrushAmount(amount01: number) {
+    // CRUSH now controls bitcrusher
+    this.bitcrusherAmount = Math.max(0, Math.min(1, amount01));
+    this.bitcrusherEnabled = this.bitcrusherAmount > 0.0001;
+    await this.ensureStarted();
+    if (!this.ctx) return;
+    await this.ensureBitcrusherNodes();
+    if (this.bitcrusherNode) {
+      const { bits, factor } = this.mapBitcrusherParams(this.bitcrusherAmount);
+      const pBits = this.bitcrusherNode.parameters.get('bits');
+      const pFactor = this.bitcrusherNode.parameters.get('downsample');
+      if (pBits) pBits.value = bits;
+      if (pFactor) pFactor.value = factor;
+    }
+    this.connectMasterToOutput();
+  }
+
+  // --- COMB (flanger/comb filter) -------------------------------------
+  private ensureCombNodes() {
+    if (!this.ctx) return;
+    if (!this.combIn) this.combIn = this.ctx.createGain();
+    if (!this.combDelay) this.combDelay = this.ctx.createDelay(0.05); // up to 50ms
+    if (!this.combFeedback) this.combFeedback = this.ctx.createGain();
+    if (!this.combWet) this.combWet = this.ctx.createGain();
+    if (!this.combDry) this.combDry = this.ctx.createGain();
+    if (!this.combOut) this.combOut = this.ctx.createGain();
+    // LFO to modulate delayTime
+    if (!this.combLFO) {
+      this.combLFO = this.ctx.createOscillator();
+      this.combLFO.type = 'sine';
+      this.combLFO.frequency.value = 0.25; // base speed
+      this.combLFO.start();
+    }
+    if (!this.combLFOGain) this.combLFOGain = this.ctx.createGain();
+    // Ensure LFO connected to delayTime
+    try { this.combLFO.disconnect(); } catch (_) { /* no-op */ }
+    this.combLFO.connect(this.combLFOGain!);
+    this.combLFOGain!.connect(this.combDelay!.delayTime);
+  }
+
+  private mapCombParams(amount: number) {
+    const a = Math.max(0, Math.min(1, amount));
+    // Base delay 0.2ms..6ms, depth 0..5ms, feedback 0..0.8, wet 0..0.6, speed 0.1..0.6 Hz
+    const baseMs = 0.0002 + a * 0.006; // sec
+    const depthMs = a * 0.005; // sec
+    const feedback = 0.1 + a * 0.7;
+    const wet = 0.15 + a * 0.45;
+    const dry = 1 - wet;
+    const speed = 0.15 + a * 0.45;
+    return { base: baseMs, depth: depthMs, feedback, wet, dry, speed };
+  }
+
+  async setCombAmount(amount01: number) {
+    this.combAmount = Math.max(0, Math.min(1, amount01));
+    this.combEnabled = this.combAmount > 0.0001;
+    await this.ensureStarted();
+    if (!this.ctx) return;
+    this.ensureCombNodes();
+    const p = this.mapCombParams(this.combAmount);
+    if (this.combDelay && this.combFeedback && this.combWet && this.combDry && this.combLFOGain && this.combLFO) {
+      // Set base delay as DC offset by setting value and LFO depth around it.
+      this.combDelay.delayTime.value = p.base;
+      this.combLFOGain.gain.value = p.depth;
+      this.combLFO.frequency.value = p.speed;
+      this.combFeedback.gain.value = p.feedback;
+      this.combWet.gain.value = p.wet;
+      this.combDry.gain.value = p.dry;
     }
     this.connectMasterToOutput();
   }
