@@ -11,7 +11,6 @@ import { ChordPatternSelect, DrumPatternSelect } from '@features/pattern-select'
 import { useDrumLoopScheduler, useMelodyLoopScheduler, useChordsLoopScheduler as useChordLoopScheduler } from '@features/playback';
 import { RecordingBeatIndicator } from '@features/recording';
 import { RhythmSegmentEditor, MelodySegmentEditor } from '@features/segment-edit';
-import { TempoControlButton } from '@features/tempo';
 import { WaveformViewer } from '@features/waveform';
 import { StyledArea } from '@shared/ui';
 
@@ -57,7 +56,6 @@ const SegmentLabel = styled(StyledArea)`
 type Props = { audioBlob: Blob | null };
 
 export const WaveformDisplay = ({ audioBlob }: Props) => {
-  const [tempoControlOpen, setTempoControlOpen] = useState(false);
   const { currentBar, currentBeat } = useCountBarsAndBeats();
   const { currentSegments, loopMode, rhythmSegments, melodySegments, setContextAudioBuffer } = useSegment();
   const { isRecording } = useRecording();
@@ -125,12 +123,6 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
         <ChordPatternSelect />
         <DrumPatternSelect />
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', width: '160px' }}>
-          <TempoControlButton isOpen={tempoControlOpen} onToggle={() => setTempoControlOpen((prev) => !prev)} />
-        </div>
       </div>
 
       <WaveformArea ref={waveformRef} isRed={isRed}>

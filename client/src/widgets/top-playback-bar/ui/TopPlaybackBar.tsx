@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { RectButton } from '@shared/ui/RectButton';
 import { usePlaybackController } from '@features/playback/model/usePlaybackController';
+import { TempoControlButton } from '@features/tempo';
 
 const BarWrapper = styled.div`
   backdrop-filter: blur(20px);
@@ -10,7 +11,8 @@ const BarWrapper = styled.div`
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 12px;
   margin: 10px auto;
   padding: 10px 12px;
@@ -40,10 +42,22 @@ const ProgressDot = styled.div<{ x: number }>`
   box-shadow: 0 0 0 2px rgba(255, 42, 42, 0.25);
 `;
 
+const ControlsRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const TempoRow = styled.div`
+  display: flex;
+  justify-content: flex-start;
+`;
+
 export const TopPlaybackBar = () => {
   const { loopPlay, stop, reset, isLoopPlaying } = usePlaybackController();
   const [ratio, setRatio] = useState(0);
   const rafRef = useRef<number | null>(null);
+  const [tempoControlOpen, setTempoControlOpen] = useState(false);
 
   useEffect(() => {
     const tick = () => {
@@ -77,11 +91,18 @@ export const TopPlaybackBar = () => {
 
   return (
     <BarWrapper>
-      <RectButton onClick={onToggle} label={isLoopPlaying ? '⏸ Pause' : '▶︎ Play'} widthPx={70} />
-      <RectButton onClick={onStop} label={'■ Stop'} widthPx={70} />
-      <ProgressWrap aria-label="loop progress">
-        <ProgressDot x={ratio} />
-      </ProgressWrap>
+      <ControlsRow>
+        <RectButton onClick={onToggle} label={isLoopPlaying ? '⏸ Pause' : '▶︎ Play'} widthPx={70} />
+        <RectButton onClick={onStop} label={'■ Stop'} widthPx={70} />
+        <ProgressWrap aria-label="loop progress">
+          <ProgressDot x={ratio} />
+        </ProgressWrap>
+      </ControlsRow>
+      <TempoRow>
+        <div style={{ width: 160 }}>
+          <TempoControlButton isOpen={tempoControlOpen} onToggle={() => setTempoControlOpen((prev) => !prev)} />
+        </div>
+      </TempoRow>
     </BarWrapper>
   );
 };
