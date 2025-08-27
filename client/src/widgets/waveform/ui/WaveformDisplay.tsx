@@ -8,12 +8,12 @@ import { useCountBarsAndBeats } from '@entities/count-bars-and-beats';
 import { useSegment } from '@entities/segment';
 import { useTempo } from '@entities/tempo';
 import { ChordPatternSelect, DrumPatternSelect } from '@features/pattern-select';
-import { useDrumLoopScheduler, useMelodyLoopScheduler, useChordsLoopScheduler as useChordLoopScheduler, usePlaybackController } from '@features/playback';
+import { useDrumLoopScheduler, useMelodyLoopScheduler, useChordsLoopScheduler as useChordLoopScheduler } from '@features/playback';
 import { RecordingBeatIndicator } from '@features/recording';
 import { RhythmSegmentEditor, MelodySegmentEditor } from '@features/segment-edit';
 import { TempoControlButton } from '@features/tempo';
 import { WaveformViewer } from '@features/waveform';
-import { RectButton, StyledArea } from '@shared/ui';
+import { StyledArea } from '@shared/ui';
 
 export const CenteredArea = styled(StyledArea)`
   flex-direction: column;
@@ -68,7 +68,7 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
   useDrumLoopScheduler();
   useMelodyLoopScheduler();
 
-  const { loopPlay, stop, isLoopPlaying } = usePlaybackController();
+  // 再生/停止は TopPlaybackBar に移動したため、ここでは未使用
   const { barCount } = useBarCount();
   const audioBuffer = useAudioBuffer(audioBlob);
 
@@ -117,7 +117,7 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
     }
   }, [currentBuffer]);
 
-  const handleToggleLoop = async () => { if (isLoopPlaying) { stop(); } else { await loopPlay(); } };
+  // 再生/停止は TopPlaybackBar に移動
 
   return (
     <CenteredArea>
@@ -129,9 +129,6 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', width: '160px' }}>
-          <RectButton onClick={handleToggleLoop} label={isLoopPlaying ? '■ Stop Music' : '▶︎ Play Music'} />
-        </div>
         <div style={{ display: 'flex', justifyContent: 'center', width: '160px' }}>
           <TempoControlButton isOpen={tempoControlOpen} onToggle={() => setTempoControlOpen((prev) => !prev)} />
         </div>

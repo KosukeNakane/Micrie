@@ -7,6 +7,7 @@ import { useEffects, type EffectKey } from "@entities/effects/model/EffectsConte
 import { VerticalFader } from "@features/effects/ui/VerticalFader";
 import { glassBackground } from "@shared/styles/glassBackground";
 import { TopNav } from "@widgets/top-nav/ui/TopNav";
+import { TopPlaybackBar } from "@widgets/top-playback-bar";
 
 
 const LABELS: EffectKey[] = ["CRUSH", "COMB", "HICUT", "LOWCUT", "REVERB", "DIRTY"];
@@ -56,6 +57,7 @@ export const PlayPage = () => {
     <div css={glassBackground}>
       {/* ナビゲーション */}
       <TopNav />
+      <TopPlaybackBar />
       <Faders />
     </div>
   );
