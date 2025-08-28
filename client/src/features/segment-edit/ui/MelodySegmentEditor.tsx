@@ -73,9 +73,17 @@ const MelodySegmentEditor: React.FC<Props> = ({ barIndex, width }) => {
       const newMidi = midi + semitone;
       const newNote = Tone.Frequency(newMidi, "midi").toNote();
       updateMelodySegment(index, { note: newNote, label: newNote });
-      // プレビュー再生時にマスターがミュートされていると無音になるため、念のため解除
-      (async () => { try { await engine.setMasterMuted(false); } catch {} })();
-      synth.triggerAttackRelease(newNote, "8n");
+      // プレビュー再生: ユーザー操作内で AudioContext/Tone を必ず起動し、ミュート解除してから発音
+      (async () => {
+        try {
+          if ((Tone.getContext() as any).state !== 'running') {
+            await Tone.start();
+          }
+        } catch {}
+        try { await engine.ensureStarted(); } catch {}
+        try { await engine.setMasterMuted(false); } catch {}
+        try { synth.triggerAttackRelease(newNote, "8n"); } catch {}
+      })();
     } catch (error) { console.warn("Note conversion error:", error); }
   };
 

@@ -63,11 +63,21 @@ export const RhythmSegmentEditor = ({ barIndex }: Props) => {
     const newIdx = (currentIdx + direction + drumOrder.length) % drumOrder.length;
     const newNote = drumOrder[newIdx];
     updateRhythmSegment(index, { label: newNote });
-    // プレビュー再生のためマスターのミュートを解除
-    (async () => { try { await engine.setMasterMuted(false); } catch {} })();
-    if (newNote === "kick") synths.kick.triggerAttackRelease("C1", "8n");
-    else if (newNote === "snare") synths.snare.triggerAttackRelease("8n");
-    else if (newNote === "hihat") synths.hihat.triggerAttackRelease("16n");
+    // プレビュー再生のため、AudioContext/Tone を確実に起動しミュート解除後に再生
+    (async () => {
+      try {
+        if ((Tone.getContext() as any).state !== 'running') {
+          await Tone.start();
+        }
+      } catch {}
+      try { await engine.ensureStarted(); } catch {}
+      try { await engine.setMasterMuted(false); } catch {}
+      try {
+        if (newNote === "kick") synths.kick.triggerAttackRelease("C1", "8n");
+        else if (newNote === "snare") synths.snare.triggerAttackRelease("8n");
+        else if (newNote === "hihat") synths.hihat.triggerAttackRelease("16n");
+      } catch {}
+    })();
   };
 
   const previousNotesRef = React.useRef<string[]>([]);
