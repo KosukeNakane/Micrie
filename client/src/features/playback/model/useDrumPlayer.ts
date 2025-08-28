@@ -65,7 +65,7 @@ export const useDrumPlayer = () => {
     if (!buffer || !ctx) return;
     const source = ctx.createBufferSource();
     source.buffer = buffer;
-    const input = engine.masterInput as unknown as AudioNode | null;
+    const input = engine.getChannelInput('drum') as unknown as AudioNode | null;
     if (input) source.connect(input); else source.connect(ctx.destination);
     try { source.start(time); } catch { /* no-op */ }
   }, [engine]);
@@ -82,7 +82,7 @@ export const useDrumPlayer = () => {
     events.forEach(({ type, time }) => {
       const buffer = buffersRef.current[type]; if (!buffer) return;
       const source = ctx.createBufferSource(); source.buffer = buffer;
-      const input = engine.masterInput as unknown as AudioNode | null;
+      const input = engine.getChannelInput('drum') as unknown as AudioNode | null;
       if (input) source.connect(input); else source.connect(ctx.destination);
       source.start(startTime + time * beatDuration);
     });

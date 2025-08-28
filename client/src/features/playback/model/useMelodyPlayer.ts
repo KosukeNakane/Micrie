@@ -14,7 +14,7 @@ const transposeUpTwoOctaves = (note: string): string => {
 
 export const useMelodyPlayer = () => {
   const { scaleMode } = useScaleMode();
-  const pianoSamplerRef = usePianoSampler();
+  const pianoSamplerRef = usePianoSampler('melody');
 
   const mapNoteToScale = (note: string): string => {
     const match = note.match(/^([A-G]#?)(\d)$/);
@@ -33,4 +33,3 @@ export const useMelodyPlayer = () => {
 
   return { playMelody };
 };
-

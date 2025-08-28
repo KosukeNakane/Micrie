@@ -1,9 +1,12 @@
 import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
 import { useGlobalAudio } from './GlobalAudioContext';
+import type { ChannelKind } from '@/entities/audio/model/useChannelsStore';
 
-let _sampler: Tone.Sampler | null = null;
-let _loaded = false;
+let _samplerMelody: Tone.Sampler | null = null;
+let _samplerChord: Tone.Sampler | null = null;
+let _loadedMelody = false;
+let _loadedChord = false;
 
 const ensureToneContext = (ctx: AudioContext) => {
   if (Tone.getContext().rawContext !== ctx) {
@@ -12,9 +15,7 @@ const ensureToneContext = (ctx: AudioContext) => {
   }
 };
 
-const getOrCreateSampler = () => {
-  if (_sampler) return _sampler;
-  _sampler = new Tone.Sampler({
+const createSampler = () => new Tone.Sampler({
     urls: {
       A1: 'samples/PublicSamples/IvyAudio-Pianoin162_Close/A1.wav',
       A2: 'samples/PublicSamples/IvyAudio-Pianoin162_Close/A2.wav',
@@ -32,12 +33,10 @@ const getOrCreateSampler = () => {
       'D#8': 'samples/PublicSamples/IvyAudio-Pianoin162_Close/Ds8.wav',
     },
     release: 1,
-    onload: () => { if (!_loaded) { _loaded = true; console.log('Piano Sampler loaded'); } },
+    onload: () => {},
   });
-  return _sampler;
-};
 
-export const usePianoSampler = () => {
+export const usePianoSampler = (kind: Exclude<ChannelKind, 'drum'> = 'melody') => {
   const samplerRef = useRef<Tone.Sampler | null>(null);
   const engine = useGlobalAudio();
 
@@ -48,21 +47,30 @@ export const usePianoSampler = () => {
       ensureToneContext(ctx);
 
       // 既存のサンプラーが他Contextなら破棄
-      if (_sampler && (_sampler.context.rawContext !== Tone.getContext().rawContext)) {
-        _sampler.dispose();
-        _sampler = null;
-        _loaded = false;
+      const samplerGlobal = kind === 'melody' ? _samplerMelody : _samplerChord;
+      if (samplerGlobal && (samplerGlobal.context.rawContext !== Tone.getContext().rawContext)) {
+        samplerGlobal.dispose();
+        if (kind === 'melody') { _samplerMelody = null; _loadedMelody = false; }
+        else { _samplerChord = null; _loadedChord = false; }
       }
 
-      const sampler = getOrCreateSampler();
-      // 出力をエンジンの master に接続
+      // インスタンス確保
+      if (kind === 'melody' && !_samplerMelody) _samplerMelody = createSampler();
+      if (kind === 'chord' && !_samplerChord) _samplerChord = createSampler();
+      const sampler = kind === 'melody' ? _samplerMelody! : _samplerChord!;
+
+      // 接続先: 個別チャンネル
       try { sampler.disconnect(); } catch {}
-      const input = engine.masterInput as unknown as AudioNode | null;
+      const input = engine.getChannelInput(kind) as unknown as AudioNode | null;
       if (input) sampler.connect(input as any);
+
+      if (kind === 'melody' && !_loadedMelody) { _loadedMelody = true; console.log('Piano Sampler (melody) ready'); }
+      if (kind === 'chord' && !_loadedChord) { _loadedChord = true; console.log('Piano Sampler (chord) ready'); }
+
       samplerRef.current = sampler;
     })();
     return () => {};
-  }, [engine]);
+  }, [engine, kind]);
 
   return samplerRef;
 };

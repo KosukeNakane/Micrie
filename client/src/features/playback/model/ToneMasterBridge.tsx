@@ -12,7 +12,7 @@ export const ToneMasterBridge: React.FC = () => {
     (async () => {
       await engine.ensureStarted();
       const ctx = engine.audioContext;
-      const input = engine.masterInput as unknown as AudioNode | null;
+      const input = engine.getChannelInput('melody') as unknown as AudioNode | null;
       if (!ctx || !input) return;
 
       // Tone の Context をエンジンの AudioContext に統一
@@ -36,4 +36,3 @@ export const ToneMasterBridge: React.FC = () => {
 
   return null;
 };
-

@@ -7,7 +7,7 @@ type Chord = string[];
 
 export const useChordsPlayer = () => {
   const { chordPattern } = useChordPattern();
-  const pianoSamplerRef = usePianoSampler();
+  const pianoSamplerRef = usePianoSampler('chord');
 
   const patterns: { [key: string]: Chord[] } = useMemo(() => ({
     pattern1: [ ['F4'], ['F4','A4','C5','E5'], ['F4'], ['F4','A4','C5','E5'], ['E4'], ['E4','G#4','B4','D5'], ['E4'], ['E4','G#4','B4','D5'], ['A3'], ['A3','C4','E4','G4'], ['A3'], ['A3','C4','E4','G4'], ['G3'], ['G3','A#3','D4','F4'], ['C4'], ['C4','E4','G4','A#4'] ],

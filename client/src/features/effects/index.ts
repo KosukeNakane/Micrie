@@ -4,3 +4,4 @@ export { CutFiltersBinder } from './model/CutFiltersBinder';
 export { CrushBinder } from './model/CrushBinder';
 export { DirtyBinder } from './model/DirtyBinder';
 export { CombBinder } from './model/CombBinder';
+export { useEffectsUiStore } from './model/useEffectsUiStore';
