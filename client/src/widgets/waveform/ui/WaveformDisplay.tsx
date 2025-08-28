@@ -116,6 +116,13 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
 
   // 再生/停止は TopPlaybackBar に移動
 
+  // 分析完了までは選択中アレイのUI全体を非表示にする
+  const hasSelectedSegments = loopMode === 'melody'
+    ? melodySegments.length > 0
+    : loopMode === 'rhythm'
+      ? rhythmSegments.length > 0
+      : (melodySegments.length > 0 || rhythmSegments.length > 0);
+
   return (
     <CenteredArea>
       <RecordingBeatIndicator currentBar={currentBar} currentBeat={currentBeat} />
@@ -131,7 +138,7 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
         )}
       </WaveformArea>
 
-      {Array.from({ length: barCount }).map((_, barIndex) => (
+      {hasSelectedSegments && Array.from({ length: barCount }).map((_, barIndex) => (
         <div style={{ height: '220px' }} key={barIndex}>
           <BarWaveformContainer>
             {loopMode === 'both' ? (
