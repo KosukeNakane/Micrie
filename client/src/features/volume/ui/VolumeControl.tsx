@@ -4,11 +4,9 @@ import RcSlider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { useState, useEffect } from 'react';
 import { useGlobalAudio } from '@entities/audio/model/GlobalAudioContext';
+import { useVolume, VOLUME_MIN as MIN, VOLUME_MAX as MAX } from '@entities/volume/model/VolumeContext';
 
-type Props = {
-  // 将来的に外部制御したい場合のための拡張余地
-  initialValue?: number; // 0-100
-};
+type Props = {};
 
 const Wrapper = styled.div`
   display: inline-block;
@@ -64,14 +62,11 @@ const StyledRcSliderWrapper = styled.div`
   }
 `;
 
-const MIN = 0;
-const MAX = 100;
-
-const VolumeControl = ({ initialValue = 80 }: Props) => {
-  const clamp = (v: number) => Math.min(MAX, Math.max(MIN, v));
+const VolumeControl = (_props: Props) => {
   const engine = useGlobalAudio();
-  const [volume, setVolume] = useState<number>(clamp(initialValue));
-  const [volumeInput, setVolumeInput] = useState<string>(String(clamp(initialValue)));
+  const { volume, setVolume } = useVolume();
+  const clamp = (v: number) => Math.min(MAX, Math.max(MIN, v));
+  const [volumeInput, setVolumeInput] = useState<string>(String(volume));
 
   // AudioGraph が未初期化の場合に備え、最初に起動（ユーザー操作内想定）
   useEffect(() => {
@@ -100,11 +95,7 @@ const VolumeControl = ({ initialValue = 80 }: Props) => {
     setVolumeInput(String(volume));
   }, [volume]);
 
-  // エンジン連動：ボリュームをマスターに反映（0.0 - 1.0）
-  useEffect(() => {
-    const v = clamp(volume) / 100;
-    try { engine.setMasterVolume(v); } catch { }
-  }, [volume, engine]);
+  // エンジン連動は VolumeEngineBinder に委譲
 
   return (
     <Wrapper>
