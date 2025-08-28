@@ -4,7 +4,7 @@ import RcSlider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { useState, useEffect } from 'react';
 
-import { useTempo } from '@entities/tempo/model/TempoContext';
+import { useTempo, TEMPO_MIN, TEMPO_MAX } from '@entities/tempo/model/TempoContext';
 
 type Props = {
   // Legacy props kept for compatibility; ignored now
@@ -72,11 +72,21 @@ const TempoControlButton = (_props: Props) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (/^\d*$/.test(value)) {
-      setTempoInput(value);
-      const numeric = Number(value);
-      if (numeric >= 20 && numeric <= 160) setTempo(numeric);
+    // 途中入力は自由（数字のみ許可）。コンテキストは更新しない。
+    if (!/^\d*$/.test(value)) return; // ignore non-digits
+    setTempoInput(value);
+  };
+
+  const commitInput = () => {
+    if (tempoInput === '') {
+      setTempo(TEMPO_MIN);
+      setTempoInput(String(TEMPO_MIN));
+      return;
     }
+    const numeric = Number(tempoInput);
+    const clamped = Math.min(TEMPO_MAX, Math.max(TEMPO_MIN, numeric));
+    setTempo(clamped);
+    setTempoInput(String(clamped));
   };
 
   useEffect(() => {
@@ -85,11 +95,23 @@ const TempoControlButton = (_props: Props) => {
 
   return (
     <Wrapper>
-      <Label>TEMPO <NumberInput type="text" min="20" max="160" value={tempoInput} onChange={handleInputChange} />BPM</Label>
+      <Label>
+        TEMPO
+        <NumberInput
+          type="text"
+          min={String(TEMPO_MIN)}
+          max={String(TEMPO_MAX)}
+          value={tempoInput}
+          onChange={handleInputChange}
+          onBlur={commitInput}
+          onKeyDown={(e) => { if (e.key === 'Enter') commitInput(); }}
+        />
+        BPM
+      </Label>
       <StyledRcSliderWrapper>
         <RcSlider
-          min={20}
-          max={160}
+          min={TEMPO_MIN}
+          max={TEMPO_MAX}
           value={tempo}
           onChange={(value) => {
             if (typeof value === 'number') {

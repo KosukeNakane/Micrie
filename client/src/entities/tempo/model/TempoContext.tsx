@@ -1,9 +1,16 @@
 import React, { createContext, useContext, useState } from 'react';
 
+export const TEMPO_MIN = 20;
+export const TEMPO_MAX = 160;
+
 const TempoContext = createContext<{ tempo: number; setTempo: (tempo: number) => void } | null>(null);
 
 export const TempoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [tempo, setTempo] = useState(90);
+  const [tempo, setTempoState] = useState(90);
+
+  const clamp = (v: number) => Math.min(TEMPO_MAX, Math.max(TEMPO_MIN, v));
+  const setTempo = (v: number) => setTempoState(clamp(v));
+
   return <TempoContext.Provider value={{ tempo, setTempo }}>{children}</TempoContext.Provider>;
 };
 
