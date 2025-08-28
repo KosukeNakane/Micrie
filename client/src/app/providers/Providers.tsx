@@ -6,6 +6,7 @@ import { BarCountProvider } from '@entities/bar-count/model/BarCountContext';
 import { CountBarsAndBeatsProvider } from '@entities/count-bars-and-beats/model/CountBarsAndBeatsContext';
 import { EffectsProvider } from '@entities/effects/model/EffectsContext';
 import { ReverbBinder, CutFiltersBinder, CrushBinder, DirtyBinder, CombBinder } from '@features/effects';
+import { TempoTransportBinder } from '@features/tempo';
 import { ToneMasterBridge } from '@features/playback/model/ToneMasterBridge';
 import { ModeProvider } from '@entities/mode/model/ModeContext';
 import { ChordPatternProvider } from '@entities/pattern/model/ChordPatternContext';
@@ -22,10 +23,13 @@ export const Providers = ({ children }: Props) => (
   <GlobalAudioProvider>
     {/* Tone のコンテキストを最優先でエンジンに統一 */}
     <ToneMasterBridge />
-    <AnalysisModeProvider>
-      <ModeProvider>
-        <RecordingProvider>
-          <TempoProvider>
+    {/* テンポコンテキストを上位に配置し、Binder を内部で利用 */}
+    <TempoProvider>
+      {/* テンポ変更を Tone.Transport に常時反映 */}
+      <TempoTransportBinder />
+      <AnalysisModeProvider>
+        <ModeProvider>
+          <RecordingProvider>
             <RecordingUIProvider>
               <SegmentProvider>
                 <BarCountProvider>
@@ -48,9 +52,9 @@ export const Providers = ({ children }: Props) => (
                 </BarCountProvider>
               </SegmentProvider>
             </RecordingUIProvider>
-          </TempoProvider>
-        </RecordingProvider>
-      </ModeProvider>
-    </AnalysisModeProvider>
+          </RecordingProvider>
+        </ModeProvider>
+      </AnalysisModeProvider>
+    </TempoProvider>
   </GlobalAudioProvider>
 );
