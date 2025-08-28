@@ -1,15 +1,13 @@
-// TEMPOの値を調整するためのボタンとドロップダウンUIコンポーネント（初期実装）
+// VOLUMEの値を調整するためのボタンと入力・スライダーのUIコンポーネント（UIのみ）
 import styled from '@emotion/styled';
 import RcSlider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { useState, useEffect } from 'react';
-
-import { useTempo, TEMPO_MIN, TEMPO_MAX } from '@entities/tempo/model/TempoContext';
+import { useGlobalAudio } from '@entities/audio/model/GlobalAudioContext';
 
 type Props = {
-  // Legacy props kept for compatibility; ignored now
-  isOpen?: boolean;
-  onToggle?: () => void;
+  // 将来的に外部制御したい場合のための拡張余地
+  initialValue?: number; // 0-100
 };
 
 const Wrapper = styled.div`
@@ -66,64 +64,78 @@ const StyledRcSliderWrapper = styled.div`
   }
 `;
 
-const TempoControlButton = (_props: Props) => {
-  const { tempo, setTempo } = useTempo();
-  const [tempoInput, setTempoInput] = useState(String(tempo));
+const MIN = 0;
+const MAX = 100;
+
+const VolumeControl = ({ initialValue = 80 }: Props) => {
+  const clamp = (v: number) => Math.min(MAX, Math.max(MIN, v));
+  const engine = useGlobalAudio();
+  const [volume, setVolume] = useState<number>(clamp(initialValue));
+  const [volumeInput, setVolumeInput] = useState<string>(String(clamp(initialValue)));
+
+  // AudioGraph が未初期化の場合に備え、最初に起動（ユーザー操作内想定）
+  useEffect(() => {
+    (async () => { try { await engine.ensureStarted(); } catch { } })();
+  }, [engine]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // 途中入力は自由（数字のみ許可）。コンテキストは更新しない。
-    if (!/^\d*$/.test(value)) return; // ignore non-digits
-    setTempoInput(value);
+    if (!/^\d*$/.test(value)) return; // 数字のみ許可
+    setVolumeInput(value);
   };
 
   const commitInput = () => {
-    if (tempoInput === '') {
-      setTempo(TEMPO_MIN);
-      setTempoInput(String(TEMPO_MIN));
+    if (volumeInput === '') {
+      setVolume(MIN);
+      setVolumeInput(String(MIN));
       return;
     }
-    const numeric = Number(tempoInput);
-    const clamped = Math.min(TEMPO_MAX, Math.max(TEMPO_MIN, numeric));
-    setTempo(clamped);
-    setTempoInput(String(clamped));
+    const numeric = Number(volumeInput);
+    const clamped = clamp(numeric);
+    setVolume(clamped);
+    setVolumeInput(String(clamped));
   };
 
   useEffect(() => {
-    setTempoInput(String(tempo));
-  }, [tempo]);
+    setVolumeInput(String(volume));
+  }, [volume]);
+
+  // エンジン連動：ボリュームをマスターに反映（0.0 - 1.0）
+  useEffect(() => {
+    const v = clamp(volume) / 100;
+    try { engine.setMasterVolume(v); } catch { }
+  }, [volume, engine]);
 
   return (
     <Wrapper>
       <Label>
-        TEMPO
+        VOLUME
         <NumberInput
           type="text"
-          min={String(TEMPO_MIN)}
-          max={String(TEMPO_MAX)}
-          value={tempoInput}
+          min={String(MIN)}
+          max={String(MAX)}
+          value={volumeInput}
           onChange={handleInputChange}
           onBlur={commitInput}
           onKeyDown={(e) => { if (e.key === 'Enter') commitInput(); }}
         />
-        BPM
       </Label>
       <StyledRcSliderWrapper>
         <RcSlider
-          min={TEMPO_MIN}
-          max={TEMPO_MAX}
-          value={tempo}
+          min={MIN}
+          max={MAX}
+          value={volume}
           onChange={(value) => {
             if (typeof value === 'number') {
-              setTempo(value);
-              setTempoInput(String(value));
+              const c = clamp(value);
+              setVolume(c);
+              setVolumeInput(String(c));
             }
           }}
         />
       </StyledRcSliderWrapper>
-
     </Wrapper>
   );
 };
 
-export default TempoControlButton;
+export default VolumeControl;

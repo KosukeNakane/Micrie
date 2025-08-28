@@ -4,6 +4,7 @@ import * as Tone from 'tone';
 import { RectButton } from '@shared/ui/RectButton';
 import { usePlaybackController } from '@features/playback/model/usePlaybackController';
 import { TempoControl } from '@features/tempo';
+import { VolumeControl } from '@features/volume';
 
 const BarWrapper = styled.div`
   backdrop-filter: blur(20px);
@@ -53,7 +54,7 @@ const ControlsRow = styled.div`
 
 const TempoRow = styled.div`
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
 `;
 
 export const TopPlaybackBar = () => {
@@ -169,8 +170,11 @@ export const TopPlaybackBar = () => {
         </ProgressWrap>
       </ControlsRow>
       <TempoRow>
-        <div style={{ width: 200 }}>
+        <div style={{ width: 140 }}>
           <TempoControl />
+        </div>
+        <div style={{ width: 120 }}>
+          <VolumeControl />
         </div>
       </TempoRow>
     </BarWrapper>
