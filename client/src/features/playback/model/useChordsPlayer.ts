@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 
 import { usePianoSampler } from '@entities/audio/model/usePianoSampler';
 import { useChordPattern } from '@entities/pattern/model/ChordPatternContext';
@@ -7,7 +7,7 @@ type Chord = string[];
 
 export const useChordsPlayer = () => {
   const { chordPattern } = useChordPattern();
-  const pianoSamplerRef = usePianoSampler();
+  const pianoSamplerRef = usePianoSampler('chord');
 
   const patterns: { [key: string]: Chord[] } = useMemo(() => ({
     pattern1: [ ['F4'], ['F4','A4','C5','E5'], ['F4'], ['F4','A4','C5','E5'], ['E4'], ['E4','G#4','B4','D5'], ['E4'], ['E4','G#4','B4','D5'], ['A3'], ['A3','C4','E4','G4'], ['A3'], ['A3','C4','E4','G4'], ['G3'], ['G3','A#3','D4','F4'], ['C4'], ['C4','E4','G4','A#4'] ],
@@ -30,6 +30,10 @@ export const useChordsPlayer = () => {
     });
   };
 
-  return { playChords };
-};
+  // 単一コードを所定時間に鳴らす（Part用）
+  const playChordAt = useCallback((notes: string[], time: number, duration: number) => {
+    notes.forEach(note => pianoSamplerRef.current?.triggerAttackRelease(note, duration, time));
+  }, [pianoSamplerRef]);
 
+  return { playChords, playChordAt, chords };
+};

@@ -13,6 +13,16 @@ export class GlobalAudioEngine {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null; // 合流点（プリ・エフェクト）
   private outputGain: GainNode | null = null; // 最終出力（ポスト・エフェクト）
+  private masterMuted = false;
+  private prevOutputGain = 1;
+
+  // Category gains for per-source mute
+  private melodyGain: GainNode | null = null;
+  private drumGain: GainNode | null = null;
+  private chordGain: GainNode | null = null;
+  private melodyMuted = false;
+  private drumMuted = false;
+  private chordMuted = false;
 
   private wafPlayer: any | null = null;
   private wafLoaded = false;
@@ -72,10 +82,21 @@ export class GlobalAudioEngine {
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.value = 1; // プリ段
       this.outputGain = this.ctx.createGain();
-      this.outputGain.gain.value = 1; // マスター音量
+      this.outputGain.gain.value = 1; // マスター音量（mute時は0に退避）
       // 初期はドライ直結
       this.masterGain.connect(this.outputGain);
       this.outputGain.connect(this.ctx.destination);
+
+      // Category submixes -> master
+      this.melodyGain = this.ctx.createGain();
+      this.drumGain = this.ctx.createGain();
+      this.chordGain = this.ctx.createGain();
+      this.melodyGain.gain.value = 1;
+      this.drumGain.gain.value = 1;
+      this.chordGain.gain.value = 1;
+      this.melodyGain.connect(this.masterGain);
+      this.drumGain.connect(this.masterGain);
+      this.chordGain.connect(this.masterGain);
     }
     if (this.ctx.state === 'suspended') await this.ctx.resume();
   }
@@ -96,9 +117,10 @@ export class GlobalAudioEngine {
   noteOn(midi: number, velocity = 127, durationSec?: number) {
     if (!this.ctx || !this.wafPlayer || !this.wafLoaded) return null;
     const when = this.ctx.currentTime;
+    const dest = this.melodyGain ?? this.masterGain;
     const v = this.wafPlayer.queueWaveTable(
       this.ctx,
-      this.masterGain,
+      dest,
       _tone_0000_Aspirin_sf2_file,
       when,
       midi,
@@ -158,6 +180,58 @@ export class GlobalAudioEngine {
   get player() { return this.wafPlayer; }
   get masterInput(): AudioNode | null { return this.masterGain; }
 
+  // Channel I/O accessors — route new sources here (future: insert per-channel effects)
+  getChannelInput(kind: 'melody' | 'drum' | 'chord'): AudioNode | null {
+    if (kind === 'melody') return this.melodyGain ?? this.masterGain;
+    if (kind === 'drum') return this.drumGain ?? this.masterGain;
+    return this.chordGain ?? this.masterGain;
+  }
+
+  // Per-source mute controls
+  getChannelMuted(kind: 'melody' | 'drum' | 'chord') {
+    if (kind === 'melody') return this.melodyMuted;
+    if (kind === 'drum') return this.drumMuted;
+    return this.chordMuted;
+  }
+
+  async setChannelMuted(kind: 'melody' | 'drum' | 'chord', muted: boolean) {
+    await this.ensureStarted();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const gain = kind === 'melody' ? this.melodyGain : kind === 'drum' ? this.drumGain : this.chordGain;
+    if (gain) {
+      gain.gain.cancelScheduledValues(now);
+      gain.gain.setTargetAtTime(muted ? 0 : 1, now, 0.01);
+    }
+    // Ensure existing sources are routed to proper submixes (not master)
+    if (kind === 'drum') {
+      // Reconnect loop to drum channel if needed
+      this.ensureLoopConnected();
+    }
+    if (kind === 'melody') this.melodyMuted = muted;
+    else if (kind === 'drum') this.drumMuted = muted;
+    else this.chordMuted = muted;
+  }
+
+  // 即時ミュート/解除（現在鳴っている音も即サイレンス化）。
+  async setMasterMuted(muted: boolean) {
+    await this.ensureStarted();
+    if (!this.ctx || !this.outputGain) return;
+    if (muted === this.masterMuted) return;
+    const now = this.ctx.currentTime;
+    if (muted) {
+      this.prevOutputGain = this.outputGain.gain.value;
+      this.outputGain.gain.cancelScheduledValues(now);
+      this.outputGain.gain.setTargetAtTime(0, now, 0.01);
+      this.masterMuted = true;
+    } else {
+      const target = this.prevOutputGain > 0 ? this.prevOutputGain : 1;
+      this.outputGain.gain.cancelScheduledValues(now);
+      this.outputGain.gain.setTargetAtTime(target, now, 0.02);
+      this.masterMuted = false;
+    }
+  }
+
   async unlock() {
     await this.ensureStarted();
     if (!this.ctx || !this.masterGain) return;
@@ -202,7 +276,8 @@ export class GlobalAudioEngine {
   private ensureLoopConnected() {
     if (!this.masterGain || !this.loopGain) return;
     try { this.loopGain.disconnect(); } catch (_) { /* no-op */ }
-    this.loopGain.connect(this.masterGain);
+    const target = this.drumGain ?? this.masterGain;
+    this.loopGain.connect(target);
   }
 
   private connectMasterToOutput() {

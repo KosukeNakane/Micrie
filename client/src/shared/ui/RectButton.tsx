@@ -7,6 +7,8 @@ import styled from '@emotion/styled';
 export const StyledButton = styled.button<{
   active?: boolean;
   flexGrow?: number | string;
+  widthPx?: number | string;
+  minWidthPx?: number | string;
 }>`
   box-sizing: border-box;
   font-family: "brandon-grotesque", sans-serif;
@@ -14,6 +16,8 @@ export const StyledButton = styled.button<{
   font-style: normal;
   font-size:14px;
   flex: ${({ flexGrow }) => flexGrow ?? '0 1 auto'};
+  ${({ widthPx }) => (widthPx != null ? `width: ${typeof widthPx === 'number' ? `${widthPx}px` : widthPx};` : '')}
+  ${({ minWidthPx }) => (minWidthPx != null ? `min-width: ${typeof minWidthPx === 'number' ? `${minWidthPx}px` : minWidthPx};` : '')}
   background: ${({ active }) =>
     active
       ? 'linear-gradient(135deg, rgba(172, 203, 229, 0.45), rgba(165, 178, 220, 0.74))'
@@ -47,16 +51,19 @@ export const RectButton = ({
   active,
   onClick,
   flexGrow,
+  widthPx,
+  minWidthPx,
 }: {
   label: string;
   active?: boolean;
   onClick?: () => void;
   flexGrow?: number | string;
+  widthPx?: number | string;
+  minWidthPx?: number | string;
 }) => {
   return (
-    <StyledButton active={active} onClick={onClick} flexGrow={flexGrow}>
+    <StyledButton active={active} onClick={onClick} flexGrow={flexGrow} widthPx={widthPx} minWidthPx={minWidthPx}>
       {label}
     </StyledButton>
   );
 };
-

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useCallback } from 'react';
 // import * as Tone from 'tone';
 
 import { useDrumPattern } from '@entities/pattern/model/DrumPatternContext';
@@ -57,18 +57,36 @@ export const useDrumPlayer = () => {
   }, []);
 
   const engine = useGlobalAudio();
+
+  // 単発ヒットをTransportのコールバックtimeに同期して鳴らす
+  const playDrumHit = useCallback((type: DrumType, time: number) => {
+    const buffer = buffersRef.current[type];
+    const ctx = engine.audioContext!;
+    if (!buffer || !ctx) return;
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    const input = engine.getChannelInput('drum') as unknown as AudioNode | null;
+    if (input) source.connect(input); else source.connect(ctx.destination);
+    try { source.start(time); } catch { /* no-op */ }
+  }, [engine]);
+
+  // 現在選択のパターンイベントを返す（timeは拍単位）
+  const getDrumEvents = useCallback(() => {
+    return (drumPatterns[drumPattern] || drumPatterns['basic']);
+  }, [drumPattern, drumPatterns]);
+
+  // 互換: 既存のループ再生（今後は未使用推奨）
   const playDrumLoop = (startTime: number) => {
-    const pattern = drumPatterns[drumPattern] || drumPatterns['basic'];
+    const events = getDrumEvents();
     const ctx = engine.audioContext!; const beatDuration = 60 / tempo;
-    pattern.forEach(({ type, time }) => {
+    events.forEach(({ type, time }) => {
       const buffer = buffersRef.current[type]; if (!buffer) return;
       const source = ctx.createBufferSource(); source.buffer = buffer;
-      // エンジンの master に合流させる
-      const input = engine.masterInput as unknown as AudioNode | null;
+      const input = engine.getChannelInput('drum') as unknown as AudioNode | null;
       if (input) source.connect(input); else source.connect(ctx.destination);
       source.start(startTime + time * beatDuration);
     });
   };
 
-  return { playDrumLoop };
+  return { playDrumLoop, playDrumHit, getDrumEvents };
 };

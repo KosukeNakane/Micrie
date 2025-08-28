@@ -14,6 +14,7 @@ import { ControlPanel } from "@widgets/create/control-panel";
 import { DeveloperToolsPanel } from "@widgets/create/developer-tools-panel";
 import { ModeAndRecGroup } from "@widgets/create/mode-and-rec-group";
 import { TopNav } from "@widgets/top-nav";
+import { TopPlaybackBar } from "@widgets/top-playback-bar";
 import { WaveformDisplay } from "@widgets/waveform";
 
 export const CreatePage = () => {
@@ -59,6 +60,7 @@ export const CreatePage = () => {
     <div css={glassBackground}>
       <RealtimeLabel label={realtimeLabel} />
       <TopNav />
+      <TopPlaybackBar />
       <ModeAndRecGroup
         onToggleRecording={handleToggleRecording}
       />

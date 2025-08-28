@@ -8,12 +8,11 @@ import { useCountBarsAndBeats } from '@entities/count-bars-and-beats';
 import { useSegment } from '@entities/segment';
 import { useTempo } from '@entities/tempo';
 import { ChordPatternSelect, DrumPatternSelect } from '@features/pattern-select';
-import { useDrumLoopScheduler, useMelodyLoopScheduler, useChordsLoopScheduler as useChordLoopScheduler, usePlaybackController } from '@features/playback';
+import { useDrumLoopScheduler, useMelodyLoopScheduler, useChordsLoopScheduler as useChordLoopScheduler } from '@features/playback';
 import { RecordingBeatIndicator } from '@features/recording';
 import { RhythmSegmentEditor, MelodySegmentEditor } from '@features/segment-edit';
-import { TempoControlButton } from '@features/tempo';
 import { WaveformViewer } from '@features/waveform';
-import { RectButton, StyledArea } from '@shared/ui';
+import { StyledArea } from '@shared/ui';
 
 export const CenteredArea = styled(StyledArea)`
   flex-direction: column;
@@ -57,9 +56,8 @@ const SegmentLabel = styled(StyledArea)`
 type Props = { audioBlob: Blob | null };
 
 export const WaveformDisplay = ({ audioBlob }: Props) => {
-  const [tempoControlOpen, setTempoControlOpen] = useState(false);
   const { currentBar, currentBeat } = useCountBarsAndBeats();
-  const { currentSegments, loopMode, rhythmSegments, melodySegments, audioBuffers } = useSegment();
+  const { currentSegments, loopMode, rhythmSegments, melodySegments, setContextAudioBuffer } = useSegment();
   const { isRecording } = useRecording();
   const canvasRef = useAnalyser();
   const { tempo } = useTempo();
@@ -68,15 +66,14 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
   useDrumLoopScheduler();
   useMelodyLoopScheduler();
 
-  const { loopPlay, stop, isLoopPlaying } = usePlaybackController();
+  // 再生/停止は TopPlaybackBar に移動したため、ここでは未使用
   const { barCount } = useBarCount();
   const audioBuffer = useAudioBuffer(audioBlob);
 
   useEffect(() => {
     if (!audioBuffer) return;
-    if (loopMode === 'rhythm') audioBuffers.rhythm = audioBuffer;
-    else if (loopMode === 'melody') audioBuffers.melody = audioBuffer;
-  }, [audioBuffer, loopMode, audioBuffers]);
+    setContextAudioBuffer(loopMode === 'rhythm' ? 'rhythm' : 'melody', audioBuffer);
+  }, [audioBuffer, loopMode, setContextAudioBuffer]);
 
   const waveformRef = useRef<HTMLDivElement>(null);
   const waveformLeftRef = useRef(0);
@@ -117,7 +114,14 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
     }
   }, [currentBuffer]);
 
-  const handleToggleLoop = async () => { if (isLoopPlaying) { stop(); } else { await loopPlay(); } };
+  // 再生/停止は TopPlaybackBar に移動
+
+  // 分析完了までは選択中アレイのUI全体を非表示にする
+  const hasSelectedSegments = loopMode === 'melody'
+    ? melodySegments.length > 0
+    : loopMode === 'rhythm'
+      ? rhythmSegments.length > 0
+      : (melodySegments.length > 0 || rhythmSegments.length > 0);
 
   return (
     <CenteredArea>
@@ -128,22 +132,13 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
         <DrumPatternSelect />
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', width: '160px' }}>
-          <RectButton onClick={handleToggleLoop} label={isLoopPlaying ? '■ Stop Music' : '▶︎ Play Music'} />
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center', width: '160px' }}>
-          <TempoControlButton isOpen={tempoControlOpen} onToggle={() => setTempoControlOpen((prev) => !prev)} />
-        </div>
-      </div>
-
       <WaveformArea ref={waveformRef} isRed={isRed}>
         {isDrawing && (
           <canvas ref={canvasRef} width={canvasWidth} height={160} style={{ position: 'absolute', top: 0, left: 0, zIndex: 0 }} />
         )}
       </WaveformArea>
 
-      {audioBuffer && Array.from({ length: barCount }).map((_, barIndex) => (
+      {hasSelectedSegments && Array.from({ length: barCount }).map((_, barIndex) => (
         <div style={{ height: '220px' }} key={barIndex}>
           <BarWaveformContainer>
             {loopMode === 'both' ? (

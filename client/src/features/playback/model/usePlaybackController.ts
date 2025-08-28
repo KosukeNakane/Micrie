@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as Tone from 'tone';
 
 import { GlobalAudioEngine } from '@entities/audio/lib/GlobalAudioEngine';
@@ -34,42 +34,97 @@ export const usePlaybackController = () => {
 
   useEffect(() => { if (DEBUG) console.log('🎹 quantizedMelody:', quantizedMelody); }, [quantizedMelody]);
 
-  const chordDuration = 60 / tempo / 2;
-  const melodyDuration = 60 / tempo / 4;
+  // 基本単位（楽譜時間 -> 秒 は必要時のみ）
+  const chordDurSec = Tone.Time('8n').toSeconds(); // 0.5 beat
+  const sixteenthSec = Tone.Time('16n').toSeconds();
 
-  const { playChords } = useChordsPlayer();
+  const { playChordAt, chords } = useChordsPlayer();
   const { playMelody } = useMelodyPlayer();
-  const { playDrumLoop } = useDrumPlayer();
+  const { playDrumHit, getDrumEvents } = useDrumPlayer();
+
+  const drumsPartRef = useRef<Tone.Part | null>(null);
+  const chordsPartRef = useRef<Tone.Part | null>(null);
+  const melodyPartRef = useRef<Tone.Part | null>(null);
+
+  // beats値を Bars:Beats:Sixteenths 文字列に変換
+  const beatsToBBS = (beats: number) => {
+    const totalBeats = Math.max(0, beats);
+    const bars = Math.floor(totalBeats / 4);
+    const remBeats = totalBeats - bars * 4;
+    const beatIdx = Math.floor(remBeats);
+    const sixteenth = Math.round((remBeats - beatIdx) * 4);
+    return `${bars}:${beatIdx}:${sixteenth}` as const;
+  };
+
+  // Parts を再構築（内容変化時）
+  useEffect(() => {
+    // 既存破棄
+    drumsPartRef.current?.dispose();
+    chordsPartRef.current?.dispose();
+    melodyPartRef.current?.dispose();
+
+
+    // Drums: 16分グリッドのイベントをPart化
+    const drumEvents = getDrumEvents(); // time in beats
+    const drumItems = drumEvents.map(ev => [beatsToBBS(ev.time), ev.type] as [string, string]);
+    const drumsPart = new Tone.Part((time, type: any) => {
+      playDrumHit(type as any, time);
+    }, drumItems);
+    drumsPart.loop = false; drumsPart.start(0);
+    drumsPartRef.current = drumsPart;
+
+    // Chords: 8分 or 4分ごと（元ロジックに合わせ2m/8=8分? ここでは chordDuration 毎）
+    const chordItems: [string, number][] = chords.map((_, i) => [beatsToBBS(i * 0.5), i]);
+    const chordsPart = new Tone.Part((time, idx: number) => {
+      const chord = chords[idx] ?? [];
+      playChordAt(chord, time, chordDurSec);
+    }, chordItems);
+    chordsPart.loop = false; chordsPart.start(0);
+    chordsPartRef.current = chordsPart;
+
+    // Melody: 16分グリッドの量子化ノート
+    const melodyItems = quantizedMelody.map(({ note, startIndex, length }) => ({
+      t: beatsToBBS(startIndex * 0.25), // 16分単位
+      n: note,
+      d: length * sixteenthSec,
+    }));
+    const melodyPart = new Tone.Part((time, ev: any) => {
+      playMelody(ev.n, time, ev.d);
+    }, melodyItems.map(ev => [ev.t, ev] as [string, any]));
+    melodyPart.loop = false; melodyPart.start(0);
+    melodyPartRef.current = melodyPart;
+
+    return () => {
+      drumsPartRef.current?.dispose(); drumsPartRef.current = null;
+      chordsPartRef.current?.dispose(); chordsPartRef.current = null;
+      melodyPartRef.current?.dispose(); melodyPartRef.current = null;
+    };
+  }, [chords, quantizedMelody, getDrumEvents, playDrumHit, playChordAt, playMelody]);
 
   const loopPlay = async () => {
     if (isLoopPlaying) return;
     if (Tone.getContext().state !== 'running') await Tone.start();
-    // Tone.Transport とアプリのテンポを同期
     Tone.getTransport().bpm.value = tempo;
     await GlobalAudioEngine.instance.ensureStarted();
-
-    const loopLengthInBeats = '2m';
-    const playOnce = (time: number) => {
-      playChords(time, chordDuration);
-      playDrumLoop(time);
-      quantizedMelody.forEach(({ note, startIndex, length }) => {
-        const startTime = time + melodyDuration * startIndex;
-        const noteDuration = melodyDuration * length;
-        playMelody(note, startTime, noteDuration);
-      });
-    };
-
-    Tone.getTransport().stop();
-    Tone.getTransport().cancel();
-    const alignedStart = Tone.getTransport().seconds;
-    Tone.getTransport().scheduleRepeat((time) => playOnce(time), loopLengthInBeats, alignedStart);
-    Tone.getTransport().start(undefined, alignedStart);
+    await GlobalAudioEngine.instance.setMasterMuted(false);
+    // ループ設定（Transport に任せる）
+    Tone.getTransport().loop = true;
+    Tone.getTransport().loopEnd = '2m';
+    Tone.getTransport().start();
     setLoopPlaying(true);
   };
 
   const stop = () => {
+    // 一時停止（位置保持）
+    GlobalAudioEngine.instance.setMasterMuted(true);
+    Tone.getTransport().pause();
+    setLoopPlaying(false);
+  };
+
+  const reset = () => {
+    // 停止（位置リセット0:0:0）
+    GlobalAudioEngine.instance.setMasterMuted(true);
     Tone.getTransport().stop();
-    Tone.getTransport().cancel();
     setLoopPlaying(false);
   };
 
@@ -78,5 +133,5 @@ export const usePlaybackController = () => {
     setLoopPlaying(actuallyPlaying);
   }, [setLoopPlaying]);
 
-  return { loopPlay, stop, isLoopPlaying };
+  return { loopPlay, stop, reset, isLoopPlaying };
 };

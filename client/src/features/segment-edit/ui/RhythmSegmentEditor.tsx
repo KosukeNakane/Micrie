@@ -4,6 +4,7 @@ import { TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
 import * as Tone from "tone";
 
 import { useSegment } from "@entities/segment/model/SegmentContext";
+import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
 
 const GlassButtonUp = styled.button`
   background: rgba(255, 255, 255, 0.1);
@@ -53,6 +54,7 @@ const synths = {
 
 export const RhythmSegmentEditor = ({ barIndex }: Props) => {
   const { currentSegments, updateRhythmSegment } = useSegment();
+  const engine = useGlobalAudio();
 
   const shiftDrum = (index: number, direction: number) => {
     const label = currentSegments.rhythm[index].label;
@@ -61,9 +63,21 @@ export const RhythmSegmentEditor = ({ barIndex }: Props) => {
     const newIdx = (currentIdx + direction + drumOrder.length) % drumOrder.length;
     const newNote = drumOrder[newIdx];
     updateRhythmSegment(index, { label: newNote });
-    if (newNote === "kick") synths.kick.triggerAttackRelease("C1", "8n");
-    else if (newNote === "snare") synths.snare.triggerAttackRelease("8n");
-    else if (newNote === "hihat") synths.hihat.triggerAttackRelease("16n");
+    // プレビュー再生のため、AudioContext/Tone を確実に起動しミュート解除後に再生
+    (async () => {
+      try {
+        if ((Tone.getContext() as any).state !== 'running') {
+          await Tone.start();
+        }
+      } catch {}
+      try { await engine.ensureStarted(); } catch {}
+      try { await engine.setMasterMuted(false); } catch {}
+      try {
+        if (newNote === "kick") synths.kick.triggerAttackRelease("C1", "8n");
+        else if (newNote === "snare") synths.snare.triggerAttackRelease("8n");
+        else if (newNote === "hihat") synths.hihat.triggerAttackRelease("16n");
+      } catch {}
+    })();
   };
 
   const previousNotesRef = React.useRef<string[]>([]);
@@ -95,4 +109,3 @@ export const RhythmSegmentEditor = ({ barIndex }: Props) => {
     </div>
   );
 };
-

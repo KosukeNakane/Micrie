@@ -5,6 +5,7 @@ type Props = {
     value: number;
     onChange: (v: number) => void;
     onChangeEnd?: (v: number) => void;
+    springBack?: boolean; // ドラッグ終了時に0へ戻す（グローバル切替）
     step?: number;
     fineMultiplier?: number;
     coarseMultiplier?: number;
@@ -23,6 +24,7 @@ export const VerticalFader: React.FC<Props> = ({
     value,
     onChange,
     onChangeEnd,
+    springBack = false,
     step = 0.02,
     fineMultiplier = 0.2,
     coarseMultiplier = 5,
@@ -66,8 +68,13 @@ export const VerticalFader: React.FC<Props> = ({
     const endDrag = useCallback(() => {
         if (!draggingRef.current) return;
         draggingRef.current = false;
-        onChangeEnd?.(lastValueRef.current);
-    }, [onChangeEnd]);
+        if (springBack) {
+            onChange(0);
+            onChangeEnd?.(0);
+        } else {
+            onChangeEnd?.(lastValueRef.current);
+        }
+    }, [springBack, onChange, onChangeEnd]);
 
     useEffect(() => {
         const up = () => endDrag();
