@@ -7,6 +7,7 @@ import { css } from '@emotion/react';
 import AudioUnlockGate from "@/features/audio-unlock/ui/AudioUnlockGate";
 import { Providers } from '@app/providers/Providers';
 import { AppRouter } from '@app/routes/AppRouter';
+import { Sidebar } from '@widgets/sidebar';
 
 const config = defineConfig({
   globalCss: {
@@ -43,15 +44,19 @@ export const App = () => {
   const contentStyle = css`
   position: relative;
   z-index: 1;
+  /* 左サイドバーの幅分だけ右側にオフセット */
+  padding-left: 240px;
  `;
 
   return (
     <div css={appStyle}>
       <div css={backgroundStyle} />
       <div css={contentStyle}>
-        {/* アプリ全体に渡す状態管理のコンテキストプロバイダー群 + ルーティング */}
-        <AudioUnlockGate /> {/* AudioContextのロック解除を促すUI */}
         <ChakraProvider value={system}>
+          {/* 左側の固定サイドバー（Chakra コンテキスト内） */}
+          <Sidebar />
+          {/* アプリ全体に渡す状態管理のコンテキストプロバイダー群 + ルーティング */}
+          <AudioUnlockGate /> {/* AudioContextのロック解除を促すUI */}
           <Providers>
             <AppRouter />
           </Providers>
