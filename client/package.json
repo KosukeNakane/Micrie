@@ -24,6 +24,7 @@
     "@tensorflow-models/speech-commands": "0.5.4",
     "@tensorflow/tfjs": "^3.21.0",
     "@tensorflow/tfjs-backend-webgl": "^3.21.0",
+    "firebase": "^11.10.0",
     "framer-motion": "^12.15.0",
     "rc-slider": "^11.1.8",
     "react": "19.1.0",
