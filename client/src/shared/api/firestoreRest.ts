@@ -198,3 +198,11 @@ export async function restGetUserProject(uid: string, docId: string) {
   if (!res.ok) throw new Error(`REST_GET_FAILED_${res.status}`);
   return res.json();
 }
+
+export async function restDeleteUserProject(uid: string, docId: string): Promise<void> {
+  const headers = await authHeader();
+  const url = `${base}/users/${encodeURIComponent(uid)}/projects/${encodeURIComponent(docId)}`;
+  if (import.meta.env.DEV) console.log('[rest] delete start', { url });
+  const res = await fetchWithTimeout(url, { method: 'DELETE', headers, timeoutMs: 10000 });
+  if (!res.ok) throw new Error(`REST_DELETE_FAILED_${res.status}`);
+}

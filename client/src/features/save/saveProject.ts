@@ -2,20 +2,13 @@ import { addDoc, collection } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { restCommit } from './restCommit';
 
-function sanitizeProjectName(name: string): string {
-  let trimmed = (name ?? '').trim() || 'Untitled';
-  trimmed = trimmed.replace(/^Micrie[\s_-]*/i, '');
-  return trimmed;
-}
-
 export async function saveProject(uid: string, name: string) {
-  const cleanName = sanitizeProjectName(name);
   const colPath = `users/${uid}/projects`;
   const now = new Date();
   try {
     await addDoc(collection(db, colPath), {
       uid,
-      name: cleanName,
+      name,
       createdAt: now,
       updatedAt: now,
     });
@@ -30,7 +23,7 @@ export async function saveProject(uid: string, name: string) {
       docId,
       fields: {
         uid,
-        name: cleanName,
+        name,
         createdAt: now,
         updatedAt: now,
       },

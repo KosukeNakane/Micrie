@@ -1,15 +1,8 @@
-import { doc, setDoc, serverTimestamp, getDoc, collection, addDoc, Timestamp, getDocs } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, getDoc, collection, addDoc, Timestamp, getDocs, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getDb, getStorageBucket } from "@/shared/api/firebase";
 import type { ProjectData, ProjectDocument } from "@/entities/project";
-import { restCreateOrUpdateProject, restListUserProjects, restGetUserProject, restUpsertDoc } from "@/shared/api/firestoreRest";
-
-function sanitizeProjectName(name: string): string {
-  let trimmed = (name ?? '').trim() || 'Untitled';
-  // Remove leading "Micrie" with optional space/hyphen/underscore
-  trimmed = trimmed.replace(/^Micrie[\s_-]*/i, '');
-  return trimmed;
-}
+import { restCreateOrUpdateProject, restListUserProjects, restGetUserProject, restUpsertDoc, restDeleteUserProject } from "@/shared/api/firestoreRest";
 
 export async function uploadAudio(uid: string, projectId: string, audio: Blob): Promise<string> {
   const storage = getStorageBucket();
@@ -57,16 +50,15 @@ async function ensureUserDocExists(uid: string): Promise<void> {
 }
 
 export async function createOrUpdateProjectDoc(uid: string, projectId: string | null, name: string, data: ProjectData): Promise<string> {
-  const cleanName = sanitizeProjectName(name);
   const db = getDb();
   const now = Date.now();
   const t0 = performance.now();
-  if (import.meta.env.DEV) console.log('[save] writeDoc: start', { uid, projectId, name: cleanName });
+  if (import.meta.env.DEV) console.log('[save] writeDoc: start', { uid, projectId, name });
   // Ensure parent users/{uid} exists for REST compatibility
   await ensureUserDocExists(uid);
   if (FORCE_REST) {
     if (import.meta.env.DEV) console.log('[save] writeDoc: FORCE_REST enabled');
-    const id = await restCreateOrUpdateProject(uid, projectId, cleanName, data);
+    const id = await restCreateOrUpdateProject(uid, projectId, name, data);
     if (import.meta.env.DEV) console.log('[save] writeDoc: REST done', { id, elapsedMs: Math.round(performance.now() - t0) });
     return id;
   }
@@ -76,7 +68,7 @@ export async function createOrUpdateProjectDoc(uid: string, projectId: string | 
       if (import.meta.env.DEV) console.log('[save] writeDoc: SDK addDoc');
       const docRef = await raceWithTimeout(addDoc(col, {
         meta: {
-          name: cleanName,
+          name,
           ownerUid: uid,
           createdAt: now,
           updatedAt: now,
@@ -90,7 +82,7 @@ export async function createOrUpdateProjectDoc(uid: string, projectId: string | 
     } catch (e) {
       console.warn('[fs-sdk] addDoc failed, fallback to REST:', e);
       if (import.meta.env.DEV) console.log('[save] writeDoc: REST create (reason:', (e as any)?.message, ')');
-      const id = await restCreateOrUpdateProject(uid, null, cleanName, data);
+      const id = await restCreateOrUpdateProject(uid, null, name, data);
       if (import.meta.env.DEV) console.log('[save] writeDoc: REST create done', { id, elapsedMs: Math.round(performance.now() - t0) });
       return id;
     }
@@ -103,7 +95,7 @@ export async function createOrUpdateProjectDoc(uid: string, projectId: string | 
       await raceWithTimeout(setDoc(d, {
         meta: {
           id: projectId,
-          name: cleanName,
+          name,
           ownerUid: uid,
           createdAt: now,
           updatedAt: now,
@@ -115,7 +107,7 @@ export async function createOrUpdateProjectDoc(uid: string, projectId: string | 
     } else {
       await raceWithTimeout(setDoc(d, {
         ...(snap.data() as any),
-        meta: { ...((snap.data() as any).meta), name: cleanName, updatedAt: now },
+        meta: { ...((snap.data() as any).meta), name, updatedAt: now },
         data,
         _sv: serverTimestamp(),
       }), 'setDoc:update');
@@ -125,13 +117,13 @@ export async function createOrUpdateProjectDoc(uid: string, projectId: string | 
   } catch (e) {
     console.warn('[fs-sdk] setDoc/getDoc failed, fallback to REST:', e);
     if (import.meta.env.DEV) console.log('[save] writeDoc: REST upsert');
-    await restCreateOrUpdateProject(uid, projectId, cleanName, data);
+    await restCreateOrUpdateProject(uid, projectId, name, data);
     if (import.meta.env.DEV) console.log('[save] writeDoc: REST upsert done', { id: projectId, elapsedMs: Math.round(performance.now() - t0) });
     return projectId;
   }
 }
 
-export async function listProjects(uid: string): Promise<{ id: string; name: string; updatedAt?: number }[]> {
+export async function listProjects(uid: string): Promise<{ id: string; name: string; updatedAt?: number; createdAt?: number }[]> {
   const db = getDb();
   if (FORCE_REST) {
     if (import.meta.env.DEV) console.log('[open] list: FORCE_REST enabled');
@@ -152,7 +144,8 @@ export async function listProjects(uid: string): Promise<{ id: string; name: str
       const data = d.data() as any;
       const name = data?.meta?.name ?? d.id;
       const updatedAt = data?.meta?.updatedAt as number | undefined;
-      return { id: d.id, name, updatedAt };
+      const createdAt = data?.meta?.createdAt as number | undefined;
+      return { id: d.id, name, updatedAt, createdAt };
     });
   } catch (e) {
     console.warn('[fs-sdk] listProjects failed, fallback to REST:', e);
@@ -163,7 +156,8 @@ export async function listProjects(uid: string): Promise<{ id: string; name: str
       const meta = (fields.meta?.mapValue?.fields ?? {}) as any;
       const name = meta.name?.stringValue ?? d.id;
       const updatedAt = meta.updatedAt?.doubleValue ?? (meta.updatedAt?.integerValue ? Number(meta.updatedAt.integerValue) : undefined);
-      return { id: d.id, name, updatedAt };
+      const createdAt = meta.createdAt?.doubleValue ?? (meta.createdAt?.integerValue ? Number(meta.createdAt.integerValue) : undefined);
+      return { id: d.id, name, updatedAt, createdAt };
     });
   }
 }
@@ -228,5 +222,20 @@ export async function loadProject(uid: string, projectId: string): Promise<Proje
     const data = decode(f.data);
     if (import.meta.env.DEV) console.log('[open] load: REST get done');
     return { meta, data } as ProjectDocument;
+  }
+}
+
+export async function deleteProject(uid: string, projectId: string): Promise<void> {
+  if (FORCE_REST) {
+    await restDeleteUserProject(uid, projectId);
+    return;
+  }
+  try {
+    const db = getDb();
+    const d = doc(db, `users/${uid}/projects/${projectId}`);
+    await deleteDoc(d);
+  } catch (e) {
+    console.warn('[fs-sdk] delete failed, fallback to REST:', e);
+    await restDeleteUserProject(uid, projectId);
   }
 }

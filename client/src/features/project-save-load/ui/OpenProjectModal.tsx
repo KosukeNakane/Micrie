@@ -1,8 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Box, Button, Text, Spinner, Input } from '@chakra-ui/react';
+import { toaster } from '@/shared/ui/toaster';
 import { createPortal } from 'react-dom';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { ensureAuth } from '@/features/project-save-load/model/auth';
+import { deleteProject } from '@/features/project-save-load/model/io';
+import { ConfirmDeleteModal } from '@/shared/ui/ConfirmDeleteModal';
 
-type Item = { id: string; name: string; updatedAt?: number };
+type Item = { id: string; name: string; updatedAt?: number; createdAt?: number };
 
 type Props = {
   isOpen: boolean;
@@ -17,6 +22,9 @@ export function OpenProjectModal({ isOpen, onClose, fetchItems, onSelect, onSele
   const [items, setItems] = useState<Item[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<'cloud' | 'local'>('cloud');
+  const [sort, setSort] = useState<'updatedDesc' | 'nameAsc' | 'createdDesc'>('updatedDesc');
+  const [menuFor, setMenuFor] = useState<null | { id: string; name: string; x: number; y: number }>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -24,6 +32,23 @@ export function OpenProjectModal({ isOpen, onClose, fetchItems, onSelect, onSele
     setLoading(true); setError(null);
     fetchItems().then(setItems).catch((e) => setError(String(e))).finally(() => setLoading(false));
   }, [isOpen, mode]);
+
+  const sortedItems = useMemo(() => {
+    const arr = [...items];
+    switch (sort) {
+      case 'nameAsc':
+        arr.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        break;
+      case 'createdDesc':
+        arr.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        break;
+      case 'updatedDesc':
+      default:
+        arr.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+        break;
+    }
+    return arr;
+  }, [items, sort]);
 
   if (!isOpen) return null;
 
@@ -33,15 +58,41 @@ export function OpenProjectModal({ isOpen, onClose, fetchItems, onSelect, onSele
         : error
           ? <Text color="red.600" fontSize="sm">{error}</Text>
           : (
-            <Box display="grid" gap={2} maxH="50vh" overflow="auto">
-              {items.length === 0 && <Text color="gray.600">No projects found.</Text>}
-              {items.map((it) => (
-                <Button key={it.id} justifyContent="space-between" onClick={() => onSelect(it.id)}>
-                  <span>{it.name || it.id}</span>
-                  <span style={{ opacity: 0.6, fontSize: 12 }}>{it.updatedAt ? new Date(it.updatedAt).toLocaleString() : ''}</span>
-                </Button>
-              ))}
-            </Box>
+            <>
+              <Box display="flex" alignItems="center" gap={2} mb={2}>
+                <Text fontSize="sm" color="gray.700">並び替え:</Text>
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as any)}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #CBD5E0', background: 'white' }}
+                >
+                  <option value="updatedDesc">最終更新日(新しい順)</option>
+                  <option value="nameAsc">名前(昇順)</option>
+                  <option value="createdDesc">作成日(新しい順)</option>
+                </select>
+              </Box>
+              <Box display="grid" gap={2} maxH="50vh" overflow="auto">
+                {sortedItems.length === 0 && <Text color="gray.600">No projects found.</Text>}
+                {sortedItems.map((it) => (
+                  <Box key={it.id} position="relative">
+                    <Button justifyContent="space-between" width="100%" onClick={() => onSelect(it.id)}>
+                      <span>{it.name || it.id}</span>
+                      <span style={{ opacity: 0.6, fontSize: 12 }}>{it.updatedAt ? new Date(it.updatedAt).toLocaleString() : ''}</span>
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const rect = (e.currentTarget as HTMLSpanElement).getBoundingClientRect();
+                          setMenuFor({ id: it.id, name: it.name, x: rect.left, y: rect.bottom });
+                        }}
+                        style={{ marginLeft: 8, display: 'inline-flex', alignItems: 'center', padding: 4, borderRadius: 6 }}
+                      >
+                        <MoreHorizIcon fontSize="small" />
+                      </span>
+                    </Button>
+                  </Box>
+                ))}
+              </Box>
+            </>
           )
       )
     : (
@@ -58,7 +109,7 @@ export function OpenProjectModal({ isOpen, onClose, fetchItems, onSelect, onSele
               const obj = JSON.parse(text);
               await onSelectLocal?.(obj);
             } catch (err) {
-              alert('無効なプロジェクトファイルです');
+              toaster.error({ title: '無効なプロジェクトファイルです' });
             } finally {
               onClose();
             }
@@ -89,6 +140,47 @@ export function OpenProjectModal({ isOpen, onClose, fetchItems, onSelect, onSele
           <Button variant="ghost" onClick={onClose}>Close</Button>
         </Box>
       </Box>
+      {/* Global floating menu rendered above modal, positioned under icon */}
+      {menuFor && (
+        <Box position="fixed" inset={0} zIndex={2000} onClick={() => setMenuFor(null)}>
+          <Box
+            position="fixed"
+            left={menuFor.x}
+            top={menuFor.y + 4}
+            bg="white"
+            borderWidth="1px"
+            borderRadius="md"
+            boxShadow="xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Button
+              variant="ghost"
+              width="100%"
+              onClick={() => { setMenuFor(null); setConfirmDelete({ id: menuFor.id, name: menuFor.name }); }}
+            >
+              Delete
+            </Button>
+          </Box>
+        </Box>
+      )}
+      <ConfirmDeleteModal
+        isOpen={!!confirmDelete}
+        projectName={confirmDelete?.name}
+        onCancel={() => setConfirmDelete(null)}
+        onConfirm={async () => {
+          if (!confirmDelete) return;
+          try {
+            const uid = await ensureAuth();
+            await deleteProject(uid, confirmDelete.id);
+            setItems((prev) => prev.filter((x) => x.id !== confirmDelete.id));
+            setConfirmDelete(null);
+            toaster.success({ title: '削除しました' });
+          } catch (e) {
+            console.error(e);
+            toaster.error({ title: '削除に失敗しました' });
+          }
+        }}
+      />
     </Box>,
     document.body
   );

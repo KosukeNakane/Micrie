@@ -12,6 +12,8 @@ export type EffectKey = "CRUSH" | "COMB" | "HICUT" | "LOWCUT" | "REVERB" | "DIRT
 
 export interface ProjectData {
   tempo: number;
+  chordPattern?: string;
+  drumPattern?: string;
   volume?: {
     master?: number;
     melody?: number;
@@ -33,4 +35,3 @@ export interface ProjectDocument {
   meta: ProjectMeta;
   data: ProjectData;
 }
-

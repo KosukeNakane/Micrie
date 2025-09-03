@@ -1,8 +1,7 @@
 import type { ProjectData, ProjectDocument } from '@/entities/project';
 
 function sanitizeFileName(name: string): string {
-  let trimmed = name.trim() || 'Untitled';
-  trimmed = trimmed.replace(/^Micrie[\s_-]*/i, '');
+  const trimmed = name.trim() || 'Untitled';
   return trimmed.replace(/[\\/:*?"<>|]/g, '-');
 }
 

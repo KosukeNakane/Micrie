@@ -2,6 +2,7 @@
 import { Box, Button, Text } from "@chakra-ui/react";
 import { createPortal } from "react-dom";
 import { useState } from "react";
+import { useAuthUiStore } from "@/features/auth/model/uiStore";
 import { LoginModal } from "./LoginModal";
 import { UserProfileModal } from "./UserProfileModal";
 import { useAuthStore, getDisplayName } from "@/entities/user";
@@ -16,20 +17,24 @@ import {
 import LogoutIcon from '@mui/icons-material/Logout';
 
 type Props = {
+  onNewProject?: () => void;
   onOpenProject?: () => void;
   onSaveProject?: () => void;
   onSaveProjectAs?: () => void;
 };
 
 export const Sidebar = ({
+  onNewProject,
   onOpenProject,
   onSaveProject,
   onSaveProjectAs,
 }: Props) => {
-  const [loginOpen, setLoginOpen] = useState(false);
+  const loginOpen = useAuthUiStore((s) => s.loginOpen);
+  const setLoginOpen = useAuthUiStore((s) => s.setLoginOpen);
   const [profileOpen, setProfileOpen] = useState(false);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const { user } = useAuthStore();
+  const handleNew = () => onNewProject?.();
   const handleOpen = () => onOpenProject?.();
   const handleSave = () => onSaveProject?.();
   const handleSaveAs = () => onSaveProjectAs?.();
@@ -57,6 +62,16 @@ export const Sidebar = ({
             Project
           </Text>
           <Box display="flex" flexDir="column" gap={2}>
+            <Button
+              variant="solid"
+              justifyContent="flex-start"
+              onClick={handleNew}
+              colorPalette="blue"
+              _hover={{ bg: 'rgba(99, 179, 237, 0.85)' }}
+              data-testid="sidebar-new-project"
+            >
+              New Project
+            </Button>
             <Button
               variant="ghost"
               justifyContent="flex-start"
