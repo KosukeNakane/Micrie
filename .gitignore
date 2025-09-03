@@ -27,6 +27,7 @@ dist-ssr/
 build/
 out/
 coverage/
+client/.vite/
 
 # Environment variables
 .env
