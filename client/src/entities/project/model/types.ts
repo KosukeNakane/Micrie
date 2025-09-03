@@ -28,10 +28,14 @@ export interface ProjectData {
   effectsHold: { holdAll: boolean; holdByKey: Partial<Record<EffectKey, boolean>> };
   channelsMuted: { melody: boolean; chord: boolean; drum: boolean };
   audio?: { audioUrl: string | null; waveform?: number[] | null };
-  melodyPitch?: unknown; // 解析結果の構造に合わせて型拡張
+  melodyPitch?: MelodyPitchItem[]; // メロディーピッチ（各グリッドの音名のみ保存）。初期値は休符。
 }
 
 export interface ProjectDocument {
   meta: ProjectMeta;
   data: ProjectData;
+}
+
+export interface MelodyPitchItem {
+  note: string; // 'C4' など、休符は 'rest'。保存はこれのみ。
 }

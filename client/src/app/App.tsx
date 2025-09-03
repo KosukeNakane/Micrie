@@ -20,6 +20,7 @@ import { useEffects } from "@/entities/effects/model/EffectsContext";
 import { useEffectsUiStore } from "@/features/effects";
 import { useChannelsStore } from "@/entities/audio/model/useChannelsStore";
 import { useSegment } from "@/entities/segment/model/SegmentContext";
+import { useBarCount } from "@/entities/bar-count/model/BarCountContext";
 import { useState } from "react";
 import { openLoginModal } from "@/features/auth/model/uiStore";
 import { LoginRequiredModal } from "@/shared/ui/LoginRequiredModal";
@@ -58,7 +59,8 @@ export const App = () => {
     const setHold = useEffectsUiStore((s) => s.setHold);
     const setHoldFor = useEffectsUiStore((s) => s.setHoldFor);
     const setMuted = useChannelsStore((s) => s.setMuted);
-    const { setContextAudioBuffer } = useSegment();
+    const { setContextAudioBuffer, setMelodySegments } = useSegment();
+    const { barCount } = useBarCount();
     const assemble = useAssembleProjectData();
     const project = useProjectState();
     const { setVolume } = useVolume();
@@ -203,11 +205,29 @@ export const App = () => {
           const by = d.effectsHold.holdByKey || {};
           for (const [k, v] of Object.entries(by)) setHoldFor(k as any, !!v);
         }
+        // Melody segments from saved pitch data (melodyPitch)
+        try {
+          const mp = Array.isArray(d.melodyPitch) ? d.melodyPitch as any[] : [];
+          if (mp.length > 0) {
+            const tempoForCalc = typeof d.tempo === 'number' ? d.tempo : 120;
+            const bars = (barCount && Number.isFinite(barCount)) ? barCount : 2;
+            const totalDuration = (60 / (tempoForCalc || 120)) * 4 * bars;
+            const chunk = totalDuration / mp.length;
+            const segments = mp.map((it, i) => ({
+              note: (typeof it?.note === 'string' ? it.note : 'rest') as string,
+              label: ((typeof it?.note === 'string' ? it.note : 'rest') === 'rest' ? '—' : String(it?.note)) as string,
+              start: i * chunk,
+              end: (i + 1) * chunk,
+            }));
+            setMelodySegments(segments as any);
+          }
+        } catch {}
         if (d.channelsMuted) {
           setMuted('melody', !!d.channelsMuted.melody);
           setMuted('chord', !!d.channelsMuted.chord);
           setMuted('drum', !!d.channelsMuted.drum);
         }
+        // 保存形式1: StorageのURL（既存実装）
         if (d.audio?.audioUrl) {
           try {
             if (import.meta.env.DEV) console.log('[open] audio: fetching', { url: d.audio.audioUrl });
@@ -216,9 +236,58 @@ export const App = () => {
             const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
             const buf = await ctx.decodeAudioData(ab);
             setContextAudioBuffer('melody', buf);
-            if (import.meta.env.DEV) console.log('[open] audio: decoded & set');
+            if (import.meta.env.DEV) console.log('[open] audio: decoded & set (url)');
           } catch (e) {
-            console.warn('Audio load failed:', e);
+            console.warn('Audio load failed (url):', e);
+          }
+        } else if (d.audio) {
+          // 保存形式2: Firestoreに配列として保存されたPCMなどを復元
+          try {
+            const AC = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
+            const ctx = new AC();
+
+            const audio: any = d.audio;
+            const sampleRate = Number(audio.sampleRate || 48000);
+
+            let buffer: AudioBuffer | null = null;
+
+            // ケースA: monoのFloat32 PCM配列（[-1,1]）: audio.samples: number[]
+            if (Array.isArray(audio.samples) && audio.samples.length > 0) {
+              const data = Float32Array.from(audio.samples as number[]);
+              buffer = ctx.createBuffer(1, data.length, sampleRate);
+              buffer.getChannelData(0).set(data);
+            }
+
+            // ケースB: channels: number[][] で複数chのPCM
+            if (!buffer && Array.isArray(audio.channels) && audio.channels.length > 0 && Array.isArray(audio.channels[0])) {
+              const chs = audio.channels as number[][];
+              const length = Math.max(1, Math.max(...chs.map((c) => c.length)));
+              buffer = ctx.createBuffer(Math.max(1, chs.length), length, sampleRate);
+              for (let ch = 0; ch < chs.length; ch++) {
+                const arr = Float32Array.from(chs[ch]);
+                buffer.getChannelData(ch).set(arr.subarray(0, length));
+              }
+            }
+
+            // ケースC: base64でエンコードされたFloat32 PCM（mono）: float32Base64
+            if (!buffer && typeof audio.float32Base64 === 'string' && audio.float32Base64) {
+              const b64 = audio.float32Base64;
+              const bin = atob(b64);
+              const bytes = new Uint8Array(bin.length);
+              for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+              const f32 = new Float32Array(bytes.buffer);
+              buffer = ctx.createBuffer(1, f32.length, sampleRate);
+              buffer.getChannelData(0).set(f32);
+            }
+
+            if (buffer) {
+              setContextAudioBuffer('melody', buffer);
+              if (import.meta.env.DEV) console.log('[open] audio: decoded & set (inline)');
+            } else if (import.meta.env.DEV) {
+              console.warn('[open] audio: no decodable inline format found');
+            }
+          } catch (e) {
+            console.warn('Audio load failed (inline):', e);
           }
         }
         if (import.meta.env.DEV) console.log('[open] load: done', { elapsedMs: Math.round(performance.now() - t0) });
@@ -299,6 +368,23 @@ export const App = () => {
               setMuted('chord', !!d.channelsMuted.chord);
               setMuted('drum', !!d.channelsMuted.drum);
             }
+            // Melody segments from saved pitch data (local)
+            try {
+            const mp = Array.isArray((d as any).melodyPitch) ? (d as any).melodyPitch as any[] : [];
+              if (mp.length > 0) {
+                const tempoForCalc = typeof (d as any).tempo === 'number' ? (d as any).tempo : 120;
+                const bars = (barCount && Number.isFinite(barCount)) ? barCount : 2;
+                const totalDuration = (60 / (tempoForCalc || 120)) * 4 * bars;
+                const chunk = totalDuration / mp.length;
+                const segments = mp.map((it, i) => ({
+                  note: (typeof it?.note === 'string' ? it.note : 'rest') as string,
+                  label: ((typeof it?.note === 'string' ? it.note : 'rest') === 'rest' ? '—' : String(it?.note)) as string,
+                  start: i * chunk,
+                  end: (i + 1) * chunk,
+                }));
+                setMelodySegments(segments as any);
+              }
+            } catch {}
           }}
         />
 

@@ -1,4 +1,4 @@
-import type { ProjectData } from '@/entities/project';
+import type { ProjectData, MelodyPitchItem } from '@/entities/project';
 
 // Returns the app's initial, untouched project data
 export function getInitialProjectData(): ProjectData {
@@ -11,6 +11,7 @@ export function getInitialProjectData(): ProjectData {
     effects: { CRUSH: 0, COMB: 0, HICUT: 0, LOWCUT: 0, REVERB: 0, DIRTY: 0 },
     effectsHold: { holdAll: false, holdByKey: {} },
     channelsMuted: { melody: false, chord: false, drum: false },
+    // 初期値はすべて休符（2小節 x 4拍 = 8）: note のみ保持
+    melodyPitch: Array.from({ length: 8 }, (): MelodyPitchItem => ({ note: 'rest' })),
   } as ProjectData;
 }
-
