@@ -16,6 +16,7 @@ import { SegmentProvider } from '@entities/segment/model/SegmentContext';
 import { TempoProvider } from '@entities/tempo/model/TempoContext';
 import { VolumeProvider } from '@entities/volume/model/VolumeContext';
 import { VolumeEngineBinder } from '@features/volume';
+import { AuthStateListener } from '@entities/user';
 
 import type { ReactNode } from 'react';
 
@@ -25,6 +26,8 @@ export const Providers = ({ children }: Props) => (
   <GlobalAudioProvider>
     {/* Tone のコンテキストを最優先でエンジンに統一 */}
     <ToneMasterBridge />
+    {/* Firebase Auth の状態を購読してグローバル状態に反映 */}
+    <AuthStateListener />
     {/* テンポ/ボリュームのコンテキストを上位に配置し、Binder を内部で利用 */}
     <TempoProvider>
       <VolumeProvider>
