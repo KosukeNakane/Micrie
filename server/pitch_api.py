@@ -16,6 +16,24 @@ import numpy as np
 
 pitch_bp = Blueprint("pitch", __name__)
 
+# CREPEモデルのウォームアップ用（初回遅延回避）
+def warmup_crepe():
+    """CREPEのモデルを事前に読み込むための軽量ウォームアップ。
+    短い無音データに対して predict を一度だけ実行し、
+    モデルの重みをメモリにロードさせる。
+    """
+    global _crepe_warmed
+    if '_crepe_warmed' in globals() and _crepe_warmed:
+        return
+    print("🔄 CREPE モデルウォームアップ中...")
+    # 0.1秒の無音（16kHz）で十分にモデルをロードできる
+    sr = 16000
+    y = np.zeros(int(0.1 * sr), dtype=np.float32)
+    # viterbi=True でもモデルはロードされる。処理結果は捨てる。
+    crepe.predict(y, sr, viterbi=True)
+    _crepe_warmed = True
+    print("✅ CREPE モデルウォームアップ完了")
+
 # 音声ファイルを受け取り、ピッチ推定結果をJSONで返すエンドポイント
 @pitch_bp.route('/pitch', methods=['POST'])
 @cross_origin()  # Use app-level CORS (localhost:5173, *.vercel.app, PROD_ORIGIN, etc.)
@@ -152,4 +170,4 @@ def analyze_pitch():
             if os.path.exists(path):
                 os.remove(path)
 
-__all__ = ["pitch_bp"]
+__all__ = ["pitch_bp", "warmup_crepe"]

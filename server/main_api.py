@@ -9,7 +9,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from whisper_api import whisper_bp
 from predict_api import predict_bp
-from pitch_api import pitch_bp
+from pitch_api import pitch_bp, warmup_crepe
 
 import os
 import re
@@ -61,6 +61,13 @@ app.register_blueprint(whisper_bp)  # Whisper API（音声認識）を登録
 app.register_blueprint(predict_bp)  # Predict API（音声分類）を登録
 app.register_blueprint(pitch_bp)    # Pitch API（音高推定）を登録
 
+# 起動時にCREPEモデルをウォームアップ（初回遅延の回避とログ出力）
+try:
+    warmup_crepe()
+except Exception as e:
+    # ウォームアップに失敗してもAPI自体は起動継続（初回リクエスト時にロードされる）
+    print("⚠️ CREPE ウォームアップ失敗:", e)
+
 # Health check endpoint
 @app.get("/health")
 def health():
@@ -69,8 +76,13 @@ def health():
 # Optional: model warmup endpoint (任意の起動後ウォームアップ用)
 @app.get("/warmup")
 def warmup():
+    """起動直後のコールドスタートを避けるためのウォームアップ。
+    - 分類モデル（Keras）を遅延ロード
+    - CREPEモデルを軽量ダミー入力でロード
+    """
     try:
-        get_model()
+        get_model()       # Keras 分類モデルのロード
+        warmup_crepe()    # CREPE モデルのロード
         return jsonify({"warmed": True})
     except Exception as e:
         return jsonify({"warmed": False, "error": str(e)}), 500
