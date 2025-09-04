@@ -1,0 +1,38 @@
+# VCS
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+.pytest_cache/
+.coverage
+.mypy_cache/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/
+
+# Data / artifacts / logs
+dataset/
+*.csv
+*.wav
+*.webm
+*.mp3
+*.mp4
+*.ogg
+*.flac
+*.log
+
+# Build caches
+node_modules/
+dist/
+build/
+*.whl

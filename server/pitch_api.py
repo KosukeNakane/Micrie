@@ -46,6 +46,13 @@ def analyze_pitch():
         return jsonify({'error': 'No file uploaded'}), 400
 
     file = request.files['file']
+    # 軽い MIME チェック（厳格に弾かず警告のみに留める）
+    try:
+        mtype = getattr(file, 'mimetype', '') or ''
+        if not (mtype.startswith('audio/') or mtype.startswith('video/')):
+            print(f"⚠️ 非推奨のContent-Type: {mtype}")
+    except Exception:
+        pass
 
     # 受け取ったファイルを一時保存し、.webm から .wav へ変換
     with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as tmp_webm:
@@ -55,7 +62,13 @@ def analyze_pitch():
     wav_path = webm_path.replace(".webm", ".wav")
 
     try:
-        ffmpeg.input(webm_path).output(wav_path).run(quiet=True, overwrite_output=True)
+        (
+            ffmpeg
+            .input(webm_path)
+            .output(wav_path)
+            .global_args('-nostdin', '-hide_banner', '-loglevel', 'error')
+            .run(quiet=True, overwrite_output=True)
+        )
 
         try:
             y, sr = sf.read(wav_path)

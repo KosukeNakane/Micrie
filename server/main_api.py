@@ -43,6 +43,10 @@ prod_origin = os.getenv("PROD_ORIGIN")
 if prod_origin:
     allowed_origins.append(prod_origin)
 
+# 最大アップロードサイズ（MB）を制限（デフォルト 25MB）
+max_mb = float(os.getenv("MAX_CONTENT_LENGTH_MB", "25"))
+app.config["MAX_CONTENT_LENGTH"] = int(max_mb * 1024 * 1024)
+
 CORS(
     app,
     resources={r"/*": {
