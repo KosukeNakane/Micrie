@@ -1,0 +1,65 @@
+#!/bin/sh
+# Lightweight entrypoint to select app module by arg or env.
+# Usage examples:
+#   - Default (all APIs):           no args
+#   - Pitch only:                   pitch
+#   - Explicit module:              main_pitch_api:app
+#   - Or via env: MODE=pitch, or APP_MODULE=main_pitch_api:app
+
+set -eu
+
+# Determine mode or module from args/env
+MODE_OR_MODULE="${1:-}"                 # may be "pitch", "all", or a full module path
+MODE="${MODE:-}"                        # optional env override
+APP_MODULE_ENV="${APP_MODULE:-}"        # explicit module wins if set
+
+if [ -n "$APP_MODULE_ENV" ]; then
+  MODULE="$APP_MODULE_ENV"
+else
+  if [ -n "$MODE_OR_MODULE" ]; then
+    CASE_INPUT="$MODE_OR_MODULE"
+  elif [ -n "$MODE" ]; then
+    CASE_INPUT="$MODE"
+  else
+    CASE_INPUT="all"
+  fi
+
+  case "$CASE_INPUT" in
+    all|ALL)
+      MODULE="main_api:app"
+      ;;
+    pitch|PITCH)
+      MODULE="main_pitch_api:app"
+      ;;
+    *:*)
+      # Treat as explicit module path like module:app
+      MODULE="$CASE_INPUT"
+      ;;
+    *)
+      echo "Unknown mode: $CASE_INPUT" >&2
+      echo "Use 'all', 'pitch', or provide explicit 'module:app'." >&2
+      exit 2
+      ;;
+  esac
+fi
+
+PORT_="${PORT:-8080}"
+WORKERS_="${WEB_CONCURRENCY:-1}"
+THREADS_="${GTHREADS:-8}"
+TIMEOUT_="${TIMEOUT:-300}"
+LOG_LEVEL_="${LOG_LEVEL:-info}"
+
+echo "Starting gunicorn for $MODULE on port $PORT_ (workers=$WORKERS_, threads=$THREADS_)" >&2
+
+exec gunicorn \
+  -b "0.0.0.0:${PORT_}" \
+  -w "${WORKERS_}" \
+  -k gthread \
+  --threads "${THREADS_}" \
+  --timeout "${TIMEOUT_}" \
+  --access-logfile - \
+  --error-logfile - \
+  --log-level "${LOG_LEVEL_}" \
+  ${GUNICORN_EXTRA:-} \
+  "$MODULE"
+

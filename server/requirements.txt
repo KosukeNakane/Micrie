@@ -7,6 +7,6 @@ soundfile
 crepe
 openai-whisper
 keras
-tensorflow
+tensorflow-cpu
 torch  # whisperバックエンド用
 gunicorn
