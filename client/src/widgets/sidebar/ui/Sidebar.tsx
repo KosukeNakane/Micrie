@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { Box, Button, Text } from "@chakra-ui/react";
 import { createPortal } from "react-dom";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuthUiStore } from "@/features/auth/model/uiStore";
 import { LoginModal } from "./LoginModal";
 import { UserProfileModal } from "./UserProfileModal";
@@ -30,6 +30,13 @@ export const Sidebar = ({
   onSaveProject,
   onSaveProjectAs,
 }: Props) => {
+  // スライドイン制御
+  const [open, setOpen] = useState(false);
+  const closingTimer = useRef<number | null>(null);
+  const isTouchPrimary = useMemo(
+    () => (typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(pointer: coarse)').matches : false),
+    []
+  );
   const loginOpen = useAuthUiStore((s) => s.loginOpen);
   const setLoginOpen = useAuthUiStore((s) => s.setLoginOpen);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -42,23 +49,77 @@ export const Sidebar = ({
   const handleSave = () => onSaveProject?.();
   const handleSaveAs = () => onSaveProjectAs?.();
 
+  // タッチ: 左端からのスワイプで開き、サイドバー内からの左スワイプで閉じる
+  useEffect(() => {
+    let startX = 0; let startY = 0; let tracking = false;
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      startX = t.clientX; startY = t.clientY; tracking = startX < 24 || (open && startX < 260);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!tracking) return;
+      const t = e.touches[0];
+      const dx = t.clientX - startX; const dy = Math.abs(t.clientY - startY);
+      if (dy > 40) return; // 縦移動は無視
+      if (!open && dx > 40) setOpen(true);
+      if (open && dx < -40) setOpen(false);
+    };
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    return () => {
+      window.removeEventListener('touchstart', onTouchStart as any);
+      window.removeEventListener('touchmove', onTouchMove as any);
+    };
+  }, [open]);
+
+  // デスクトップ: 画面左端にマウスが近づいたら開く
+  useEffect(() => {
+    if (isTouchPrimary) return; // タッチデバイスでは無効
+    const onMove = (e: MouseEvent) => {
+      if (e.clientX < 16) setOpen(true);
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => window.removeEventListener('mousemove', onMove);
+  }, [isTouchPrimary]);
+
   return (
-    <Box
-      as="nav"
-      position="fixed"
-      left={0}
-      top={0}
-      bottom={0}
-      width="240px"
-      bg="whiteAlpha.600"
-      backdropFilter="blur(20px)"
-      borderRightWidth="1px"
-      borderColor="whiteAlpha.400"
-      boxShadow="md"
-      zIndex={2}
-      p={4}
-      fontFamily={'brandon-grotesque, sans-serif'}
-    >
+    <>
+      {/* 左端ホットスポット（デスクトップ） */}
+      {!isTouchPrimary && (
+        <Box
+          position="fixed"
+          left={0}
+          top={0}
+          bottom={0}
+          width="24px"
+          zIndex={3}
+          onMouseEnter={() => { if (closingTimer.current) { window.clearTimeout(closingTimer.current); closingTimer.current = null; } setOpen(true); }}
+        />
+      )}
+
+      {/* 背景オーバーレイ（クリックで閉じる） */}
+      {open && <Box position="fixed" inset={0} zIndex={3} onClick={() => setOpen(false)} />}
+
+      <Box
+        as="nav"
+        position="fixed"
+        left={0}
+        top={0}
+        bottom={0}
+        width="240px"
+        bg="whiteAlpha.600"
+        backdropFilter="blur(20px)"
+        borderRightWidth="1px"
+        borderColor="whiteAlpha.400"
+        boxShadow="md"
+        zIndex={4}
+        p={4}
+        fontFamily={'brandon-grotesque, sans-serif'}
+        transition="transform 160ms ease"
+        transform={open ? 'translateX(0)' : 'translateX(-100%)'}
+        onMouseLeave={() => { if (!isTouchPrimary) { closingTimer.current = window.setTimeout(() => setOpen(false), 120); } }}
+        onMouseEnter={() => { if (closingTimer.current) { window.clearTimeout(closingTimer.current); closingTimer.current = null; } }}
+      >
       <Box display="flex" flexDir="column" justifyContent="space-between" h="full">
         <Box>
           <Box display="flex" alignItems="center" gap={2} mb={3}>
@@ -195,6 +256,7 @@ export const Sidebar = ({
         </Box>,
         document.body
       )}
-    </Box>
+      </Box>
+    </>
   );
 };

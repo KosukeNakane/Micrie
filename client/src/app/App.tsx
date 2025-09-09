@@ -463,7 +463,7 @@ export const App = () => {
   position: relative;
   z-index: 1;
   /* 左サイドバーの幅分だけ右側にオフセット */
-  padding-left: 240px;
+  padding-left: 0;
   /* タイトルバー撤去に伴い上余白を詰める */
   padding-top: 0;
  `;
