@@ -8,24 +8,29 @@ import { useCountBarsAndBeats } from '@entities/count-bars-and-beats';
 import { useSegment } from '@entities/segment';
 import { useTempo } from '@entities/tempo';
 import { ChordPatternSelect, DrumPatternSelect } from '@features/pattern-select';
+import { ScaleModeSelect } from '@features/scale-mode';
 import { useDrumLoopScheduler, useMelodyLoopScheduler, useChordsLoopScheduler as useChordLoopScheduler } from '@features/playback';
 import { RecordingBeatIndicator } from '@features/recording';
+import { RecButton } from '@features/recording/ui/RecButton';
 import { RhythmSegmentEditor, MelodySegmentEditor } from '@features/segment-edit';
 import { WaveformViewer } from '@features/waveform';
 import { StyledArea } from '@shared/ui';
 
 export const CenteredArea = styled(StyledArea)`
   flex-direction: column;
+  /* TopPlaybackBar と同じ幅に合わせる */
   max-width: 600px;
   margin: 20px auto;
 `;
 
 const WaveformArea = styled(StyledArea) <{ isRed: boolean }>`
   position: relative;
-  height: 150px;
+  /* 波形キャンバス枠の高さ（px）: 既存値(150)の約2/3 */
+  height: 100px;
   overflow: hidden;
   box-sizing: border-box;
   width: 100%;
+  /* TopPlaybackBar と同じ幅に合わせる */
   max-width: 600px;
   margin: 0 auto;
   background-color: ${({ isRed }) => (isRed ? 'rgba(255, 0, 0, 0.2)' : 'transparent')};
@@ -34,8 +39,10 @@ const WaveformArea = styled(StyledArea) <{ isRed: boolean }>`
 
 const BarWaveformContainer = styled(StyledArea)`
   position: relative;
+  /* セグメントラベルを含む1バー分の表示高さ（px）: 編集UIは従来の高さを維持 */
   height: 180px;
   width: 100%;
+  /* TopPlaybackBar と同じ幅に合わせる */
   max-width: 600px;
   box-sizing: border-box;
   margin: 0 auto;
@@ -53,9 +60,9 @@ const SegmentLabel = styled(StyledArea)`
   z-index: 10;
 `;
 
-type Props = { audioBlob: Blob | null };
+type Props = { audioBlob: Blob | null; onToggleRecording?: () => void };
 
-export const WaveformDisplay = ({ audioBlob }: Props) => {
+export const WaveformDisplay = ({ audioBlob, onToggleRecording }: Props) => {
   const { currentBar, currentBeat } = useCountBarsAndBeats();
   const { currentSegments, loopMode, rhythmSegments, melodySegments, setContextAudioBuffer } = useSegment();
   const { isRecording } = useRecording();
@@ -90,13 +97,23 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
     return () => clearInterval(timer);
   }, [isRecording, setIsDrawing]);
 
-  // コンポーネントマウント時にcanvas幅とleft位置を取得（初期実装準拠）
+  // コンテナサイズに追随してcanvas幅とleft位置を更新
   useEffect(() => {
-    if (waveformRef.current) {
-      const rect = waveformRef.current.getBoundingClientRect();
+    const el = waveformRef.current;
+    if (!el) return;
+    const update = () => {
+      const rect = el.getBoundingClientRect();
       setCanvasWidth(rect.width);
       waveformLeftRef.current = rect.left;
-    }
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
   }, []);
 
   // 録音停止時に描画状態を初期化（初期実装）
@@ -125,20 +142,31 @@ export const WaveformDisplay = ({ audioBlob }: Props) => {
 
   return (
     <CenteredArea>
-      <RecordingBeatIndicator currentBar={currentBar} currentBeat={currentBeat} />
-
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-        <ChordPatternSelect />
-        <DrumPatternSelect />
+      {/* RecButton + BeatIndicator（中央にRec、左にIndicator） */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginRight: 12 }}>
+          <RecordingBeatIndicator currentBar={currentBar} currentBeat={currentBeat} size="sm" />
+        </div>
+        <RecButton onClick={() => onToggleRecording && onToggleRecording()} />
+        <div />
       </div>
-
       <WaveformArea ref={waveformRef} isRed={isRed}>
         {isDrawing && (
-          <canvas ref={canvasRef} width={canvasWidth} height={160} style={{ position: 'absolute', top: 0, left: 0, zIndex: 0 }} />
+          /* 波形キャンバスの高さ（px）: 既存値(150)の約2/3 */
+          <canvas ref={canvasRef} width={canvasWidth} height={100} style={{ position: 'absolute', top: 0, left: 0, zIndex: 0 }} />
         )}
       </WaveformArea>
+      <StyledArea style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '8px 10px', marginTop: 8 }}>
+        {/* Scale を Chord Pattern の上に配置 */}
+        <ScaleModeSelect />
+        <ChordPatternSelect />
+        <DrumPatternSelect />
+      </StyledArea>
+
+
 
       {hasSelectedSegments && Array.from({ length: barCount }).map((_, barIndex) => (
+        /* バー毎の描画領域の高さ（px）: 編集UIは従来の高さを維持 */
         <div style={{ height: '220px' }} key={barIndex}>
           <BarWaveformContainer>
             {loopMode === 'both' ? (

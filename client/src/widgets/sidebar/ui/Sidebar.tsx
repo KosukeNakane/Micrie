@@ -16,6 +16,8 @@ import {
 } from "@/features/auth";
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useProjectState } from "@/features/project-save-load/model/store";
+import { StyledArea } from "@shared/ui";
+import { DeveloperToolsPanel } from "@widgets/recording/developer-tools-panel";
 
 type Props = {
   onNewProject?: () => void;
@@ -33,6 +35,7 @@ export const Sidebar = ({
   // スライドイン制御
   const [open, setOpen] = useState(false);
   const closingTimer = useRef<number | null>(null);
+  const mouseXRef = useRef<number>(Infinity);
   const isTouchPrimary = useMemo(
     () => (typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(pointer: coarse)').matches : false),
     []
@@ -48,6 +51,11 @@ export const Sidebar = ({
   const handleOpen = () => onOpenProject?.();
   const handleSave = () => onSaveProject?.();
   const handleSaveAs = () => onSaveProjectAs?.();
+  // Developer Tools state (moved from RecordingPage)
+  const [devOpen, setDevOpen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [devAudioBlob, setDevAudioBlob] = useState<Blob | null>(null);
+  const [trimmingEnabled, setTrimmingEnabled] = useState(false);
 
   // タッチ: 左端からのスワイプで開き、サイドバー内からの左スワイプで閉じる
   useEffect(() => {
@@ -76,11 +84,25 @@ export const Sidebar = ({
   useEffect(() => {
     if (isTouchPrimary) return; // タッチデバイスでは無効
     const onMove = (e: MouseEvent) => {
+      mouseXRef.current = e.clientX;
       if (e.clientX < 16) setOpen(true);
     };
     window.addEventListener('mousemove', onMove);
     return () => window.removeEventListener('mousemove', onMove);
   }, [isTouchPrimary]);
+
+  // DevTools を閉じた後、カーソルがホットスポット外ならサイドバーを自動で閉じる
+  useEffect(() => {
+    if (devOpen) {
+      setOpen(true);
+      return;
+    }
+    if (isTouchPrimary) {
+      setOpen(false);
+    } else {
+      setOpen(mouseXRef.current < 24);
+    }
+  }, [devOpen, isTouchPrimary]);
 
   return (
     <>
@@ -91,7 +113,7 @@ export const Sidebar = ({
           left={0}
           top={0}
           bottom={0}
-          width="176px"
+          width="24px"
           zIndex={3}
           onMouseEnter={() => { if (closingTimer.current) { window.clearTimeout(closingTimer.current); closingTimer.current = null; } setOpen(true); }}
         />
@@ -172,7 +194,15 @@ export const Sidebar = ({
           </Box>
 
           <Box>
-            <Box my={3} height="1px" bg="whiteAlpha.500" />
+          <Box my={3} height="1px" bg="whiteAlpha.500" />
+          <Button
+            variant="ghost"
+            justifyContent="flex-start"
+            onClick={() => setDevOpen(true)}
+            _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
+          >
+            Developer Tools
+          </Button>
             {user ? (
               <Box display="flex" alignItems="center" justifyContent="space-between" gap={2}>
                 <Button
@@ -229,8 +259,32 @@ export const Sidebar = ({
 
         <UserProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
 
-        {logoutConfirm && createPortal(
-          <Box position="fixed" inset={0} zIndex={1100}>
+      {/* Developer Tools Modal */}
+      {devOpen && createPortal(
+        <Box position="fixed" inset={0} zIndex={1200}>
+          <Box position="absolute" inset={0} bg="blackAlpha.500" onClick={() => setDevOpen(false)} />
+          <Box position="absolute" left="50%" top="50%" transform="translate(-50%, -50%)" width="min(95vw, 960px)">
+            <StyledArea style={{ padding: 16 }}>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Text fontWeight="bold">Developer Tools</Text>
+                <Button variant="ghost" onClick={() => setDevOpen(false)}>Close</Button>
+              </Box>
+              <DeveloperToolsPanel
+                isPlaying={isPlaying}
+                setIsPlaying={setIsPlaying}
+                devAudioBlob={devAudioBlob}
+                setDevAudioBlob={setDevAudioBlob}
+                trimmingEnabled={trimmingEnabled}
+                setTrimmingEnabled={setTrimmingEnabled}
+              />
+            </StyledArea>
+          </Box>
+        </Box>,
+        document.body
+      )}
+
+      {logoutConfirm && createPortal(
+        <Box position="fixed" inset={0} zIndex={1100}>
             <Box position="absolute" inset={0} bg="blackAlpha.600" onClick={() => setLogoutConfirm(false)} />
             <Box
               position="absolute"

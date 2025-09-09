@@ -1,33 +1,27 @@
 import Select from 'react-select';
 
-import { useChordPattern } from '@entities/pattern/model/ChordPatternContext';
+import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 
-type ChordPattern = 'pattern1' | 'pattern2' | 'pattern3' | 'pattern4' | 'pattern5' | 'pattern6' | 'pattern7';
+type ScaleValue = 'major' | 'minor' | 'chromatic';
 
-const chordOptions: { value: ChordPattern; label: string }[] = [
-  { value: 'pattern3', label: 'Calm Tune' },
-  { value: 'pattern1', label: 'Cool City' },
-  { value: 'pattern5', label: 'Cry Chorus' },
-  { value: 'pattern7', label: 'Emo Canon' },
-  { value: 'pattern2', label: 'Happy Pop' },
-  { value: 'pattern4', label: 'Soft Sad' },
-  { value: 'pattern6', label: 'Trendy Emo' },
+const options: { value: ScaleValue; label: string }[] = [
+  { value: 'major', label: 'Major' },
+  { value: 'minor', label: 'Minor' },
+  { value: 'chromatic', label: 'Chromatic' },
 ];
 
-export const ChordPatternSelect = () => {
-  const { chordPattern, setChordPattern } = useChordPattern();
+export const ScaleModeSelect = () => {
+  const { scaleMode, setScaleMode } = useScaleMode();
   return (
-    <div style={{ width: '200px', marginTop: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <label style={{ fontSize: '14px' }}>Chord Pattern:</label>
+    <div style={{ width: '200px', marginTop: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <label style={{ fontSize: '14px' }}>Scale:</label>
       <div style={{ width: '120px' }}>
         <Select
-          options={chordOptions}
-          value={{
-            value: chordPattern,
-            label: chordOptions.find(o => o.value === chordPattern)?.label || chordPattern,
-          }}
-          onChange={(selected) => { if (selected) setChordPattern(selected.value); }}
+          options={options}
+          value={options.find((opt) => opt.value === scaleMode)}
+          onChange={(selected) => { if (selected) setScaleMode(selected.value as ScaleValue); }}
           menuPlacement="auto"
+          isSearchable
           styles={{
             menu: (base) => ({ ...base, marginTop: 12, zIndex: 200, borderRadius: '10px', background: 'rgba(255, 255, 255, 0.95)', boxShadow: '0 6px 10px rgba(0, 0, 0, 0.1)' }),
             menuList: (base) => ({ ...base, borderRadius: '10px', overflow: 'auto', padding: 0, maxHeight: 180 }),

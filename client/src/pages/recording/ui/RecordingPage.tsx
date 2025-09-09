@@ -3,17 +3,13 @@
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
 import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
 import { useTempo } from "@entities/tempo/model/TempoContext";
-import { useMelodyFileProcessing } from "@features/analysis/model/useMelodyFileProcessing";
 import { RealtimeLabel, useAudioRecorder } from "@features/recording";
 import { glassBackground } from "@shared/styles";
-import { RectButton } from "@shared/ui/RectButton";
-import { ControlPanel } from "@widgets/recording/control-panel";
-import { DeveloperToolsPanel } from "@widgets/recording/developer-tools-panel";
-import { ModeAndRecGroup } from "@widgets/recording/mode-and-rec-group";
+// import { ControlPanel } from "@widgets/recording/control-panel";
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
 import { WaveformDisplay } from "@widgets/waveform";
 
@@ -32,12 +28,7 @@ export const RecordingPage = () => {
   const { tempo } = useTempo();
 
 
-  const [trimmingEnabled, setTrimmingEnabled] = useState(false);
-  const [showDeveloperTools, setShowDeveloperTools] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [devAudioBlob, setDevAudioBlob] = useState<Blob | null>(null);
-
-  const { trimmedBlob } = useMelodyFileProcessing(devAudioBlob, undefined, trimmingEnabled);
+  // Developer Tools 関連状態は Sidebar に移行
 
   useEffect(() => {
     (async () => {
@@ -61,29 +52,8 @@ export const RecordingPage = () => {
     <div css={[glassBackground, centerNudge]}>
       <RealtimeLabel label={realtimeLabel} />
       <TopPlaybackBar />
-      <ModeAndRecGroup
-        onToggleRecording={handleToggleRecording}
-      />
-      <WaveformDisplay
-        audioBlob={trimmedBlob ?? devAudioBlob ?? audioBlob}
-      />
-      <ControlPanel />
-
-      <RectButton
-        onClick={() => setShowDeveloperTools((prev) => !prev)}
-        label={showDeveloperTools ? "▴ Close Developer Tools" : "▾ Open Developer Tools"}
-      />
-
-      {showDeveloperTools && (
-        <DeveloperToolsPanel
-          isPlaying={isPlaying}
-          setIsPlaying={setIsPlaying}
-          devAudioBlob={devAudioBlob}
-          setDevAudioBlob={setDevAudioBlob}
-          trimmingEnabled={trimmingEnabled}
-          setTrimmingEnabled={setTrimmingEnabled}
-        />
-      )}
+      <WaveformDisplay audioBlob={audioBlob} onToggleRecording={handleToggleRecording} />
+      {/* ControlPanel のSCALEはScaleModeSelectに移行済み */}
 
       <div style={{
         display: "flex",

@@ -1,5 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import styled from '@emotion/styled';
+import { useCountBarsAndBeats } from '@entities/count-bars-and-beats';
+import { RecordingBeatIndicator } from '@features/recording';
 
 import { RecButton } from '@features/recording/ui/RecButton';
 
@@ -7,19 +9,22 @@ type Props = {
   onToggleRecording: () => void;
 };
 
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 24px;
   margin: 20px 0;
 `;
 
 export const ModeAndRecGroup = ({ onToggleRecording }: Props) => {
+  const { currentBar, currentBeat } = useCountBarsAndBeats();
   return (
-    <Container>
+    <Grid>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginRight: 12 }}>
+        <RecordingBeatIndicator currentBar={currentBar} currentBeat={currentBeat} size="sm" />
+      </div>
       <RecButton onClick={onToggleRecording} />
-    </Container>
+      <div />
+    </Grid>
   );
 };
-
