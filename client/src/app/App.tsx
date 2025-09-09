@@ -25,7 +25,6 @@ import { useState } from "react";
 import { openLoginModal } from "@/features/auth/model/uiStore";
 import { LoginRequiredModal } from "@/shared/ui/LoginRequiredModal";
 import { useProjectState } from "@/features/project-save-load/model/store";
-import { ProjectTitleBar } from "@/shared/ui/ProjectTitleBar";
 import { ConfirmUnsavedChangesModal } from "@/shared/ui/ConfirmUnsavedChangesModal";
 import { stableStringify } from "@/shared/lib/stableStringify";
 import { useVolume } from "@/entities/volume/model/VolumeContext";
@@ -474,8 +473,6 @@ export const App = () => {
       <div css={contentStyle}>
         <ChakraProvider value={system}>
           <Providers>
-            {/* 画面上部に現在のプロジェクト名を表示 */}
-            <ProjectTitleBar />
             <AppInner />
           </Providers>
           {/* Global toast host (Chakra v3 toaster) */}

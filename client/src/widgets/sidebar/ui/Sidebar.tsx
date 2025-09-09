@@ -15,6 +15,7 @@ import {
   registerWithEmailPassword,
 } from "@/features/auth";
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useProjectState } from "@/features/project-save-load/model/store";
 
 type Props = {
   onNewProject?: () => void;
@@ -34,6 +35,8 @@ export const Sidebar = ({
   const [profileOpen, setProfileOpen] = useState(false);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const { user } = useAuthStore();
+  const projectName = useProjectState((s) => s.currentProjectName);
+  const projectTitle = (projectName?.trim() ? projectName.trim() : "Untitled");
   const handleNew = () => onNewProject?.();
   const handleOpen = () => onOpenProject?.();
   const handleSave = () => onSaveProject?.();
@@ -58,9 +61,14 @@ export const Sidebar = ({
     >
       <Box display="flex" flexDir="column" justifyContent="space-between" h="full">
         <Box>
-          <Text fontSize="sm" fontWeight="bold" color="gray.600" mb={3}>
-            Project
-          </Text>
+          <Box display="flex" alignItems="center" gap={2} mb={3}>
+            <Text fontSize="sm" fontWeight="bold" color="gray.600">
+              Project
+            </Text>
+            <Text fontSize="sm" color="gray.700" title={projectTitle}>
+              {projectTitle}
+            </Text>
+          </Box>
           <Box display="flex" flexDir="column" gap={2}>
             <Button
               variant="solid"

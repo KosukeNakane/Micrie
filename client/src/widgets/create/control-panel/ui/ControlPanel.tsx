@@ -2,6 +2,7 @@
 import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 
 import { ControlButton } from './ControlButton';
+import { NavBar } from '@shared/ui';
 
 export const ControlPanel = () => {
   const { scaleMode, setScaleMode } = useScaleMode();
@@ -15,7 +16,9 @@ export const ControlPanel = () => {
   const value = scaleMode === 'major' ? 'Major' : scaleMode === 'minor' ? 'Minor' : 'Chromatic';
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+      {/* 新しいNavBarのプレビュー */}
+      <NavBar />
       <ControlButton
         label={"SCALE"}
         options={['Major', 'Minor', 'Chromatic']}
