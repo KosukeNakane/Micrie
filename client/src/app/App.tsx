@@ -468,11 +468,11 @@ export const App = () => {
   padding-top: 0;
  `;
 
-  // 画面最下部に固定するNavBarのスタイル
+  // 画面最下部に固定するNavBarのスタイル（左に僅かに寄せて中央補正）
   const bottomNavStyle = css`
     position: fixed;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(calc(-50% - 12px));
     bottom: 12px;
     z-index: 5;
     pointer-events: auto;

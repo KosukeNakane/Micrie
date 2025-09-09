@@ -2,6 +2,7 @@
 // 録音、再生、リアルタイムラベル表示、解析結果表示などの要素を統合
 
 /** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
 import { useState, useEffect } from "react";
 
 import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
@@ -55,8 +56,9 @@ export const RecordingPage = () => {
   };
 
   // 各UIコンポーネントを順にレンダリング
+  const centerNudge = css`transform: translateX(-12px);`;
   return (
-    <div css={glassBackground}>
+    <div css={[glassBackground, centerNudge]}>
       <RealtimeLabel label={realtimeLabel} />
       <TopPlaybackBar />
       <ModeAndRecGroup
