@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { useNavigate } from 'react-router-dom';
 import { StyledArea } from '@shared/ui/StyledArea';
 import MicIcon from '@mui/icons-material/Mic';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -40,6 +41,7 @@ const IconTile = styled(StyledArea)`
 `;
 
 export const NavBar = () => {
+  const navigate = useNavigate();
   // SVGの色を強制的に上書き（元SVGが固定色のため）
   const PerformanceColored = styled(PerformanceIcon)`
     width: 36px;
@@ -49,13 +51,13 @@ export const NavBar = () => {
   return (
     <NavBarArea>
       {/* 左から Mic, Tune, Performance（SVG） の順 */}
-      <IconTile as="button" aria-label="record">
+      <IconTile as="button" aria-label="record" onClick={() => navigate('/recording')}>
         <MicIcon sx={{ fontSize: 36 }} />
       </IconTile>
-      <IconTile as="button" aria-label="tune">
+      <IconTile as="button" aria-label="tune" onClick={() => navigate('/edit')}>
         <TuneIcon sx={{ fontSize: 36 }} />
       </IconTile>
-      <IconTile as="button" aria-label="performance">
+      <IconTile as="button" aria-label="performance" onClick={() => navigate('/performance')}>
         <PerformanceColored />
       </IconTile>
     </NavBarArea>

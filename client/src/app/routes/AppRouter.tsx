@@ -1,16 +1,14 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-import { CreatePage } from '@pages/create';
-import { MelodyPage } from '@pages/melody';
-import { PlayPage } from '@pages/play';
-import { RhythmPage } from '@pages/rhythm';
+import { RecordingPage } from '@pages/recording';
+import { EditPage } from '@pages/edit';
+import { PerformancePage } from '@pages/performance';
 
 export const AppRouter = () => (
   <Routes>
-    <Route path="/" element={<Navigate to="/create" replace />} />
-    <Route path="/create" element={<CreatePage />} />
-    <Route path="/rhythm" element={<RhythmPage />} />
-    <Route path="/melody" element={<MelodyPage />} />
-    <Route path="/play" element={<PlayPage />} />
+    <Route path="/" element={<Navigate to="/recording" replace />} />
+    <Route path="/recording" element={<RecordingPage />} />
+    <Route path="/edit" element={<EditPage />} />
+    <Route path="/performance" element={<PerformancePage />} />
   </Routes>
 );

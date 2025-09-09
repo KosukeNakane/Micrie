@@ -32,6 +32,7 @@ import { useScaleMode } from "@/entities/scale-mode/model/ScaleModeContext";
 import { useChordPattern } from "@/entities/pattern/model/ChordPatternContext";
 import { useDrumPattern } from "@/entities/pattern/model/DrumPatternContext";
 import { getInitialProjectData } from "@/features/project-save-load/model/initial";
+import { NavBar } from "@/shared/ui";
 
 const config = defineConfig({
   globalCss: {
@@ -463,9 +464,19 @@ export const App = () => {
   z-index: 1;
   /* 左サイドバーの幅分だけ右側にオフセット */
   padding-left: 240px;
-  /* タイトルバーの高さ分だけ上に余白 */
-  padding-top: 56px;
+  /* タイトルバー撤去に伴い上余白を詰める */
+  padding-top: 0;
  `;
+
+  // 画面最下部に固定するNavBarのスタイル
+  const bottomNavStyle = css`
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 12px;
+    z-index: 5;
+    pointer-events: auto;
+  `;
 
   return (
     <div css={appStyle}>
@@ -477,6 +488,10 @@ export const App = () => {
           </Providers>
           {/* Global toast host (Chakra v3 toaster) */}
           <ToasterHost />
+          {/* 画面最下部のNavBar */}
+          <div css={bottomNavStyle}>
+            <NavBar />
+          </div>
         </ChakraProvider>
       </div>
     </div>
