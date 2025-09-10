@@ -72,7 +72,7 @@ const SquaresGrid = styled(StyledArea)`
   border-radius: 0;
   padding: 0;
   margin: 8px 0 0;
-  
+
   /* レイアウトのみを担う */
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -246,62 +246,6 @@ export const WaveformDisplay = ({ audioBlob, onToggleRecording }: Props) => {
           <SquareBox key={i} />
         ))}
       </SquaresGrid>
-
-
-
-      {
-        hasSelectedSegments && Array.from({ length: barCount }).map((_, barIndex) => (
-          /* バー毎の描画領域の高さ（px）: 編集UIは従来の高さを維持 */
-          <div style={{ height: '220px' }} key={barIndex}>
-            <BarWaveformContainer>
-              {loopMode === 'both' ? (
-                <>
-                  {rhythmSegments.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
-                    const x = Math.floor(((i + 0.5) / 16) * canvasWidth);
-                    return seg.label !== 'rest' && (
-                      <SegmentLabel key={`rhythm-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `-10px`, transform: 'translateX(-50%)' }}>
-                        {seg.label}
-                      </SegmentLabel>
-                    );
-                  })}
-                  {melodySegments.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
-                    const x = Math.floor(((i + 0.5) / 16) * canvasWidth);
-                    return seg.label !== 'rest' && (
-                      <SegmentLabel key={`melody-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `65px`, transform: 'translateX(-50%)' }}>
-                        {seg.label}
-                      </SegmentLabel>
-                    );
-                  })}
-                </>
-              ) : (
-                <>
-                  {currentSegments.rhythm?.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
-                    const x = Math.floor(((i + 0.5) / 16) * canvasWidth);
-                    return seg.label !== 'rest' && (
-                      <SegmentLabel key={`rhythm-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `-10px`, transform: 'translateX(-50%)' }}>
-                        {seg.label}
-                      </SegmentLabel>
-                    );
-                  })}
-                  {currentSegments.melody?.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
-                    const x = Math.floor(((i + 0.5) / 16) * canvasWidth);
-                    return seg.label !== 'rest' && (
-                      <SegmentLabel key={`melody-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `-10px`, transform: 'translateX(-50%)' }}>
-                        {seg.label}
-                      </SegmentLabel>
-                    );
-                  })}
-                </>
-              )}
-              <WaveformViewer barIndex={barIndex} totalBars={barCount} />
-              <div style={{ position: 'absolute', zIndex: 5, top: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {(loopMode === 'rhythm' || loopMode === 'both') && (<RhythmSegmentEditor barIndex={barIndex} />)}
-                {(loopMode === 'melody' || loopMode === 'both') && (<MelodySegmentEditor barIndex={barIndex} width={canvasWidth} />)}
-              </div>
-            </BarWaveformContainer>
-          </div>
-        ))
-      }
     </CenteredArea >
   );
 };

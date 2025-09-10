@@ -3,15 +3,17 @@
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
 import { useTempo } from "@entities/tempo/model/TempoContext";
+import { useSegment } from "@entities/segment";
 import { RealtimeLabel, useAudioRecorder } from "@features/recording";
 import { glassBackground } from "@shared/styles";
 // import { ControlPanel } from "@widgets/recording/control-panel";
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
 import { WaveformDisplay } from "@widgets/waveform";
+import { useNavigate } from "react-router-dom";
 
 export const RecordingPage = () => {
 
@@ -26,6 +28,19 @@ export const RecordingPage = () => {
 
   // テンポ（BPM）を取得するカスタムフック
   const { tempo } = useTempo();
+  const { rhythmSegments, melodySegments } = useSegment();
+  const navigate = useNavigate();
+  const hasNavigatedRef = useRef(false);
+
+  // 音声分析が完了し、Flaskサーバーから結果が返ったらEditへ自動遷移
+  useEffect(() => {
+    if (hasNavigatedRef.current) return;
+    const hasResults = (rhythmSegments?.length ?? 0) > 0 || (melodySegments?.length ?? 0) > 0;
+    if (audioBlob && hasResults) {
+      hasNavigatedRef.current = true;
+      navigate('/edit');
+    }
+  }, [audioBlob, rhythmSegments?.length, melodySegments?.length, navigate]);
 
 
   // Developer Tools 関連状態は Sidebar に移行
@@ -49,19 +64,10 @@ export const RecordingPage = () => {
   // 各UIコンポーネントを順にレンダリング
   const centerNudge = css`transform: translateX(-12px);`;
   return (
-    <div css={[glassBackground, centerNudge]}>
+    <div css={[glassBackground, css`& > *:last-child { margin-bottom: 0 !important; }`]}>
       <RealtimeLabel label={realtimeLabel} />
       <TopPlaybackBar />
       <WaveformDisplay audioBlob={audioBlob} onToggleRecording={handleToggleRecording} />
-      {/* ControlPanel のSCALEはScaleModeSelectに移行済み */}
-
-      <div style={{
-        display: "flex",
-        gap: "16px",
-        margin: "20px",
-      }}>
-      </div>
-
     </div>
   );
 };
