@@ -137,6 +137,8 @@ export const Sidebar = ({
         zIndex={4}
         p={4}
         fontFamily={'brandon-grotesque, sans-serif'}
+        borderRadius="0 16px 16px 0"
+        overflow="hidden"
         transition="transform 160ms ease"
         transform={open ? 'translateX(0)' : 'translateX(-100%)'}
         onMouseLeave={() => { if (!isTouchPrimary) { closingTimer.current = window.setTimeout(() => setOpen(false), 120); } }}
