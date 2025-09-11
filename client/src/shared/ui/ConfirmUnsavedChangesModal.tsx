@@ -15,7 +15,7 @@ export function ConfirmUnsavedChangesModal({ isOpen, projectName, onSaveAndConti
   const content = (
     <Box position="fixed" inset={0} zIndex={1000}>
       <Box position="absolute" inset={0} bg="blackAlpha.600" onClick={onCancel} />
-      <Box position="absolute" left="50%" top="50%" transform="translate(-50%, -50%)" bg="white" borderRadius="md" boxShadow="xl" width="min(92vw, 520px)" p={5}>
+      <Box position="absolute" left="50%" top="50%" transform="translate(-50%, -50%)" bg="white" borderRadius="md" boxShadow="xl" width="min(92vw, 390px)" p={5}>
         <Text fontSize="lg" fontWeight="bold" mb={2}>変更を保存しますか？</Text>
         <Text fontSize="sm" color="gray.700" mb={4}>{name} への変更を保存しますか？</Text>
         <Box display="flex" justifyContent="flex-end" gap={2}>
@@ -28,4 +28,3 @@ export function ConfirmUnsavedChangesModal({ isOpen, projectName, onSaveAndConti
   );
   return createPortal(content, document.body);
 }
-

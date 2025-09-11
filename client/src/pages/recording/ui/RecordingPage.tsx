@@ -64,7 +64,8 @@ export const RecordingPage = () => {
   // 各UIコンポーネントを順にレンダリング
   const centerNudge = css`transform: translateX(-12px);`;
   return (
-    <div css={[glassBackground, css`& > *:last-child { margin-bottom: 0 !important; }`]}>
+    // <div css={[glassBackground, css`& > *:last-child { margin-bottom: 0 !important; }`]}>
+    <div>
       <RealtimeLabel label={realtimeLabel} />
       <TopPlaybackBar />
       <WaveformDisplay audioBlob={audioBlob} onToggleRecording={handleToggleRecording} />

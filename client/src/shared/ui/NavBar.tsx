@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { scalePx } from '@/shared/lib/scale';
 import { useNavigate } from 'react-router-dom';
 import { StyledArea } from '@shared/ui/StyledArea';
 import MicIcon from '@mui/icons-material/Mic';
@@ -11,11 +12,11 @@ const NavBarArea = styled(StyledArea)`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px; /* 各アイコン間隔 */
+  gap: ${scalePx(12)}; /* 各アイコン間隔 */
   box-sizing: border-box;
-  width: 366px;
-  height: 94px;
-  padding: 12px; /* 外枠の内側余白 */
+  width: ${scalePx(366)};
+  height: ${scalePx(94)};
+  padding: ${scalePx(12)}; /* 外枠の内側余白 */
   margin: 0 auto;
   background: linear-gradient(135deg, rgba(255,255,255,0.35), rgba(140,194,209,0.25));
 `;
@@ -23,8 +24,8 @@ const NavBarArea = styled(StyledArea)`
 // 各アイコンを囲うコンテナ（71x71）
 const IconTile = styled(StyledArea)`
   box-sizing: border-box;
-  width: 71px;
-  height: 71px;
+  width: ${scalePx(71)};
+  height: ${scalePx(71)};
   padding: 0;
   margin: 0;
   display: flex;
@@ -37,15 +38,15 @@ const IconTile = styled(StyledArea)`
   &:hover { background-color: rgba(255, 255, 255, 0.38); }
   &:active { transform: translateY(1px); }
   /* 既定のアイコンサイズ（MUI/SVGRの1emに効く） */
-  & > svg { font-size: 36px; color: rgba(5, 4, 69, 0.9); }
+  & > svg { font-size: ${scalePx(36)}; color: rgba(5, 4, 69, 0.9); }
 `;
 
 export const NavBar = () => {
   const navigate = useNavigate();
   // SVGの色を強制的に上書き（元SVGが固定色のため）
   const PerformanceColored = styled(PerformanceIcon)`
-    width: 36px;
-    height: 36px;
+    width: ${scalePx(36)};
+    height: ${scalePx(36)};
     & path { fill: rgba(5, 4, 69, 0.9) !important; }
   `;
   return (

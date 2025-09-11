@@ -21,7 +21,7 @@ export const LoginRequiredModal = ({ isOpen, onClose, onLogin, message }: Props)
         bg="white"
         borderRadius="md"
         boxShadow="xl"
-        width="min(92vw, 420px)"
+        width="min(92vw, 315px)"
         p={5}
       >
         <Text fontSize="md" mb={4}>
@@ -36,4 +36,3 @@ export const LoginRequiredModal = ({ isOpen, onClose, onLogin, message }: Props)
     document.body
   );
 };
-

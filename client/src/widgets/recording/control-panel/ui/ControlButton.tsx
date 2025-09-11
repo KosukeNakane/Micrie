@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { scalePx } from '@/shared/lib/scale';
 
 type Props = {
   label: React.ReactNode;
@@ -9,27 +10,27 @@ type Props = {
 
 const Container = styled.div`
   display: flex;
-  gap: 8px;
+  gap: ${scalePx(8)};
   align-items: center;
 `;
 
 const StyledSelect = styled.select`
   font-family: "brandon-grotesque", sans-serif;
   font-weight: 500;
-  font-size: 14px;
+  font-size: ${scalePx(14)};
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.87), rgb(212, 221, 240));
   color: rgba(5, 4, 69, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
-  padding: 8px 10px;
+  border-radius: ${scalePx(10)};
+  padding: ${scalePx(8)} ${scalePx(10)};
   cursor: pointer;
-  box-shadow: 0 6px 10px 0 rgba(31, 38, 135, 0.37);
+  box-shadow: 0 ${scalePx(6)} ${scalePx(10)} 0 rgba(31, 38, 135, 0.37);
   backdrop-filter: blur(20px);
   appearance: none;
 `;
 
 const Label = styled.label`
-  font-size: 14px;
+  font-size: ${scalePx(14)};
   font-weight: 500;
   font-family: "brandon-grotesque", sans-serif;
   color: rgba(5, 4, 69, 0.8);
@@ -49,4 +50,3 @@ export function ControlButton({ label, options, value, onSelect }: Props) {
     </Container>
   );
 }
-

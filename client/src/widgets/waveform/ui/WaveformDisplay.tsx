@@ -19,8 +19,11 @@ import { SimpleSelect } from '@shared/ui/SimpleSelect';
 
 export const CenteredArea = styled(StyledArea)`
   flex-direction: column;
+  justify-content: flex-start; /* 余白が広がらないように上寄せ */
+  gap: 0; /* StyledAreaの既定gap(約6px)を無効化 */
   /* TopPlaybackBar と同じ幅に合わせる */
-  max-width: 600px;
+  width: 600px;
+  height: 715px;
   margin: 20px auto;
 `;
 
@@ -30,35 +33,11 @@ const WaveformArea = styled(StyledArea) <{ isRed: boolean }>`
   height: 100px;
   overflow: hidden;
   box-sizing: border-box;
-  width: 100%;
+  width: 424px;
   /* TopPlaybackBar と同じ幅に合わせる */
-  max-width: 600px;
   margin: 0 auto;
   background-color: ${({ isRed }) => (isRed ? 'rgba(255, 0, 0, 0.2)' : 'transparent')};
   transition: none;
-`;
-
-const BarWaveformContainer = styled(StyledArea)`
-  position: relative;
-  /* セグメントラベルを含む1バー分の表示高さ（px）: 編集UIは従来の高さを維持 */
-  height: 180px;
-  width: 100%;
-  /* TopPlaybackBar と同じ幅に合わせる */
-  max-width: 600px;
-  box-sizing: border-box;
-  margin: 0 auto;
-  align-items: flex-start;
-`;
-
-const SegmentLabel = styled(StyledArea)`
-  position: absolute;
-  top: 0;
-  background: linear-gradient(135deg,rgba(255, 248, 56, 0.76),rgb(255, 210, 97));
-  font-family: "brandon-grotesque", sans-serif;
-  font-size: 14px;
-  padding: 0px 4px;
-  border-radius: 4px;
-  z-index: 10;
 `;
 
 // 2行×4列のグリッドと正方形（StyledAreaベース）
@@ -70,20 +49,21 @@ const SquaresGrid = styled(StyledArea)`
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-radius: 0;
-  padding: 0;
-  margin: 8px 0 0;
+  padding: 0 32;
+  margin: 0 32; /* 上下間隔は直前要素側で統一管理 */
 
   /* レイアウトのみを担う */
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, 100px);
   gap: 8px;
   width: 100%;
   max-width: 600px;
+  justify-content: center;
 `;
 
 const SquareBox = styled(StyledArea)`
-  width: 100%;
-  aspect-ratio: 1 / 1;
+  width: 100px;
+  height: 100px;
   padding: 0; /* 正方形比率を崩さないように内側余白を無効化 */
   margin: 0;  /* グリッド間の余白は親のgapで管理 */
   justify-content: center;
@@ -173,8 +153,8 @@ export const WaveformDisplay = ({ audioBlob, onToggleRecording }: Props) => {
   return (
     <CenteredArea>
       {/* RecButton + BeatIndicator（中央にRec、左にIndicator） */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', marginBottom: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginRight: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', marginBottom: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginRight: 9 }}>
           <RecordingBeatIndicator currentBar={currentBar} currentBeat={currentBeat} size="sm" />
         </div>
         <RecButton onClick={() => onToggleRecording && onToggleRecording()} />
@@ -189,20 +169,23 @@ export const WaveformDisplay = ({ audioBlob, onToggleRecording }: Props) => {
       <StyledArea
         style={{
           display: 'grid',
-          gridTemplateColumns: '120px 1fr 160px',
-          gridAutoRows: 'minmax(36px, auto)',
+          gridTemplateColumns: '90px 1fr 120px',
+          gridAutoRows: 'minmax(27px, auto)',
           alignItems: 'center',
-          gap: 8,
-          padding: '8px 10px',
-          marginTop: 8,
+          gap: 6,
+          width: 540,
+          height: 200,
+          padding: '6px 7.5px',
+          marginTop: 16,
+          marginBottom: 8, // 次のSquaresGridとの間隔を8pxに固定
         }}
       >
         {/* Row 1 */}
-        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>TEXT</span>
+        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>TEXT</span>
         <div><ScaleModeSelect /></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
-          <div style={{ width: 110 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4.5 }}>
+          <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
+          <div style={{ width: 82.5 }}>
             <SimpleSelect
               options={[{ value: 'default', label: 'Default' }, { value: 'bright', label: 'Bright' }, { value: 'warm', label: 'Warm' }]}
               value={{ value: 'default', label: 'Default' }}
@@ -212,11 +195,11 @@ export const WaveformDisplay = ({ audioBlob, onToggleRecording }: Props) => {
         </div>
 
         {/* Row 2 */}
-        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>TEXT</span>
+        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>TEXT</span>
         <div><ChordPatternSelect /></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
-          <div style={{ width: 110 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4.5 }}>
+          <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
+          <div style={{ width: 82.5 }}>
             <SimpleSelect
               options={[{ value: 'default', label: 'Default' }, { value: 'bright', label: 'Bright' }, { value: 'warm', label: 'Warm' }]}
               value={{ value: 'default', label: 'Default' }}
@@ -226,11 +209,11 @@ export const WaveformDisplay = ({ audioBlob, onToggleRecording }: Props) => {
         </div>
 
         {/* Row 3 */}
-        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
+        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
         <div><DrumPatternSelect /></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>TEXT</span>
-          <div style={{ width: 110 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4.5 }}>
+          <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>TEXT</span>
+          <div style={{ width: 82.5 }}>
             <SimpleSelect
               options={[{ value: 'default', label: 'Default' }, { value: 'bright', label: 'Bright' }, { value: 'warm', label: 'Warm' }]}
               value={{ value: 'default', label: 'Default' }}

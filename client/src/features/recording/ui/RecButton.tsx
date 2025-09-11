@@ -2,6 +2,7 @@
 // 録音状態に応じてスタイルと動作を変更する
 
 import styled from '@emotion/styled';
+import { scalePx } from '@/shared/lib/scale';
 
 import { useRecording } from '@entities/audio/model/RecordingContext';
 import { useRecordingUI } from '@entities/audio/model/RecordingUIContext';
@@ -15,10 +16,10 @@ const CircularButton = styled(RectButtonBase)<{ recording: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50px;
-  padding: 0 16px;
-  height: 48px;
-  font-size: 18px;
+  border-radius: ${scalePx(50)};
+  padding: 0 ${scalePx(16)};
+  height: ${scalePx(48)};
+  font-size: ${scalePx(18)};
   flex-grow: 0;
   flex-shrink: 0;
   flex-basis: auto;
@@ -101,7 +102,7 @@ export const RecButton = ({ onClick }: { onClick: () => void }) => {
           fontFamily: 'brandon-grotesque, sans-serif',
           fontWeight: 500,
           fontStyle: 'normal',
-          fontSize: '20px',
+          fontSize: '15px',
           color: 'rgba(5, 4, 69, 0.8)'
         }}
       >

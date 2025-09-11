@@ -89,7 +89,7 @@ export const PerformancePage = () => {
   useEffect(() => { engine.setChannelMuted('chord', chordMuted); }, [engine, chordMuted]);
 
   return (
-    <div css={glassBackground}>
+    <div>
       {/* 再生バー */}
       <TopPlaybackBar />
 
@@ -117,6 +117,6 @@ export const PerformancePage = () => {
           </div>
         </div>
       </EffectsPanel>
-    </div>
+    </div >
   );
 };

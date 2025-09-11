@@ -13,13 +13,14 @@ type Props = {
 export const EffectsButton: React.FC<Props> = ({ label, size = 40, width, height, active, onClick }) => {
   const widthPx = width ?? size;
   const heightPx = height ?? size;
+  const scaledHeight = `${heightPx * 0.75}px`;
   return (
     <RectButtonBase
       active={active}
       onClick={onClick}
       widthPx={widthPx}
       style={{
-        height: `${heightPx}px`,
+        height: scaledHeight,
         margin: 0,
         padding: 0,
         display: 'flex',

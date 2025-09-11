@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
+import { scalePx } from '@/shared/lib/scale';
 
 type Props = {
   width?: number; // default 60px
@@ -19,12 +20,12 @@ export const SplitHoldResetButton: React.FC<Props> = ({
   const halfHeight = Math.floor((height - 1) / 2); // 1px divider
   const bottomHeight = height - (halfHeight + 1);
   return (
-    <Container style={{ width }}>
-      <HalfShell active={!!holdActive} round="top" style={{ height: halfHeight }} onClick={onToggleHold} aria-label="Hold">
+    <Container style={{ width: `${width * 0.75}px` }}>
+      <HalfShell active={!!holdActive} round="top" style={{ height: `${halfHeight * 0.75}px` }} onClick={onToggleHold} aria-label="Hold">
         HOLD
       </HalfShell>
       <Divider />
-      <HalfShell active={false} round="bottom" style={{ height: bottomHeight }} onClick={onReset} aria-label="Reset">
+      <HalfShell active={false} round="bottom" style={{ height: `${bottomHeight * 0.75}px` }} onClick={onReset} aria-label="Reset">
         RESET
       </HalfShell>
     </Container>
@@ -46,7 +47,7 @@ const HalfShell = styled.button<{ active: boolean; round: 'top' | 'bottom' }>`
   font-family: "brandon-grotesque", sans-serif;
   font-weight: 500;
   font-style: normal;
-  font-size:14px;
+  font-size:${scalePx(14)};
   /* Frosted glass-like background to match vertical fader aesthetics */
   background: ${({ active }) =>
     active
@@ -54,13 +55,13 @@ const HalfShell = styled.button<{ active: boolean; round: 'top' | 'bottom' }>`
       : 'linear-gradient(135deg, rgba(255,255,255,0.35), rgba(140,194,209,0.25))'};
   color: rgba(5, 4, 69, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: ${({ round }) => (round === 'top' ? '10px 10px 0 0' : '0 0 10px 10px')};
+  border-radius: ${({ round }) => (round === 'top' ? `${scalePx(10)} ${scalePx(10)} 0 0` : `0 0 ${scalePx(10)} ${scalePx(10)}`)};
   padding: 0;
   /* RectButton と同様の凹み具合（active時はinset） */
   box-shadow: ${({ active }) =>
     active
-      ? 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
-      : '0 8px 16px 0 rgba(31, 38, 135, 0.28)'};
+      ? 'inset 0 1.5px 3px rgba(0, 0, 0, 0.2)'
+      : '0 6px 12px 0 rgba(31, 38, 135, 0.28)'};
   transition: box-shadow 0.2s ease, transform 0.08s ease;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -76,7 +77,7 @@ const HalfShell = styled.button<{ active: boolean; round: 'top' | 'bottom' }>`
 `;
 
 const Divider = styled.div`
-  height: 1px;
+  height: 0.75px;
   background: rgba(255, 255, 255, 0.35);
   width: 100%;
 `;

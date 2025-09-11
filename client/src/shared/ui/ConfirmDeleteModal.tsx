@@ -14,7 +14,7 @@ export function ConfirmDeleteModal({ isOpen, projectName, onCancel, onConfirm }:
   const content = (
     <Box position="fixed" inset={0} zIndex={1100}>
       <Box position="absolute" inset={0} bg="blackAlpha.600" onClick={onCancel} />
-      <Box position="absolute" left="50%" top="50%" transform="translate(-50%, -50%)" bg="white" borderRadius="md" boxShadow="xl" width="min(92vw, 520px)" p={5}>
+      <Box position="absolute" left="50%" top="50%" transform="translate(-50%, -50%)" bg="white" borderRadius="md" boxShadow="xl" width="min(92vw, 390px)" p={5}>
         <Text fontSize="lg" fontWeight="bold" mb={2}>削除の確認</Text>
         <Text fontSize="sm" color="gray.700" mb={4}>{name} を削除しますか？</Text>
         <Box display="flex" justifyContent="flex-end" gap={2}>
@@ -26,4 +26,3 @@ export function ConfirmDeleteModal({ isOpen, projectName, onCancel, onConfirm }:
   );
   return createPortal(content, document.body);
 }
-

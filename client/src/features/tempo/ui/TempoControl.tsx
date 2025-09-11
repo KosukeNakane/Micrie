@@ -1,5 +1,6 @@
 // TEMPOの値を調整するためのボタンとドロップダウンUIコンポーネント（初期実装）
 import styled from '@emotion/styled';
+import { scalePx } from '@/shared/lib/scale';
 import RcSlider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { useState, useEffect } from 'react';
@@ -20,7 +21,7 @@ const Label = styled.label`
   font-family: "brandon-grotesque", sans-serif;
   font-weight: 500;
   font-style: normal;
-  font-size: 14px;
+  font-size: ${scalePx(14)};
   color: rgba(5, 4, 69, 0.8);
   margin-bottom: 4px;
   display: block;
@@ -30,33 +31,33 @@ const NumberInput = styled.input`
   font-family: "brandon-grotesque", sans-serif;
   font-weight: 500;
   font-style: normal;
-  font-size: 16px;
+  font-size: ${scalePx(16)};
   color: rgba(5, 4, 69, 0.8);
   text-align: center;
   background: transparent;
   border: none;
   outline: none;
-  width: 34px;
+  width: ${scalePx(34)};
 `;
 
 const StyledRcSliderWrapper = styled.div`
- width: 120px;
-  margin: 8px 0;
+  width: ${scalePx(120)};
+  margin: ${scalePx(8)} 0;
   .rc-slider-rail {
     background-color: rgba(115, 178, 249, 0.707);
-    height: 6px;
-    border-radius: 3px;
+    height: ${scalePx(6)};
+    border-radius: ${scalePx(3)};
   }
   .rc-slider-track {
     background: linear-gradient(135deg, rgb(88, 180, 255), rgb(12, 68, 255));
-    height: 6px;
-    border-radius: 3px;
+    height: ${scalePx(6)};
+    border-radius: ${scalePx(3)};
   }
   .rc-slider-handle {
     border: none;
-    width: 14px;
-    height: 14px;
-    margin-top: -4px;
+    width: ${scalePx(14)};
+    height: ${scalePx(14)};
+    margin-top: -3px;
     background-color: rgb(4, 0, 255);
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
   }

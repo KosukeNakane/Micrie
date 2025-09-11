@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { scalePx } from '@/shared/lib/scale';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useBarCount } from '@entities/bar-count';
@@ -9,9 +10,9 @@ import { StyledArea } from '@shared/ui';
 
 const BarWaveformContainer = styled(StyledArea)`
   position: relative;
-  height: 180px;
+  height: ${scalePx(180)};
   width: 100%;
-  max-width: 600px;
+  max-width: ${scalePx(600)};
   box-sizing: border-box;
   margin: 0 auto;
   align-items: flex-start;
@@ -22,9 +23,9 @@ const SegmentLabel = styled(StyledArea)`
   top: 0;
   background: linear-gradient(135deg, rgba(255, 248, 56, 0.76), rgb(255, 210, 97));
   font-family: 'brandon-grotesque', sans-serif;
-  font-size: 14px;
-  padding: 0px 4px;
-  border-radius: 4px;
+  font-size: ${scalePx(14)};
+  padding: 0px ${scalePx(4)};
+  border-radius: ${scalePx(4)};
   z-index: 10;
 `;
 
@@ -61,7 +62,7 @@ export const BarWaveformSection = () => {
   return (
     <div ref={areaRef}>
       {Array.from({ length: barCount }).map((_, barIndex) => (
-        <div style={{ height: '220px' }} key={barIndex}>
+        <div style={{ height: '165px' }} key={barIndex}>
           <BarWaveformContainer>
             {loopMode === 'both' ? (
               <>
@@ -113,4 +114,3 @@ export const BarWaveformSection = () => {
     </div>
   );
 };
-

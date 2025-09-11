@@ -21,7 +21,7 @@ export const SmallModal = ({ isOpen, title, message, onClose }: Props) => {
         bg="white"
         borderRadius="md"
         boxShadow="xl"
-        width="min(92vw, 360px)"
+        width="min(92vw, 270px)"
         p={5}
       >
         {title && (
@@ -36,4 +36,3 @@ export const SmallModal = ({ isOpen, title, message, onClose }: Props) => {
     document.body
   );
 };
-

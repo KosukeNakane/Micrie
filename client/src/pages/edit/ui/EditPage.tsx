@@ -23,7 +23,7 @@ const ControlsPanel = styled(StyledArea)`
 // 既存の機能はそのままで、上部ナビは NavBar に移行済み
 export const EditPage = () => {
   return (
-    <div css={glassBackground}>
+    <div>
       <TopPlaybackBar />
       {/* コントロール群（StyledAreaベース） */}
       <ControlsPanel>

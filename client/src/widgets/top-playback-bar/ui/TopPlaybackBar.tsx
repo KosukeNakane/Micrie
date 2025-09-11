@@ -1,30 +1,26 @@
 import styled from '@emotion/styled';
+import { scalePx } from '@/shared/lib/scale';
 import { useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { RectButton } from '@shared/ui/RectButton';
 import { usePlaybackController } from '@features/playback/model/usePlaybackController';
 import { TempoControl } from '@features/tempo';
 import { VolumeControl } from '@features/volume';
+import { StyledArea } from '@shared/ui';
 
-const BarWrapper = styled.div`
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  display: flex;
+const BarWrapper = styled(StyledArea)`
+  box-sizing: border-box;
   flex-direction: column;
+  justify-content: flex-start; /* StyledAreaのspace-aroundを打ち消し */
   align-items: stretch;
-  gap: 12px;
-  margin: 10px auto;
-  padding: 10px 12px;
-  max-width: 600px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.35), rgba(140, 194, 209, 0.843));
-  box-shadow: 0 8px 16px 0 rgba(31, 38, 135, 0.37);
+  gap: ${scalePx(12)};
+  width: 600px; /* Figma実寸、スケール適用なし */
+  height: 130px; /* Figma実寸、スケール適用なし */
 `;
 
 const ProgressWrap = styled.div`
   position: relative;
-  height: 4px;
+  height: ${scalePx(4)};
   flex: 1;
   border-radius: 999px;
   background:linear-gradient(90deg, rgb(255, 135, 22), rgb(255, 17, 195));
@@ -39,17 +35,17 @@ const ProgressDot = styled.div<{ x: number }>`
   left: ${({ x }) => `${x * 100}%`};
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 14px;
-  height: 14px;
+  width: ${scalePx(14)};
+  height: ${scalePx(14)};
   border-radius: 50%;
   background: #ff2a2a;
-  box-shadow: 0 0 0 2px rgba(255, 42, 42, 0.25);
+  box-shadow: 0 0 0 ${scalePx(2)} rgba(255, 42, 42, 0.25);
 `;
 
 const ControlsRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: ${scalePx(12)};
 `;
 
 const TempoRow = styled.div`

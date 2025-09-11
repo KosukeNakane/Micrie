@@ -4,6 +4,7 @@
 import { createSystem, defineConfig, defaultConfig, ChakraProvider } from "@chakra-ui/react";
 import { ToasterHost } from "@/shared/ui/toaster";
 import { css } from '@emotion/react';
+import { glassBackground } from "@/shared/styles";
 
 import AudioUnlockGate from "@/features/audio-unlock/ui/AudioUnlockGate";
 import { Providers } from '@app/providers/Providers';
@@ -120,7 +121,7 @@ export const App = () => {
           setConfirmUnsavedOpen(true);
           return;
         }
-      } catch {}
+      } catch { }
       setOpenModal(true);
     };
 
@@ -128,14 +129,14 @@ export const App = () => {
       project.clear();
       project.setProject(null, 'Untitled');
       project.setLastSavedHash(null);
-      try { setTempo(90); } catch {}
-      try { setVolume(100); } catch {}
-      try { resetEffects(); } catch {}
-      try { setScaleMode('major' as any); } catch {}
-      try { setChordPattern('pattern1' as any); } catch {}
-      try { setDrumPattern('basic' as any); } catch {}
-      try { setHold(false); } catch {}
-      try { setMuted('melody', false); setMuted('chord', false); setMuted('drum', false); } catch {}
+      try { setTempo(90); } catch { }
+      try { setVolume(100); } catch { }
+      try { resetEffects(); } catch { }
+      try { setScaleMode('major' as any); } catch { }
+      try { setChordPattern('pattern1' as any); } catch { }
+      try { setDrumPattern('basic' as any); } catch { }
+      try { setHold(false); } catch { }
+      try { setMuted('melody', false); setMuted('chord', false); setMuted('drum', false); } catch { }
     };
 
     const handleNewProject = () => {
@@ -150,7 +151,7 @@ export const App = () => {
           setConfirmUnsavedOpen(true);
           return;
         }
-      } catch {}
+      } catch { }
       // No changes -> reset immediately
       resetToInitialProject();
     };
@@ -193,8 +194,8 @@ export const App = () => {
         try {
           const name = (doc as any)?.meta?.name ?? id;
           project.setProject(id, String(name));
-          try { project.setLastSavedHash(stableStringify((doc as any).data)); } catch {}
-        } catch {}
+          try { project.setLastSavedHash(stableStringify((doc as any).data)); } catch { }
+        } catch { }
         const d = doc.data;
         if (typeof d.tempo === 'number') setTempo(d.tempo);
         if (d.chordPattern) setChordPattern(d.chordPattern as any);
@@ -221,7 +222,7 @@ export const App = () => {
             }));
             setMelodySegments(segments as any);
           }
-        } catch {}
+        } catch { }
         if (d.channelsMuted) {
           setMuted('melody', !!d.channelsMuted.melody);
           setMuted('chord', !!d.channelsMuted.chord);
@@ -351,9 +352,9 @@ export const App = () => {
               const id = String(meta.id || 'local');
               const name = String(meta.name || 'Untitled');
               project.setProject(id, name);
-            } catch {}
+            } catch { }
             const d = (doc as any).data || doc;
-            try { project.setLastSavedHash(stableStringify(d)); } catch {}
+            try { project.setLastSavedHash(stableStringify(d)); } catch { }
             if (typeof d.tempo === 'number') setTempo(d.tempo);
             if ((d as any).chordPattern) setChordPattern((d as any).chordPattern as any);
             if ((d as any).drumPattern) setDrumPattern((d as any).drumPattern as any);
@@ -370,7 +371,7 @@ export const App = () => {
             }
             // Melody segments from saved pitch data (local)
             try {
-            const mp = Array.isArray((d as any).melodyPitch) ? (d as any).melodyPitch as any[] : [];
+              const mp = Array.isArray((d as any).melodyPitch) ? (d as any).melodyPitch as any[] : [];
               if (mp.length > 0) {
                 const tempoForCalc = typeof (d as any).tempo === 'number' ? (d as any).tempo : 120;
                 const bars = (barCount && Number.isFinite(barCount)) ? barCount : 2;
@@ -384,7 +385,7 @@ export const App = () => {
                 }));
                 setMelodySegments(segments as any);
               }
-            } catch {}
+            } catch { }
           }}
         />
 
@@ -456,6 +457,7 @@ export const App = () => {
   background-repeat: no-repeat;
   filter: blur(50px);
   z-index: 0;
+
  `;
 
   /* 背景の上に重ねるUIのコンテンツレイヤー */
