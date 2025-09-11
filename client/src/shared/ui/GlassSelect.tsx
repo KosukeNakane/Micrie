@@ -1,22 +1,23 @@
 import Select from 'react-select';
 import { scalePx } from '@/shared/lib/scale';
+import type { SingleValue } from 'react-select';
 
-type Option = { value: string; label: string };
+export type GlassOption<T extends string = string> = { value: T; label: string };
 
-type Props = {
-  options: Option[];
-  value: Option | null;
-  onChange: (opt: Option) => void;
-  widthPx?: number;
+type Props<T extends string = string> = {
+  options: GlassOption<T>[];
+  value: GlassOption<T> | null;
+  onChange: (opt: GlassOption<T>) => void;
+  widthPx?: number; // ベース幅（コントロール幅は約0.75倍で従来と同じ見た目）
 };
 
-export const SimpleSelect = ({ options, value, onChange, widthPx = 110 }: Props) => {
+export const GlassSelect = <T extends string = string>({ options, value, onChange, widthPx = 160 }: Props<T>) => {
   return (
     <Select
-      options={options}
-      value={value}
-      onChange={(selected) => {
-        if (selected) onChange(selected as Option);
+      options={options as GlassOption[]}
+      value={value as GlassOption | null}
+      onChange={(selected: SingleValue<GlassOption>) => {
+        if (selected) onChange(selected as GlassOption<T>);
       }}
       menuPlacement="auto"
       styles={{

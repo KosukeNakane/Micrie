@@ -37,7 +37,7 @@ const NumberInput = styled.input`
 `;
 
 const StyledRcSliderWrapper = styled.div`
-  width: ${scalePx(120)};
+  width: ${scalePx(160)};
   margin: ${scalePx(8)} 0;
   .rc-slider-rail {
     background-color: rgba(115, 178, 249, 0.707);

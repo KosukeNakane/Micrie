@@ -475,7 +475,7 @@ export const App = () => {
     position: fixed;
     left: 50%;
     transform: translateX(calc(-50% - 12px));
-    bottom: 12px;
+    bottom: 20px;
     z-index: 5;
     pointer-events: auto;
   `;

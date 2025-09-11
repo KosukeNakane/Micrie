@@ -2,20 +2,24 @@ import styled from '@emotion/styled';
 import { scalePx } from '@/shared/lib/scale';
 import { useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
-import { RectButton } from '@shared/ui/RectButton';
+// import { RectButton } from '@shared/ui/RectButton';
 import { usePlaybackController } from '@features/playback/model/usePlaybackController';
 import { TempoControl } from '@features/tempo';
 import { VolumeControl } from '@features/volume';
 import { StyledArea } from '@shared/ui';
+import PauseIcon from '@mui/icons-material/Pause';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StopIcon from '@mui/icons-material/Stop';
 
 const BarWrapper = styled(StyledArea)`
   box-sizing: border-box;
   flex-direction: column;
-  justify-content: flex-start; /* StyledAreaのspace-aroundを打ち消し */
+  justify-content: flex-start;
   align-items: stretch;
-  gap: ${scalePx(12)};
-  width: 600px; /* Figma実寸、スケール適用なし */
-  height: 130px; /* Figma実寸、スケール適用なし */
+  gap: ${scalePx(8)}; /* 間隔を少し詰めて全体を上に */
+  width: 600px;
+  height: 130px;
+  margin-top: 20px;
 `;
 
 const ProgressWrap = styled.div`
@@ -51,6 +55,27 @@ const ControlsRow = styled.div`
 const TempoRow = styled.div`
   display: flex;
   justify-content: flex-end;
+  margin-top: -6px; /* わずかに上方向へオフセット */
+`;
+
+// すりガラス風の円形アイコンボタン（StyledAreaベース）
+const IconButton = styled(StyledArea)`
+  box-sizing: border-box;
+  width: ${scalePx(40)};
+  height: ${scalePx(40)};
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  cursor: pointer;
+  background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(115, 175, 224, 0.45));
+  transition: background-color 0.2s ease, transform 0.05s ease;
+  box-shadow: none;
+  &:hover { background-color: rgba(154, 154, 154, 0.663); }
+  &:active { transform: translateY(1px); }
+  & > svg { font-size: ${scalePx(20)}; color: rgba(5, 4, 69, 0.9); }
 `;
 
 export const TopPlaybackBar = () => {
@@ -151,8 +176,12 @@ export const TopPlaybackBar = () => {
   return (
     <BarWrapper>
       <ControlsRow>
-        <RectButton onClick={onToggle} label={isLoopPlaying ? '⏸ Pause' : '▶︎ Play'} widthPx={70} />
-        <RectButton onClick={onStop} label={'■ Stop'} widthPx={70} />
+        <IconButton as="button" aria-label={isLoopPlaying ? 'Pause' : 'Play'} onClick={onToggle}>
+          {isLoopPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+        </IconButton>
+        <IconButton as="button" aria-label={'Stop'} onClick={onStop}>
+          <StopIcon />
+        </IconButton>
         <ProgressWrap
           ref={progressRef}
           aria-label="loop progress"
@@ -166,10 +195,10 @@ export const TopPlaybackBar = () => {
         </ProgressWrap>
       </ControlsRow>
       <TempoRow>
-        <div style={{ width: 140 }}>
+        <div style={{ width: 180 }}>
           <TempoControl />
         </div>
-        <div style={{ width: 120 }}>
+        <div style={{ width: 160 }}>
           <VolumeControl />
         </div>
       </TempoRow>

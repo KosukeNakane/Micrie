@@ -1,5 +1,5 @@
 // UIスケール用のユーティリティ（固定係数でpxを縮小）
-export const UI_SCALE = 0.75;
+export const UI_SCALE = 1;
 
 // px値を固定スケールしたpx文字列に変換
 export const scalePx = (px: number) => `${px * UI_SCALE}px`;

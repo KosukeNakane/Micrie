@@ -10,9 +10,10 @@ import { useBarCount } from '@entities/bar-count/model/BarCountContext';
 import { useCountBarsAndBeats } from '@entities/count-bars-and-beats/model/CountBarsAndBeatsContext';
 import { useTempo } from '@entities/tempo/model/TempoContext';
 import { RectButtonBase } from '@shared/ui/RectButton';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 // 録音状態に応じて色・影・押し込み表現が変わるスタイル付き丸型ボタン
-const CircularButton = styled(RectButtonBase)<{ recording: boolean }>`
+const CircularButton = styled(RectButtonBase) <{ recording: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -102,11 +103,11 @@ export const RecButton = ({ onClick }: { onClick: () => void }) => {
           fontFamily: 'brandon-grotesque, sans-serif',
           fontWeight: 500,
           fontStyle: 'normal',
-          fontSize: '15px',
+          fontSize: '20px',
           color: 'rgba(5, 4, 69, 0.8)'
         }}
       >
-        REC ●
+        REC <FiberManualRecordIcon sx={{ fontSize: 20, position: 'relative', top: '-3px' }} />
       </span>
     </CircularButton>
   );

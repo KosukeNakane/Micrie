@@ -1,12 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import styled from "@emotion/styled";
-import { glassBackground } from "@shared/styles/glassBackground";
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
 import { BarWaveformSection } from "@widgets/waveform";
-import { StyledArea } from "@shared/ui";
+import { StyledArea, GlassSelect } from "@shared/ui";
 import { ScaleModeSelect } from "@features/scale-mode";
 import { ChordPatternSelect, DrumPatternSelect } from "@features/pattern-select";
-import { SimpleSelect } from "@shared/ui";
 
 // レイアウト用のStyledArea派生コンポーネント
 const ControlsPanel = styled(StyledArea)`
@@ -33,7 +31,7 @@ export const EditPage = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
           <div style={{ width: 110 }}>
-            <SimpleSelect
+            <GlassSelect
               options={[
                 { value: 'default', label: 'Default' },
                 { value: 'bright', label: 'Bright' },
@@ -51,7 +49,7 @@ export const EditPage = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
           <div style={{ width: 110 }}>
-            <SimpleSelect
+            <GlassSelect
               options={[
                 { value: 'default', label: 'Default' },
                 { value: 'bright', label: 'Bright' },
@@ -69,7 +67,7 @@ export const EditPage = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Kit:</span>
           <div style={{ width: 110 }}>
-            <SimpleSelect
+            <GlassSelect
               options={[
                 { value: 'std', label: 'Standard' },
                 { value: '808', label: 'TR-808' },

@@ -2,15 +2,12 @@
 // 録音、再生、リアルタイムラベル表示、解析結果表示などの要素を統合
 
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
 import { useEffect, useRef } from "react";
 
 import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
 import { useTempo } from "@entities/tempo/model/TempoContext";
 import { useSegment } from "@entities/segment";
 import { RealtimeLabel, useAudioRecorder } from "@features/recording";
-import { glassBackground } from "@shared/styles";
-// import { ControlPanel } from "@widgets/recording/control-panel";
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
 import { WaveformDisplay } from "@widgets/waveform";
 import { useNavigate } from "react-router-dom";
@@ -61,8 +58,6 @@ export const RecordingPage = () => {
     toggleRecording(tempo);
   };
 
-  // 各UIコンポーネントを順にレンダリング
-  const centerNudge = css`transform: translateX(-12px);`;
   return (
     // <div css={[glassBackground, css`& > *:last-child { margin-bottom: 0 !important; }`]}>
     <div>

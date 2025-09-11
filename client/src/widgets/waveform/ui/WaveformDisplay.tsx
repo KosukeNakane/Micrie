@@ -2,28 +2,27 @@
 import styled from '@emotion/styled';
 import { useState, useEffect, useRef } from 'react';
 
-import { useAudioBuffer, useAnalyser, useRecording, useRecordingUI } from '@entities/audio';
-import { useBarCount } from '@entities/bar-count';
+import { useAnalyser, useRecording, useRecordingUI } from '@entities/audio';
+// import { useBarCount } from '@entities/bar-count';
 import { useCountBarsAndBeats } from '@entities/count-bars-and-beats';
 import { useSegment } from '@entities/segment';
 import { useTempo } from '@entities/tempo';
 import { ChordPatternSelect, DrumPatternSelect } from '@features/pattern-select';
-import { ScaleModeSelect } from '@features/scale-mode';
 import { useDrumLoopScheduler, useMelodyLoopScheduler, useChordsLoopScheduler as useChordLoopScheduler } from '@features/playback';
 import { RecordingBeatIndicator } from '@features/recording';
 import { RecButton } from '@features/recording/ui/RecButton';
-import { RhythmSegmentEditor, MelodySegmentEditor } from '@features/segment-edit';
-import { WaveformViewer } from '@features/waveform';
 import { StyledArea } from '@shared/ui';
-import { SimpleSelect } from '@shared/ui/SimpleSelect';
+import { MoodSelect } from '@/features/mood-select';
+import { SoundSelect } from '@/features/sound-select';
 
 export const CenteredArea = styled(StyledArea)`
+  position: relative;
   flex-direction: column;
   justify-content: flex-start; /* 余白が広がらないように上寄せ */
   gap: 0; /* StyledAreaの既定gap(約6px)を無効化 */
   /* TopPlaybackBar と同じ幅に合わせる */
   width: 600px;
-  height: 715px;
+  height: 720px;
   margin: 20px auto;
 `;
 
@@ -54,11 +53,13 @@ const SquaresGrid = styled(StyledArea)`
 
   /* レイアウトのみを担う */
   display: grid;
-  grid-template-columns: repeat(4, 100px);
+  grid-template-columns: repeat(5, 100px);
   gap: 8px;
   width: 100%;
   max-width: 600px;
   justify-content: center;
+  position: relative;
+  z-index: 1; /* CenteredAreaより手前、コントロール群より後ろ */
 `;
 
 const SquareBox = styled(StyledArea)`
@@ -72,9 +73,9 @@ const SquareBox = styled(StyledArea)`
 
 type Props = { audioBlob: Blob | null; onToggleRecording?: () => void };
 
-export const WaveformDisplay = ({ audioBlob, onToggleRecording }: Props) => {
+export const WaveformDisplay = ({ audioBlob: _audioBlob, onToggleRecording }: Props) => {
   const { currentBar, currentBeat } = useCountBarsAndBeats();
-  const { currentSegments, loopMode, rhythmSegments, melodySegments, setContextAudioBuffer } = useSegment();
+  // const { currentSegments, loopMode, rhythmSegments, melodySegments, setContextAudioBuffer } = useSegment();
   const { isRecording } = useRecording();
   const canvasRef = useAnalyser();
   const { tempo } = useTempo();
@@ -84,13 +85,8 @@ export const WaveformDisplay = ({ audioBlob, onToggleRecording }: Props) => {
   useMelodyLoopScheduler();
 
   // 再生/停止は TopPlaybackBar に移動したため、ここでは未使用
-  const { barCount } = useBarCount();
-  const audioBuffer = useAudioBuffer(audioBlob);
-
-  useEffect(() => {
-    if (!audioBuffer) return;
-    setContextAudioBuffer(loopMode === 'rhythm' ? 'rhythm' : 'melody', audioBuffer);
-  }, [audioBuffer, loopMode, setContextAudioBuffer]);
+  // const { barCount } = useBarCount();
+  // audioBlob のデコードは録音/解析・ロード側で実施（WaveformDisplay には依存させない）
 
   const waveformRef = useRef<HTMLDivElement>(null);
   const waveformLeftRef = useRef(0);
@@ -144,23 +140,23 @@ export const WaveformDisplay = ({ audioBlob, onToggleRecording }: Props) => {
   // 再生/停止は TopPlaybackBar に移動
 
   // 分析完了までは選択中アレイのUI全体を非表示にする
-  const hasSelectedSegments = loopMode === 'melody'
-    ? melodySegments.length > 0
-    : loopMode === 'rhythm'
-      ? rhythmSegments.length > 0
-      : (melodySegments.length > 0 || rhythmSegments.length > 0);
+  // const hasSelectedSegments = loopMode === 'melody'
+  //   ? melodySegments.length > 0
+  //   : loopMode === 'rhythm'
+  //     ? rhythmSegments.length > 0
+  //     : (melodySegments.length > 0 || rhythmSegments.length > 0);
 
   return (
     <CenteredArea>
       {/* RecButton + BeatIndicator（中央にRec、左にIndicator） */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', marginBottom: 8 }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginRight: 9 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginRight: 0 }}>
           <RecordingBeatIndicator currentBar={currentBar} currentBeat={currentBeat} size="sm" />
         </div>
         <RecButton onClick={() => onToggleRecording && onToggleRecording()} />
         <div />
       </div>
-      <WaveformArea ref={waveformRef} isRed={isRed}>
+      <WaveformArea ref={waveformRef} isRed={isRed} style={{ marginBottom: 8 }}>
         {isDrawing && (
           /* 波形キャンバスの高さ（px）: 既存値(150)の約2/3 */
           <canvas ref={canvasRef} width={canvasWidth} height={100} style={{ position: 'absolute', top: 0, left: 0, zIndex: 0 }} />
@@ -169,63 +165,44 @@ export const WaveformDisplay = ({ audioBlob, onToggleRecording }: Props) => {
       <StyledArea
         style={{
           display: 'grid',
-          gridTemplateColumns: '90px 1fr 120px',
-          gridAutoRows: 'minmax(27px, auto)',
+          gridTemplateColumns: 'repeat(5, 1fr)',
+          gridTemplateRows: 'repeat(3, minmax(24px, auto))',
           alignItems: 'center',
           gap: 6,
           width: 540,
-          height: 200,
+          height: 'auto',
           padding: '6px 7.5px',
-          marginTop: 16,
-          marginBottom: 8, // 次のSquaresGridとの間隔を8pxに固定
+          marginTop: 32,
+          marginBottom: 32,
+          textAlign: 'center',
+          position: 'relative',
+          zIndex: 2,
         }}
       >
-        {/* Row 1 */}
-        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>TEXT</span>
-        <div><ScaleModeSelect /></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4.5 }}>
-          <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
-          <div style={{ width: 82.5 }}>
-            <SimpleSelect
-              options={[{ value: 'default', label: 'Default' }, { value: 'bright', label: 'Bright' }, { value: 'warm', label: 'Warm' }]}
-              value={{ value: 'default', label: 'Default' }}
-              onChange={() => { /* no-op placeholder */ }}
-            />
-          </div>
-        </div>
+        {/* Row 1: 見出しテキスト（5列） */}
+        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>Melody</span>
+        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>mood</span>
+        <div style={{ display: 'flex', justifyContent: 'center' }}><MoodSelect /></div>
+        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
+        <div style={{ display: 'flex', justifyContent: 'center' }}><SoundSelect /></div>
+        {/* Row 2: ラベル（5列） */}
+        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>Chord</span>
+        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Pattern:</span>
+        <div style={{ display: 'flex', justifyContent: 'center' }}><ChordPatternSelect /></div>
+        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
+        <div style={{ display: 'flex', justifyContent: 'center' }}><SoundSelect /></div>
 
-        {/* Row 2 */}
-        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>TEXT</span>
-        <div><ChordPatternSelect /></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4.5 }}>
-          <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
-          <div style={{ width: 82.5 }}>
-            <SimpleSelect
-              options={[{ value: 'default', label: 'Default' }, { value: 'bright', label: 'Bright' }, { value: 'warm', label: 'Warm' }]}
-              value={{ value: 'default', label: 'Default' }}
-              onChange={() => { /* no-op placeholder */ }}
-            />
-          </div>
-        </div>
-
-        {/* Row 3 */}
-        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
-        <div><DrumPatternSelect /></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4.5 }}>
-          <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>TEXT</span>
-          <div style={{ width: 82.5 }}>
-            <SimpleSelect
-              options={[{ value: 'default', label: 'Default' }, { value: 'bright', label: 'Bright' }, { value: 'warm', label: 'Warm' }]}
-              value={{ value: 'default', label: 'Default' }}
-              onChange={() => { /* no-op placeholder */ }}
-            />
-          </div>
-        </div>
+        {/* Row 3: セレクト（5列） */}
+        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>Drum</span>
+        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Pattern:</span>
+        <div style={{ display: 'flex', justifyContent: 'center' }}><DrumPatternSelect /></div>
+        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
+        <div style={{ display: 'flex', justifyContent: 'center' }}><SoundSelect /></div>
       </StyledArea>
 
-      {/* 2行×4列の正方形グリッド */}
+      {/* 2行×5列の正方形グリッド */}
       <SquaresGrid>
-        {Array.from({ length: 8 }).map((_, i) => (
+        {Array.from({ length: 10 }).map((_, i) => (
           <SquareBox key={i} />
         ))}
       </SquaresGrid>

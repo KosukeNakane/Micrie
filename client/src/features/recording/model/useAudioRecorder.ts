@@ -55,7 +55,7 @@ export const useAudioRecorder = () => {
 
     const { isRecording, setIsRecording } = useRecording();
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-    const { setRhythmSegments, setMelodySegments } = useSegment();
+    const { setRhythmSegments, setMelodySegments, setContextAudioBuffer } = useSegment();
     const realtimeLabel = useTeachableModel();
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
@@ -88,6 +88,19 @@ export const useAudioRecorder = () => {
                 const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
                 if (blob.size > 1000) {
                     setAudioBlob(blob);
+                    // 録音した音声をデコードして、Zustandの audioBuffers に保持
+                    (async () => {
+                        try {
+                            const ctx = new AudioContext();
+                            const ab = await blob.arrayBuffer();
+                            const buf = await ctx.decodeAudioData(ab);
+                            const target: 'melody' | 'rhythm' = (mode === 'melody') ? 'melody' : 'rhythm';
+                            setContextAudioBuffer(target, buf);
+                            ctx.close().catch(() => {});
+                        } catch (e) {
+                            console.warn('Failed to decode recorded audio for waveform:', e);
+                        }
+                    })();
                     if (mode === 'rhythm') {
                         if (Amode === 'whisper') {
                             const formData = new FormData();

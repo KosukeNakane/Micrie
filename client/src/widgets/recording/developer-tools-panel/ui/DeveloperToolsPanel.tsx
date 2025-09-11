@@ -7,6 +7,7 @@ import { AudioFileUploader } from "./AudioFileUploader";
 import { MelodyReanalysisPanel } from "./MelodyReanalysisPanel";
 import { PlaybackButton } from "./PlaybackButton";
 import { TrimmingToggle } from "./TrimmingToggle";
+import { ScaleModeSelect } from "@features/scale-mode";
 
 interface DeveloperToolsPanelProps {
   isPlaying: boolean;
@@ -41,6 +42,15 @@ export const DeveloperToolsPanel = ({
       </div>
       <div style={{ marginTop: '16px' }}>
         <BarSelectDropdown />
+      </div>
+      {/* Temporary: Scale selector for quick testing */}
+      <div style={{ marginTop: '16px' }}>
+        <div style={{ width: '150px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <label style={{ fontSize: '14px' }}>Scale:</label>
+          <div style={{ width: '90px' }}>
+            <ScaleModeSelect />
+          </div>
+        </div>
       </div>
       <AnalysisResult />
     </div>

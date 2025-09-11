@@ -55,7 +55,7 @@ export const RectButton = ({
   widthPx,
   minWidthPx,
 }: {
-  label: string;
+  label: React.ReactNode;
   active?: boolean;
   onClick?: () => void;
   flexGrow?: number | string;

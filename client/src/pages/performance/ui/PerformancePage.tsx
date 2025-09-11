@@ -7,7 +7,6 @@ import { useEffects, type EffectKey } from "@entities/effects/model/EffectsConte
 import { VerticalFader } from "@features/effects/ui/VerticalFader";
 import { useEffectsUiStore } from "@/features/effects";
 import EffectsButton from "@features/effects/ui/EffectsButton";
-import { glassBackground } from "@shared/styles/glassBackground";
 import EffectsPanel from "@features/effects/ui/EffectsPanel";
 import SplitHoldResetButton from "@features/effects/ui/SplitHoldResetButton";
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
