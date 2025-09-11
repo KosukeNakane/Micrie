@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyledButton } from '@shared/ui/RectButton';
+import { RectButtonBase } from '@shared/ui/RectButton';
 
 type Props = {
   label: string;
@@ -14,7 +14,7 @@ export const EffectsButton: React.FC<Props> = ({ label, size = 40, width, height
   const widthPx = width ?? size;
   const heightPx = height ?? size;
   return (
-    <StyledButton
+    <RectButtonBase
       active={active}
       onClick={onClick}
       widthPx={widthPx}
@@ -28,7 +28,7 @@ export const EffectsButton: React.FC<Props> = ({ label, size = 40, width, height
       }}
     >
       {label}
-    </StyledButton>
+    </RectButtonBase>
   );
 };
 

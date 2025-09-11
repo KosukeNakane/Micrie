@@ -8,10 +8,10 @@ import { useRecordingUI } from '@entities/audio/model/RecordingUIContext';
 import { useBarCount } from '@entities/bar-count/model/BarCountContext';
 import { useCountBarsAndBeats } from '@entities/count-bars-and-beats/model/CountBarsAndBeatsContext';
 import { useTempo } from '@entities/tempo/model/TempoContext';
-import { StyledButton } from '@shared/ui/RectButton';
+import { RectButtonBase } from '@shared/ui/RectButton';
 
 // 録音状態に応じて色・影・押し込み表現が変わるスタイル付き丸型ボタン
-const CircularButton = styled(StyledButton)<{ recording: boolean }>`
+const CircularButton = styled(RectButtonBase)<{ recording: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -110,4 +110,3 @@ export const RecButton = ({ onClick }: { onClick: () => void }) => {
     </CircularButton>
   );
 };
-

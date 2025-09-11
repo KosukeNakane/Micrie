@@ -4,7 +4,7 @@
 import styled from '@emotion/styled';
 
 // active 状態と flexGrow に応じてスタイルが変化するカスタムボタン
-export const StyledButton = styled.button<{
+export const RectButtonBase = styled.button<{
   active?: boolean;
   flexGrow?: number | string;
   widthPx?: number | string;
@@ -45,7 +45,7 @@ export const StyledButton = styled.button<{
   }
 `;
 
-// ラベルとクリックイベント、状態を受け取り StyledButton を描画するシンプルな UI コンポーネント
+// ラベルとクリックイベント、状態を受け取り RectButtonBase を描画するシンプルな UI コンポーネント
 export const RectButton = ({
   label,
   active,
@@ -62,8 +62,10 @@ export const RectButton = ({
   minWidthPx?: number | string;
 }) => {
   return (
-    <StyledButton active={active} onClick={onClick} flexGrow={flexGrow} widthPx={widthPx} minWidthPx={minWidthPx}>
+    <RectButtonBase active={active} onClick={onClick} flexGrow={flexGrow} widthPx={widthPx} minWidthPx={minWidthPx}>
       {label}
-    </StyledButton>
+    </RectButtonBase>
   );
 };
+
+// Note: StyledButton は廃止。代わりに RectButtonBase を使用してください。
