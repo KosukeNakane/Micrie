@@ -1,5 +1,6 @@
 import { Box, Button, Text } from "@chakra-ui/react";
 import { createPortal } from "react-dom";
+import { usePortalRoot } from "@/app/providers/PortalRootContext";
 
 type Props = {
   isOpen: boolean;
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export function ConfirmUnsavedChangesModal({ isOpen, projectName, onSaveAndContinue, onDiscardAndContinue, onCancel }: Props) {
+  const portalRoot = usePortalRoot();
   if (!isOpen) return null;
   const name = (projectName?.trim() ? projectName!.trim() : 'Untitled');
   const content = (
@@ -26,5 +28,5 @@ export function ConfirmUnsavedChangesModal({ isOpen, projectName, onSaveAndConti
       </Box>
     </Box>
   );
-  return createPortal(content, document.body);
+  return createPortal(content, portalRoot ?? document.body);
 }

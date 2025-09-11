@@ -10,6 +10,7 @@ import AudioUnlockGate from "@/features/audio-unlock/ui/AudioUnlockGate";
 import { Providers } from '@app/providers/Providers';
 import { AppRouter } from '@app/routes/AppRouter';
 import { Sidebar } from '@widgets/sidebar';
+import { Scaler, useScaler, BASE_H } from '@/app/providers/Scaler';
 import { SaveProjectModal, useSaveProject } from "@/features/project-save-load";
 import { OpenProjectModal } from "@/features/project-save-load/ui/OpenProjectModal";
 import { ensureAuth } from "@/features/project-save-load/model/auth";
@@ -22,7 +23,7 @@ import { useEffectsUiStore } from "@/features/effects";
 import { useChannelsStore } from "@/entities/audio/model/useChannelsStore";
 import { useSegment } from "@/entities/segment/model/SegmentContext";
 import { useBarCount } from "@/entities/bar-count/model/BarCountContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { openLoginModal } from "@/features/auth/model/uiStore";
 import { LoginRequiredModal } from "@/shared/ui/LoginRequiredModal";
 import { useProjectState } from "@/features/project-save-load/model/store";
@@ -306,9 +307,6 @@ export const App = () => {
           onSaveProject={handleSaveProject}
           onSaveProjectAs={handleSaveProjectAs}
         />
-        {/* アプリ全体に渡す状態管理のコンテキストプロバイダー群 + ルーティング */}
-        <AudioUnlockGate /> {/* AudioContextのロック解除を促すUI */}
-        <AppRouter />
 
         {/* Save モーダル */}
         <SaveProjectModal
@@ -447,18 +445,19 @@ export const App = () => {
   overflow: hidden;
  `;
 
-  /* ぼかしフィルター付きの背景画像 */
+  /* ぼかしフィルター付きの背景画像（常にビューポート全体をカバー） */
   const backgroundStyle = css`
-  position: absolute;
-  inset: 0;
-  background-image: url(/background.jpg);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: blur(50px);
-  z-index: 0;
-
- `;
+    position: fixed;
+    /* ブラーで端が透けないように少し拡大した領域を確保 */
+    inset: -80px;
+    background-image: url(/background.jpg);
+    background-size: cover;      /* アスペクト比を保ったまま全面カバー */
+    background-position: center; /* 中央寄せ */
+    background-repeat: no-repeat;
+    filter: blur(50px);
+    z-index: 0;
+    pointer-events: none;
+  `;
 
   /* 背景の上に重ねるUIのコンテンツレイヤー */
   const contentStyle = css`
@@ -470,32 +469,48 @@ export const App = () => {
   padding-top: 0;
  `;
 
-  // 画面最下部に固定するNavBarのスタイル（左に僅かに寄せて中央補正）
-  const bottomNavStyle = css`
-    position: fixed;
-    left: 50%;
-    transform: translateX(calc(-50% - 12px));
-    bottom: 20px;
-    z-index: 5;
-    pointer-events: auto;
-  `;
+  // NavBar の下余白をスケール追従 + レターボックス補正で算出
+  const { scale } = useScaler();
+  const [vh, setVh] = useState<number>(typeof window !== 'undefined' ? window.innerHeight : 1024);
+  useEffect(() => {
+    const onResize = () => setVh(window.innerHeight);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   return (
     <div css={appStyle}>
+      {/* 背景はスケール外で常にビューポートをカバー */}
       <div css={backgroundStyle} />
-      <div css={contentStyle}>
-        <ChakraProvider value={system}>
-          <Providers>
-            <AppInner />
-          </Providers>
+      <ChakraProvider value={system}>
+        <Providers>
+          {/* Sidebar はビューポート左端に固定したいので Scaler の外に配置 */}
+          <AppInner />
           {/* Global toast host (Chakra v3 toaster) */}
           <ToasterHost />
-          {/* 画面最下部のNavBar */}
-          <div css={bottomNavStyle}>
-            <NavBar />
-          </div>
-        </ChakraProvider>
-      </div>
+          {/* スケール対象のアプリ本体 */}
+          <Scaler>
+            <div css={contentStyle}>
+              {/* ルーティング等のメインコンテンツ */}
+              <AudioUnlockGate />
+              <AppRouter />
+              {/* 画面最下部のNavBar（スケール追従の下余白） */}
+              <div
+                style={{
+                  position: 'fixed',
+                  left: '50%',
+                  transform: 'translateX(calc(-50% - 12px))',
+                  bottom: 'calc(20px + env(safe-area-inset-bottom, 0px))',
+                  zIndex: 5,
+                  pointerEvents: 'auto',
+                }}
+              >
+                <NavBar />
+              </div>
+            </div>
+          </Scaler>
+        </Providers>
+      </ChakraProvider>
     </div>
   );
 };

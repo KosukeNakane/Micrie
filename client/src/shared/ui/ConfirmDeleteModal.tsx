@@ -1,5 +1,6 @@
 import { Box, Button, Text } from "@chakra-ui/react";
 import { createPortal } from "react-dom";
+import { usePortalRoot } from "@/app/providers/PortalRootContext";
 
 type Props = {
   isOpen: boolean;
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export function ConfirmDeleteModal({ isOpen, projectName, onCancel, onConfirm }: Props) {
+  const portalRoot = usePortalRoot();
   if (!isOpen) return null;
   const name = (projectName?.trim() ? projectName!.trim() : 'Untitled');
   const content = (
@@ -24,5 +26,5 @@ export function ConfirmDeleteModal({ isOpen, projectName, onCancel, onConfirm }:
       </Box>
     </Box>
   );
-  return createPortal(content, document.body);
+  return createPortal(content, portalRoot ?? document.body);
 }
