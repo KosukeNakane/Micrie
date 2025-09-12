@@ -44,7 +44,7 @@ const StyledSwitchButton = styled.button<{ position?: "left" | "right" }>`
 
 const drumOrder = ["kick", "snare", "hihat"] as const;
 
-type Props = { barIndex: number };
+type Props = { barIndex: number; width?: number };
 
 const synths = {
   kick: new Tone.MembraneSynth().toDestination(),
@@ -52,7 +52,7 @@ const synths = {
   hihat: new Tone.NoiseSynth({ noise: { type: "white" }, envelope: { attack: 0.0001, decay: 0.02, sustain: 0 } }).toDestination(),
 } as const;
 
-export const RhythmSegmentEditor = ({ barIndex }: Props) => {
+export const RhythmSegmentEditor = ({ barIndex, width = 600 }: Props) => {
   const { currentSegments, updateRhythmSegment } = useSegment();
   const engine = useGlobalAudio();
 
@@ -87,14 +87,14 @@ export const RhythmSegmentEditor = ({ barIndex }: Props) => {
 
   return (
     <div>
-      <div style={{ display: "flex", height: "200px", width: "600px" }}>
-        {currentSegments.rhythm.slice(barIndex * 8, barIndex * 8 + 8).map((seg, i) => {
-          const globalIndex = barIndex * 8 + i;
+      <div style={{ display: "flex", height: "200px", width: '100%' }}>
+        {currentSegments.rhythm.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
+          const globalIndex = barIndex * 16 + i;
           return (
-            <div key={globalIndex} style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "75px", boxSizing: "border-box", borderTopLeftRadius: i === 0 ? "10px" : undefined, borderBottomLeftRadius: i === 0 ? "10px" : undefined, borderTopRightRadius: i === 7 ? "10px" : undefined, borderBottomRightRadius: i === 7 ? "10px" : undefined, overflow: "hidden" }}>
+            <div key={globalIndex} style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "calc(100% / 16)", boxSizing: "border-box", borderTopLeftRadius: i === 0 ? "10px" : undefined, borderBottomLeftRadius: i === 0 ? "10px" : undefined, borderTopRightRadius: i === 15 ? "10px" : undefined, borderBottomRightRadius: i === 15 ? "10px" : undefined, overflow: "hidden" }}>
               <GlassButtonUp onClick={() => shiftDrum(globalIndex, 1)}><TiArrowSortedUp /></GlassButtonUp>
               <GlassButtonDown onClick={() => shiftDrum(globalIndex, -1)}><TiArrowSortedDown /></GlassButtonDown>
-              <StyledSwitchButton position={i === 0 ? "left" : i === 7 ? "right" : undefined} onClick={() => {
+              <StyledSwitchButton position={i === 0 ? "left" : i === 15 ? "right" : undefined} onClick={() => {
                 if (seg.label === "noise") {
                   updateRhythmSegment(globalIndex, { label: previousNotesRef.current[globalIndex] || "kick" });
                 } else {

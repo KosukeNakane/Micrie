@@ -450,7 +450,8 @@ export const App = () => {
     position: fixed;
     /* ブラーで端が透けないように少し拡大した領域を確保 */
     inset: -80px;
-    background-image: url(/background.jpg);
+    /* ややグレーのトーンを重ねる */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(23, 92, 221, 0.453)), url(/background.jpg);
     background-size: cover;      /* アスペクト比を保ったまま全面カバー */
     background-position: center; /* 中央寄せ */
     background-repeat: no-repeat;

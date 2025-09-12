@@ -17,7 +17,7 @@ const NoteControlGroup = styled.div`
 `;
 
 const GlassButtonUp = styled.button<{ position?: "left" | "right" }>`
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   box-shadow: 0 8px 32px 0 rgba(108, 178, 218, 0);
   backdrop-filter: blur(0px);
   -webkit-backdrop-filter: blur(0px);
@@ -30,7 +30,7 @@ const GlassButtonUp = styled.button<{ position?: "left" | "right" }>`
 `;
 
 const GlassButtonDown = styled.button`
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   box-shadow: 0 8px 32px 0 rgba(18, 168, 255, 0);
   backdrop-filter: blur(0px);
   -webkit-backdrop-filter: blur(0px);
@@ -41,7 +41,7 @@ const GlassButtonDown = styled.button`
 `;
 
 const StyledSwitchButton = styled.button<{ position?: "left" | "right" }>`
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   box-shadow: 0 8px 32px 0 rgba(108, 178, 218, 0);
   backdrop-filter: blur(0px);
   -webkit-backdrop-filter: blur(0px);
@@ -56,7 +56,7 @@ const StyledSwitchButton = styled.button<{ position?: "left" | "right" }>`
 
 const synth = new Tone.Synth().toDestination();
 
-type Props = { barIndex: number; width: number };
+type Props = { barIndex: number; width?: number };
 
 const MelodySegmentEditor: React.FC<Props> = ({ barIndex, width }) => {
   const { currentSegments, updateMelodySegment } = useSegment();
@@ -79,10 +79,10 @@ const MelodySegmentEditor: React.FC<Props> = ({ barIndex, width }) => {
           if ((Tone.getContext() as any).state !== 'running') {
             await Tone.start();
           }
-        } catch {}
-        try { await engine.ensureStarted(); } catch {}
-        try { await engine.setMasterMuted(false); } catch {}
-        try { synth.triggerAttackRelease(newNote, "8n"); } catch {}
+        } catch { }
+        try { await engine.ensureStarted(); } catch { }
+        try { await engine.setMasterMuted(false); } catch { }
+        try { synth.triggerAttackRelease(newNote, "8n"); } catch { }
       })();
     } catch (error) { console.warn("Note conversion error:", error); }
   };
@@ -117,7 +117,7 @@ const MelodySegmentEditor: React.FC<Props> = ({ barIndex, width }) => {
   }, [currentSegments.melody, barIndex, scaleMode]);
 
   return (
-    <div style={{ display: "flex", height: "200px", width: `${width}px` }}>
+    <div style={{ display: "flex", height: "200px", width: '100%' }}>
       {noteControls}
     </div>
   );

@@ -8,7 +8,7 @@ import { RhythmSegmentEditor, MelodySegmentEditor } from '@features/segment-edit
 import { WaveformViewer } from '@features/waveform';
 import { StyledArea } from '@shared/ui';
 
-const BarWaveformContainer = styled(StyledArea)`
+const BarWaveformCard = styled(StyledArea)`
   position: relative;
   height: ${scalePx(180)};
   width: 100%;
@@ -17,6 +17,12 @@ const BarWaveformContainer = styled(StyledArea)`
   margin: 0 auto;
   align-items: flex-start;
   overflow: visible; /* 波形キャンバスが確実に見えるように */
+  /* Glass背景が重なって白飛びするのを避けるため無効化 */
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  box-shadow: none;
 `;
 
 const SegmentLabel = styled(StyledArea)`
@@ -28,6 +34,11 @@ const SegmentLabel = styled(StyledArea)`
   padding: 0px ${scalePx(4)};
   border-radius: ${scalePx(4)};
   z-index: 10;
+  /* ラベル自体のガラス効果を無効化して重なりの白さを抑制 */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  box-shadow: none;
 `;
 
 export const BarWaveformSection = () => {
@@ -41,7 +52,9 @@ export const BarWaveformSection = () => {
     const el = areaRef.current; if (!el) return;
     const update = () => {
       const rect = el.getBoundingClientRect();
-      setCanvasWidth(Math.round(Math.min(rect.width, 600)));
+      // 2bar 横並び前提: 1bar あたりの幅を親幅の半分(隙間4px考慮)か最大600に制限
+      const perBar = Math.floor(Math.min(rect.width / 2 - 4, 600));
+      setCanvasWidth(perBar > 0 ? perBar : 1);
     };
     update();
     const ro = new ResizeObserver(update);
@@ -61,65 +74,79 @@ export const BarWaveformSection = () => {
         : (melodySegments.length > 0 || rhythmSegments.length > 0);
   }, [loopMode, rhythmSegments.length, melodySegments.length]);
 
+  // 2bar ごとに縦並びにする（1セクションに最大2つのバーを含める）
+  const groupCount = Math.ceil(barCount / 2);
+
+  const renderBar = (barIndex: number) => (
+    <div style={{ height: '165px', flex: '1 1 0', minWidth: 0 }} key={`bar-${barIndex}`}>
+      <BarWaveformCard>
+        {/* 先にキャッシュされた画像があれば使用 */}
+        {waveformByBar[barIndex] ? (
+          <img src={waveformByBar[barIndex]} alt="waveform" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', zIndex: 2 }} />
+        ) : null}
+        {loopMode === 'both' ? (
+          <>
+            {rhythmSegments.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
+              const leftPercent = ((i + 0.5) / 16) * 100;
+              return seg.label !== 'rest' && (
+                <SegmentLabel key={`rhythm-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${leftPercent}%`, top: `-10px`, transform: 'translateX(-50%)' }}>
+                  {seg.label}
+                </SegmentLabel>
+              );
+            })}
+            {melodySegments.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
+              const leftPercent = ((i + 0.5) / 16) * 100;
+              return seg.label !== 'rest' && (
+                <SegmentLabel key={`melody-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${leftPercent}%`, top: `65px`, transform: 'translateX(-50%)' }}>
+                  {seg.label}
+                </SegmentLabel>
+              );
+            })}
+          </>
+        ) : (
+          <>
+            {currentSegments.rhythm?.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
+              const leftPercent = ((i + 0.5) / 16) * 100;
+              return seg.label !== 'rest' && (
+                <SegmentLabel key={`rhythm-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${leftPercent}%`, top: `-10px`, transform: 'translateX(-50%)' }}>
+                  {seg.label}
+                </SegmentLabel>
+              );
+            })}
+            {currentSegments.melody?.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
+              const leftPercent = ((i + 0.5) / 16) * 100;
+              return seg.label !== 'rest' && (
+                <SegmentLabel key={`melody-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${leftPercent}%`, top: `-10px`, transform: 'translateX(-50%)' }}>
+                  {seg.label}
+                </SegmentLabel>
+              );
+            })}
+          </>
+        )}
+        {/* 画像が未生成の場合にCanvas描画で生成 */}
+        {!waveformByBar[barIndex] && (
+          <WaveformViewer barIndex={barIndex} totalBars={barCount} />
+        )}
+        <div style={{ position: 'absolute', zIndex: 5, top: 0, left: 0, right: 0, display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+          {(loopMode === 'rhythm' || loopMode === 'both') && (<RhythmSegmentEditor barIndex={barIndex} width={canvasWidth} />)}
+          {(loopMode === 'melody' || loopMode === 'both') && (<MelodySegmentEditor barIndex={barIndex} width={canvasWidth} />)}
+        </div>
+      </BarWaveformCard>
+    </div>
+  );
+
   return (
     <div ref={areaRef}>
-      {Array.from({ length: barCount }).map((_, barIndex) => (
-        <div style={{ height: '165px' }} key={barIndex}>
-          <BarWaveformContainer>
-            {/* 先にキャッシュされた画像があれば使用 */}
-            {waveformByBar[barIndex] ? (
-              <img src={waveformByBar[barIndex]} alt="waveform" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', zIndex: 2 }} />
-            ) : null}
-            {loopMode === 'both' ? (
-              <>
-                {rhythmSegments.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
-                  const x = Math.floor(((i + 0.5) / 16) * canvasWidth);
-                  return seg.label !== 'rest' && (
-                    <SegmentLabel key={`rhythm-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `-10px`, transform: 'translateX(-50%)' }}>
-                      {seg.label}
-                    </SegmentLabel>
-                  );
-                })}
-                {melodySegments.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
-                  const x = Math.floor(((i + 0.5) / 16) * canvasWidth);
-                  return seg.label !== 'rest' && (
-                    <SegmentLabel key={`melody-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `65px`, transform: 'translateX(-50%)' }}>
-                      {seg.label}
-                    </SegmentLabel>
-                  );
-                })}
-              </>
-            ) : (
-              <>
-                {currentSegments.rhythm?.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
-                  const x = Math.floor(((i + 0.5) / 16) * canvasWidth);
-                  return seg.label !== 'rest' && (
-                    <SegmentLabel key={`rhythm-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `-10px`, transform: 'translateX(-50%)' }}>
-                      {seg.label}
-                    </SegmentLabel>
-                  );
-                })}
-                {currentSegments.melody?.slice(barIndex * 16, barIndex * 16 + 16).map((seg, i) => {
-                  const x = Math.floor(((i + 0.5) / 16) * canvasWidth);
-                  return seg.label !== 'rest' && (
-                    <SegmentLabel key={`melody-${seg.label}-${barIndex * 16 + i}`} style={{ left: `${x}px`, top: `-10px`, transform: 'translateX(-50%)' }}>
-                      {seg.label}
-                    </SegmentLabel>
-                  );
-                })}
-              </>
-            )}
-            {/* 画像が未生成の場合にCanvas描画で生成 */}
-            {!waveformByBar[barIndex] && (
-              <WaveformViewer barIndex={barIndex} totalBars={barCount} />
-            )}
-            <div style={{ position: 'absolute', zIndex: 5, top: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {(loopMode === 'rhythm' || loopMode === 'both') && (<RhythmSegmentEditor barIndex={barIndex} />)}
-              {(loopMode === 'melody' || loopMode === 'both') && (<MelodySegmentEditor barIndex={barIndex} width={canvasWidth} />)}
-            </div>
-          </BarWaveformContainer>
-        </div>
-      ))}
+      {Array.from({ length: groupCount }).map((_, groupIndex) => {
+        const firstBar = groupIndex * 2;
+        const secondBar = firstBar + 1;
+        return (
+          <div key={`bar-group-${groupIndex}`} style={{ display: 'flex', flexDirection: 'row', gap: '8px', marginBottom: '8px', justifyContent: 'center' }}>
+            {firstBar < barCount && renderBar(firstBar)}
+            {secondBar < barCount && renderBar(secondBar)}
+          </div>
+        );
+      })}
     </div>
   );
 };
