@@ -17,7 +17,7 @@ const Label = styled.label`
   font-family: "brandon-grotesque", sans-serif;
   font-weight: 500;
   font-style: normal;
-  font-size: ${scalePx(14)};
+  font-size: ${scalePx(18)};
   color: rgba(5, 4, 69, 0.8);
   margin-bottom: 4px;
   display: block;
@@ -27,7 +27,7 @@ const NumberInput = styled.input`
   font-family: "brandon-grotesque", sans-serif;
   font-weight: 500;
   font-style: normal;
-  font-size: ${scalePx(16)};
+  font-size: ${scalePx(22)};
   color: rgba(5, 4, 69, 0.8);
   text-align: center;
   background: transparent;

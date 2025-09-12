@@ -32,6 +32,7 @@ const WaveformArea = styled(StyledArea) <{ isRed: boolean }>`
   height: 100px;
   overflow: hidden;
   box-sizing: border-box;
+  padding: 0; /* 波形キャンバスを枠内（パディングなし）にぴったり合わせる */
   width: 424px;
   /* TopPlaybackBar と同じ幅に合わせる */
   margin: 0 auto;
@@ -159,7 +160,12 @@ export const WaveformDisplay = ({ audioBlob: _audioBlob, onToggleRecording }: Pr
       <WaveformArea ref={waveformRef} isRed={isRed} style={{ marginBottom: 8 }}>
         {isDrawing && (
           /* 波形キャンバスの高さ（px）: 既存値(150)の約2/3 */
-          <canvas ref={canvasRef} width={canvasWidth} height={100} style={{ position: 'absolute', top: 0, left: 0, zIndex: 0 }} />
+          <canvas
+            ref={canvasRef}
+            width={canvasWidth}
+            height={100}
+            style={{ position: 'absolute', top: 0, left: 0, zIndex: 0, width: '100%', height: '100%' }}
+          />
         )}
       </WaveformArea>
       <StyledArea
@@ -180,23 +186,23 @@ export const WaveformDisplay = ({ audioBlob: _audioBlob, onToggleRecording }: Pr
         }}
       >
         {/* Row 1: 見出しテキスト（5列） */}
-        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>Melody</span>
-        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>mood</span>
+        <span style={{ fontSize: 18, color: 'rgba(5,4,69,0.8)' }}>Melody</span>
+        <span style={{ fontSize: 18, color: 'rgba(5,4,69,0.8)' }}>mood</span>
         <div style={{ display: 'flex', justifyContent: 'center' }}><MoodSelect /></div>
-        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
+        <span style={{ fontSize: 18, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
         <div style={{ display: 'flex', justifyContent: 'center' }}><SoundSelect /></div>
         {/* Row 2: ラベル（5列） */}
-        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>Chord</span>
-        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Pattern:</span>
+        <span style={{ fontSize: 18, color: 'rgba(5,4,69,0.8)' }}>Chord</span>
+        <span style={{ fontSize: 18, color: 'rgba(5,4,69,0.8)' }}>Pattern:</span>
         <div style={{ display: 'flex', justifyContent: 'center' }}><ChordPatternSelect /></div>
-        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
+        <span style={{ fontSize: 18, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
         <div style={{ display: 'flex', justifyContent: 'center' }}><SoundSelect /></div>
 
         {/* Row 3: セレクト（5列） */}
-        <span style={{ fontSize: 14, color: 'rgba(5,4,69,0.8)' }}>Drum</span>
-        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Pattern:</span>
+        <span style={{ fontSize: 18, color: 'rgba(5,4,69,0.8)' }}>Drum</span>
+        <span style={{ fontSize: 18, color: 'rgba(5,4,69,0.8)' }}>Pattern:</span>
         <div style={{ display: 'flex', justifyContent: 'center' }}><DrumPatternSelect /></div>
-        <span style={{ fontSize: 12, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
+        <span style={{ fontSize: 18, color: 'rgba(5,4,69,0.8)' }}>Sound:</span>
         <div style={{ display: 'flex', justifyContent: 'center' }}><SoundSelect /></div>
       </StyledArea>
 

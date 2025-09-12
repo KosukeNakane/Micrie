@@ -40,8 +40,8 @@ export const Sidebar = ({
   const closingTimer = useRef<number | null>(null);
   const mouseXRef = useRef<number>(Infinity);
   const hoveringNavRef = useRef<boolean>(false);
-  const HOTSPOT_BASE = 24; // 左端ホットスポットの基準幅
-  const NAV_BASE_W = 180; // サイドバーの基準幅（スケール前）
+  const HOTSPOT_BASE = 300; // 左端ホットスポットの基準幅
+  const NAV_BASE_W = 300; // サイドバーの基準幅（スケール前）
   const OVERSHOOT = 64; // 閉時に完全退避させるための追加オフセット
 
   // 画面サイズに追従するスケール（Scaler と同じ計算式）
@@ -188,106 +188,124 @@ export const Sidebar = ({
             transformOrigin: 'left top',
           }}
         >
-        <Box display="flex" flexDir="column" justifyContent="space-between" h="full">
-          <Box>
-            <Box display="flex" alignItems="center" gap={2} mb={3}>
-              <Text fontSize="sm" fontWeight="bold" color="gray.600">
-                Project
-              </Text>
-              <Text fontSize="sm" color="gray.700" title={projectTitle}>
-                {projectTitle}
-              </Text>
-            </Box>
-            <Box display="flex" flexDir="column" gap={2}>
-              <Button
-                variant="solid"
-                justifyContent="flex-start"
-                onClick={handleNew}
-                colorPalette="blue"
-                _hover={{ bg: 'rgba(99, 179, 237, 0.85)' }}
-                data-testid="sidebar-new-project"
-              >
-                New Project
-              </Button>
-              <Button
-                variant="ghost"
-                justifyContent="flex-start"
-                onClick={handleOpen}
-                _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
-                data-testid="sidebar-open-project"
-              >
-                Open Project…
-              </Button>
-              <Button
-                variant="ghost"
-                justifyContent="flex-start"
-                onClick={handleSave}
-                _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
-                data-testid="sidebar-save-project"
-              >
-                Save Project
-              </Button>
-              <Button
-                variant="ghost"
-                justifyContent="flex-start"
-                onClick={handleSaveAs}
-                _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
-                data-testid="sidebar-save-project-as"
-              >
-                Save Project As…
-              </Button>
-            </Box>
-          </Box>
-
-          <Box>
-            <Box my={3} height="1px" bg="whiteAlpha.500" />
-            <Button
-              variant="ghost"
-              justifyContent="flex-start"
-              onClick={() => setDevOpen(true)}
-              _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
-            >
-              Developer Tools
-            </Button>
-            {user ? (
-              <Box display="flex" alignItems="center" justifyContent="space-between" gap={2}>
+          <Box display="flex" flexDir="column" justifyContent="space-between" h="full" color="rgba(5, 4, 69, 0.8)">
+            <Box>
+              <Box display="flex" alignItems="center" gap={2} mb={3}>
+                <Text fontSize="22px" fontWeight="meduim" color="rgba(5, 4, 69, 0.8)">
+                  Project
+                </Text>
+                <Text fontSize="22px" fontWeight="meduim" color="rgba(5, 4, 69, 0.8)" title={projectTitle}>
+                  {projectTitle}
+                </Text>
+              </Box>
+              <Box display="flex" flexDir="column" gap={2}>
                 <Button
                   variant="ghost"
-                  onClick={() => setProfileOpen(true)}
+                  justifyContent="flex-start"
+                  onClick={handleOpen}
                   _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
-                  title="Edit username"
-                  px={2}
-                  py={1}
+                  data-testid="sidebar-open-project"
+                  fontSize="20px"
+                  fontWeight="normal"
+                  color="rgba(5, 4, 69, 0.8)"
                 >
-                  <Text fontSize="sm" color="gray.700" data-testid="sidebar-username">
-                    {getDisplayName(user)}
-                  </Text>
+                  New Project
                 </Button>
                 <Button
                   variant="ghost"
-                  onClick={() => setLogoutConfirm(true)}
+                  justifyContent="flex-start"
+                  onClick={handleOpen}
                   _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
-                  aria-label="Logout"
-                  title="Logout"
-                  p={1}
-                  minW="auto"
+                  data-testid="sidebar-open-project"
+                  fontSize="20px"
+                  fontWeight="normal"
+                  color="rgba(5, 4, 69, 0.8)"
                 >
-                  <LogoutIcon fontSize="small" />
+                  Open Project…
+                </Button>
+                <Button
+                  variant="ghost"
+                  justifyContent="flex-start"
+                  onClick={handleSave}
+                  _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
+                  data-testid="sidebar-save-project"
+                  fontSize="20px"
+                  fontWeight="normal"
+                  color="rgba(5, 4, 69, 0.8)"
+                >
+                  Save Project
+                </Button>
+                <Button
+                  variant="ghost"
+                  justifyContent="flex-start"
+                  onClick={handleSaveAs}
+                  _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
+                  data-testid="sidebar-save-project-as"
+                  fontSize="20px"
+                  fontWeight="normal"
+                  color="rgba(5, 4, 69, 0.8)"
+                >
+                  Save Project As…
+                </Button>
+                <Button
+                  variant="ghost"
+                  justifyContent="flex-start"
+                  onClick={handleSaveAs}
+                  _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
+                  data-testid="sidebar-save-project-as"
+                  fontSize="20px"
+                  fontWeight="normal"
+                  color="rgba(5, 4, 69, 0.8)"
+                >
+                  Developer Tools
                 </Button>
               </Box>
-            ) : (
-              <Button
-                variant="ghost"
-                justifyContent="flex-start"
-                onClick={() => setLoginOpen(true)}
-                _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
-                data-testid="sidebar-login"
-              >
-                login
-              </Button>
-            )}
+            </Box>
+
+            <Box>
+              <Box my={3} height="1px" bg="whiteAlpha.500" />
+
+              {user ? (
+                <Box display="flex" alignItems="center" justifyContent="space-between" gap={2}>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setProfileOpen(true)}
+                    _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
+                    title="Edit username"
+                    px={2}
+                    py={1}
+                  >
+                    <Text fontSize="26px" fontWeight="meduim" color="rgba(5, 4, 69, 0.8)" data-testid="sidebar-username">
+                      {getDisplayName(user)}
+                    </Text>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setLogoutConfirm(true)}
+                    _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
+                    aria-label="Logout"
+                    title="Logout"
+                    p={1}
+                    minW="auto"
+                  >
+                    <LogoutIcon fontSize="large" fontWeight="meduim" />
+                  </Button>
+                </Box>
+              ) : (
+                <Button
+                  variant="ghost"
+                  justifyContent="flex-start"
+                  onClick={() => setLoginOpen(true)}
+                  _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
+                  data-testid="sidebar-login"
+                  fontWeight="normal"
+                  fontSize={"20px"}
+                >
+                  login
+                </Button>
+              )}
+            </Box>
           </Box>
-        </Box>
         </Box>
 
         <LoginModal

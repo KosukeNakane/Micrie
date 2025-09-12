@@ -11,7 +11,7 @@ type Props<T extends string = string> = {
   widthPx?: number; // ベース幅（コントロール幅は約0.75倍で従来と同じ見た目）
 };
 
-export const GlassSelect = <T extends string = string>({ options, value, onChange, widthPx = 160 }: Props<T>) => {
+export const GlassSelect = <T extends string = string>({ options, value, onChange, widthPx = 180 }: Props<T>) => {
   return (
     <Select
       options={options as GlassOption[]}
@@ -35,7 +35,7 @@ export const GlassSelect = <T extends string = string>({ options, value, onChang
           fontFamily: '"brandon-grotesque", sans-serif',
           fontWeight: 500,
           fontStyle: 'normal',
-          fontSize: '14px',
+          fontSize: '16px',
           background: state.isFocused
             ? 'linear-gradient(135deg, rgba(172, 203, 229, 0.45), rgba(165, 178, 220, 0.74))'
             : 'linear-gradient(135deg,rgba(255, 255, 255, 0.87),rgb(212, 221, 240))',
@@ -55,7 +55,7 @@ export const GlassSelect = <T extends string = string>({ options, value, onChang
           ...base,
           backgroundColor: state.isFocused ? 'rgba(172, 203, 229, 0.45)' : 'rgba(255, 255, 255, 0.87)',
           color: 'rgba(5, 4, 69, 0.8)',
-          fontSize: '14px',
+          fontSize: '16px',
           padding: `${scalePx(4)} ${scalePx(8)}`,
           cursor: 'pointer'
         }),

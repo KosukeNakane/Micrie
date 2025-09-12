@@ -103,7 +103,7 @@ export const RecButton = ({ onClick }: { onClick: () => void }) => {
           fontFamily: 'brandon-grotesque, sans-serif',
           fontWeight: 500,
           fontStyle: 'normal',
-          fontSize: '20px',
+          fontSize: '24px',
           color: 'rgba(5, 4, 69, 0.8)'
         }}
       >
