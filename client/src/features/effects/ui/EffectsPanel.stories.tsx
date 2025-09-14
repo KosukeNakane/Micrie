@@ -1,3 +1,5 @@
+// [Story] features/ui - EffectsPanel.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import EffectsPanel from './EffectsPanel'
 
 import type { Meta, StoryObj } from '@storybook/react-vite'

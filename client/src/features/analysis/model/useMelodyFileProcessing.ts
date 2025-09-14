@@ -1,3 +1,5 @@
+// [Model] features/model - useMelodyFileProcessing.ts
+// 役割: ビジネスロジック/状態操作
 import { useEffect, useState } from "react";
 
 import { useAudioBuffer } from "@entities/audio/model/useAudioBuffer";

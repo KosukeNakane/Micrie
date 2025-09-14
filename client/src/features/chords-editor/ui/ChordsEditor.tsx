@@ -1,3 +1,5 @@
+// [UI] features/ui - ChordsEditor.tsx
+// 役割: 表示・入力のUIコンポーネント
 import styled from '@emotion/styled';
 import AdjustIcon from '@mui/icons-material/Adjust';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';

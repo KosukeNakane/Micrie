@@ -1,3 +1,5 @@
+// [UI] widgets/ui - WaveformTabs.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { Tabs } from "@chakra-ui/react";
 import React from "react";
 

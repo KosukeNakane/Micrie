@@ -1,3 +1,5 @@
+// [UI] shared/ui - GlassSelect.tsx
+// 役割: 表示・入力のUIコンポーネント
 import Select from 'react-select';
 
 import { scalePx } from '@/shared/lib/scale';

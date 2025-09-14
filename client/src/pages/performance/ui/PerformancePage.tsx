@@ -1,3 +1,5 @@
+// [UI] pages/ui - PerformancePage.tsx
+// 役割: 表示・入力のUIコンポーネント
 /** @jsxImportSource @emotion/react */
 
 import { useEffect } from "react";

@@ -1,3 +1,5 @@
+// [Lib] shared/lib - scale.ts
+// 役割: 共通ユーティリティ/インフラ補助
 // UIスケール用のユーティリティ（固定係数でpxを縮小）
 export const UI_SCALE = 1;
 

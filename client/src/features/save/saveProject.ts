@@ -1,3 +1,5 @@
+// [Model] features - saveProject.ts
+// 役割: ビジネスロジック/状態操作
 import { addDoc, collection } from 'firebase/firestore';
 
 import { db } from '@/lib/firebase';

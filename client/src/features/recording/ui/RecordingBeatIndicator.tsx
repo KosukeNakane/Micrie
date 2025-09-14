@@ -1,3 +1,5 @@
+// [UI] features/ui - RecordingBeatIndicator.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { StyledArea } from '@shared/ui/StyledArea';
 
 type Props = { currentBar: number; currentBeat: number; size?: 'sm' | 'md' };

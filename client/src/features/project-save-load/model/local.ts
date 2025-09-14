@@ -1,3 +1,5 @@
+// [Model] features/model - local.ts
+// 役割: ビジネスロジック/状態操作
 import type { ProjectData, ProjectDocument } from '@/entities/project';
 
 function sanitizeFileName(name: string): string {

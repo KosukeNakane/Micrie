@@ -1,3 +1,5 @@
+// [API] shared/api - index.ts
+// 役割: 外部API/バックエンド通信ラッパー
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getAuth, type Auth, GoogleAuthProvider, GithubAuthProvider, setPersistence, browserLocalPersistence, getRedirectResult } from "firebase/auth";
 import {

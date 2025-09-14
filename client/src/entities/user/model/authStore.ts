@@ -1,3 +1,5 @@
+// [State] entities/model - authStore.ts
+// 役割: グローバル/ローカル状態の保持・提供
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { useEffect } from 'react';
 import { create } from 'zustand';

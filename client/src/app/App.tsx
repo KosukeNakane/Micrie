@@ -1,3 +1,5 @@
+// [App] app - App.tsx
+// 役割: アプリ全体のセットアップ/プロバイダ
 // Micrie アプリのルートコンポーネント。
 // 各種コンテキストプロバイダーで状態を共有しつつ、AppContentを表示する。
 /** @jsxImportSource @emotion/react */

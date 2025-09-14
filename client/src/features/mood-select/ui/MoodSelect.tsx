@@ -1,3 +1,5 @@
+// [UI] features/ui - MoodSelect.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { useState } from 'react';
 
 import { GlassSelect } from '@/shared/ui';

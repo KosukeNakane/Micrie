@@ -1,3 +1,5 @@
+// [UI] shared/ui - index.ts
+// 役割: 表示・入力のUIコンポーネント
 export { RectButton, RectButtonBase } from './RectButton';
 export { StyledArea } from './StyledArea';
 export { BarSelectDropdown } from './BarSelectDropdown';

@@ -1,3 +1,5 @@
+// [Story] widgets/ui - ControlPanel.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { ScaleModeProvider } from '@entities/scale-mode'
 
 import { ControlPanel } from '@/widgets/recording/control-panel'

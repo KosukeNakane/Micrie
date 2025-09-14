@@ -1,3 +1,5 @@
+// [UI] widgets/ui - AudioFileUploader.tsx
+// 役割: 表示・入力のUIコンポーネント
 // 任意の音声ファイルをアップロード
 import { Button } from "@chakra-ui/react";
 import React from "react";

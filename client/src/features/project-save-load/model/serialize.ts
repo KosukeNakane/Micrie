@@ -1,3 +1,5 @@
+// [Model] features/model - serialize.ts
+// 役割: ビジネスロジック/状態操作
 import { useChannelsStore } from "@/entities/audio";
 import { useBarCount } from "@/entities/bar-count";
 import { useChords } from "@/entities/chords";

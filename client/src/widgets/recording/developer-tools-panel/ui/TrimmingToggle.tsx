@@ -1,3 +1,5 @@
+// [UI] widgets/ui - TrimmingToggle.tsx
+// 役割: 表示・入力のUIコンポーネント
 interface Props {
   enabled: boolean;
   onChange: (enabled: boolean) => void;

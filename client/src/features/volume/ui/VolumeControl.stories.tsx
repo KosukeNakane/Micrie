@@ -1,3 +1,5 @@
+// [Story] features/ui - VolumeControl.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { GlobalAudioProvider } from '@entities/audio'
 import { VolumeProvider } from '@entities/volume'
 

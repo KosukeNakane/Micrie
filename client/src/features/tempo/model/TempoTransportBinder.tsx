@@ -1,3 +1,5 @@
+// [Binder] features/model - TempoTransportBinder.tsx
+// 役割: エンジン/Transportとアプリ状態の接続（副作用）
 import { useEffect } from 'react';
 import * as Tone from 'tone';
 

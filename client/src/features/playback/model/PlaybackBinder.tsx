@@ -1,3 +1,5 @@
+// [Binder] features/model - PlaybackBinder.tsx
+// 役割: エンジン/Transportとアプリ状態の接続（副作用）
 import React from 'react';
 import * as Tone from 'tone';
 

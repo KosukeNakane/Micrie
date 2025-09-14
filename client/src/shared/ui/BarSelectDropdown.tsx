@@ -1,3 +1,5 @@
+// [UI] shared/ui - BarSelectDropdown.tsx
+// 役割: 表示・入力のUIコンポーネント
 // 録音する小節(bar)数を選択するドロップダウン形式のセレクター。
 // グローバル状態 barCount を変更する機能を持つ。
 

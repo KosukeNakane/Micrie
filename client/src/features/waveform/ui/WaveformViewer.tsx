@@ -1,3 +1,5 @@
+// [UI] features/ui - WaveformViewer.tsx
+// 役割: 表示・入力のUIコンポーネント
 import styled from '@emotion/styled';
 import { useRef, useEffect } from 'react';
 

@@ -1,3 +1,5 @@
+// [UI] shared/ui - NavBar.tsx
+// 役割: 表示・入力のUIコンポーネント
 import styled from '@emotion/styled';
 import MicIcon from '@mui/icons-material/Mic';
 import TuneIcon from '@mui/icons-material/Tune';

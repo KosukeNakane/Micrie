@@ -1,3 +1,5 @@
+// [Story] widgets/ui - ModeToggleButtons.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { AnalysisModeProvider } from '@entities/analysis'
 
 import { ModeToggleButtons } from '@/widgets/recording/mode-toggle-buttons'

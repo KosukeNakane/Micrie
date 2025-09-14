@@ -1,3 +1,5 @@
+// [Story] features/ui - ScaleModeSelect.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { ScaleModeProvider } from '@entities/scale-mode'
 
 import { ScaleModeSelect } from '@/features/scale-mode'

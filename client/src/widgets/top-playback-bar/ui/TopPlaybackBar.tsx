@@ -1,3 +1,5 @@
+// [UI] widgets/ui - TopPlaybackBar.tsx
+// 役割: 表示・入力のUIコンポーネント
 import styled from '@emotion/styled';
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';

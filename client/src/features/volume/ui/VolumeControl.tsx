@@ -1,3 +1,5 @@
+// [UI] features/ui - VolumeControl.tsx
+// 役割: 表示・入力のUIコンポーネント
 // VOLUMEの値を調整するためのボタンと入力・スライダーのUIコンポーネント（UIのみ）
 import styled from '@emotion/styled';
 

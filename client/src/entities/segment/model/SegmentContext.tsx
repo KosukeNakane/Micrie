@@ -1,3 +1,5 @@
+// [State] entities/model - SegmentContext.tsx
+// 役割: グローバル/ローカル状態の保持・提供
 import React from 'react';
 import { create } from 'zustand';
 

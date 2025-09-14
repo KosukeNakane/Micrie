@@ -1,3 +1,5 @@
+// [Model] entities/model - useAnalyser.ts
+// 役割: ビジネスロジック/状態操作
 // マイク入力を取得し、リアルタイムで波形をcanvasに描画するカスタムフック
 import { useEffect, useRef } from 'react';
 

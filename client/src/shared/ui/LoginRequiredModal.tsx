@@ -1,3 +1,5 @@
+// [UI] shared/ui - LoginRequiredModal.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { Box, Button, Text } from "@chakra-ui/react";
 import { createPortal } from "react-dom";
 

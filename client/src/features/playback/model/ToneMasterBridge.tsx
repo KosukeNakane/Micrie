@@ -1,3 +1,5 @@
+// [Model] features/model - ToneMasterBridge.tsx
+// 役割: ビジネスロジック/状態操作
 import { useEffect } from 'react';
 import * as Tone from 'tone';
 

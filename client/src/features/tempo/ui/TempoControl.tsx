@@ -1,3 +1,5 @@
+// [UI] features/ui - TempoControl.tsx
+// 役割: 表示・入力のUIコンポーネント
 // TEMPOの値を調整するためのボタンとドロップダウンUIコンポーネント（初期実装）
 import styled from '@emotion/styled';
 

@@ -1,3 +1,5 @@
+// [UI] widgets/ui - PlaybackButton.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { usePlaybackController } from "@features/playback";
 import { RectButton } from "@shared/ui/RectButton";
 

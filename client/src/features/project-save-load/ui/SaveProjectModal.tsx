@@ -1,3 +1,5 @@
+// [UI] features/ui - SaveProjectModal.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { Box, Button, Input, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { createPortal } from "react-dom";

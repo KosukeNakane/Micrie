@@ -1,3 +1,5 @@
+// [State] entities/model - ChordPatternContext.tsx
+// 役割: グローバル/ローカル状態の保持・提供
 import { createContext, useContext, useState } from 'react';
 
 type ChordPattern = 'pattern1' | 'pattern2' | 'pattern3' | 'pattern4' | 'pattern5' | 'pattern6' | 'pattern7';

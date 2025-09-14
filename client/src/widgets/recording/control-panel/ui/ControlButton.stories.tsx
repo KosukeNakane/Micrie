@@ -1,3 +1,5 @@
+// [Story] widgets/ui - ControlButton.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { ControlButton } from '@/widgets/recording/control-panel'
 
 import type { Meta, StoryObj } from '@storybook/react-vite'

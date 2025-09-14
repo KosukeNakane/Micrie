@@ -1,3 +1,5 @@
+// [UI] widgets/ui - ModeAndRecGroup.tsx
+// 役割: 表示・入力のUIコンポーネント
 /** @jsxImportSource @emotion/react */
 import styled from '@emotion/styled';
 

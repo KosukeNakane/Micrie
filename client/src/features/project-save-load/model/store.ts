@@ -1,3 +1,5 @@
+// [State] features/model - store.ts
+// 役割: グローバル/ローカル状態の保持・提供
 import { create } from "zustand";
 
 type ProjectState = {

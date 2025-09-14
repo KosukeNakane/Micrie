@@ -1,3 +1,5 @@
+// [Lib] lib/lib - firebase.ts
+// 役割: 共通ユーティリティ/インフラ補助
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { initializeFirestore, setLogLevel, getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';

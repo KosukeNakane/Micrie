@@ -1,3 +1,5 @@
+// [API] shared/api - postInitDiagnostics.ts
+// 役割: 外部API/バックエンド通信ラッパー
 import { getApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 

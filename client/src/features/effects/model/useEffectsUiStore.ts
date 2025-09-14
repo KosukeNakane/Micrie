@@ -1,3 +1,5 @@
+// [State] features/model - useEffectsUiStore.ts
+// 役割: グローバル/ローカル状態の保持・提供
 import { create } from 'zustand';
 
 import type { EffectKey } from '@/entities/effects';

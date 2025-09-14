@@ -1,3 +1,5 @@
+// [Lib] shared/lib - stableStringify.ts
+// 役割: 共通ユーティリティ/インフラ補助
 type JSONValue = string | number | boolean | null | JSONObject | JSONArray
 interface JSONObject { [k: string]: JSONValue }
 interface JSONArray extends Array<JSONValue> {}

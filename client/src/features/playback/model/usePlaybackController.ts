@@ -1,3 +1,5 @@
+// [Model] features/model - usePlaybackController.ts
+// 役割: ビジネスロジック/状態操作
 import { useEffect, useMemo, useRef } from 'react';
 import * as Tone from 'tone';
 

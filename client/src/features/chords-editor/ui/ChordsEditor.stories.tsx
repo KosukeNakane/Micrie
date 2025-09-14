@@ -1,3 +1,5 @@
+// [Story] features/ui - ChordsEditor.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { GlobalAudioProvider } from '@/entities/audio';
 
 import { ChordsEditor } from './ChordsEditor';

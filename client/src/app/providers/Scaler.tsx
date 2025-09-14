@@ -1,3 +1,5 @@
+// [App] app/providers - Scaler.tsx
+// 役割: アプリ全体のセットアップ/プロバイダ
 import React, { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { PortalRootProvider } from './PortalRootContext';

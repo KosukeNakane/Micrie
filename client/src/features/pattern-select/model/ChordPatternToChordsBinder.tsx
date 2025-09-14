@@ -1,3 +1,5 @@
+// [Binder] features/model - ChordPatternToChordsBinder.tsx
+// 役割: エンジン/Transportとアプリ状態の接続（副作用）
 import React from 'react';
 
 import { useBarCount } from '@/entities/bar-count';

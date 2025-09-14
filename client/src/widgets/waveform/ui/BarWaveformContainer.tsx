@@ -1,3 +1,5 @@
+// [UI] widgets/ui - BarWaveformContainer.tsx
+// 役割: 表示・入力のUIコンポーネント
 import React, { useMemo } from "react";
 
 import { StyledArea } from "@/shared/ui";

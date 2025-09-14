@@ -1,3 +1,5 @@
+// [Model] features/model - useAudioRecorder.ts
+// 役割: ビジネスロジック/状態操作
 // メトロノーム付きの録音機能を提供するカスタムフック。
 // モード（rhythm / melody）と解析方法（Whisper / teachable）に応じて録音データをFlaskサーバーに送信し、解析結果を SegmentContext に保存する。
 

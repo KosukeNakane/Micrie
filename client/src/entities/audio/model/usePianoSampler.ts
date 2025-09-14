@@ -1,3 +1,5 @@
+// [Model] entities/model - usePianoSampler.ts
+// 役割: ビジネスロジック/状態操作
 import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
 

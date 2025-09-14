@@ -1,3 +1,5 @@
+// [UI] features/ui - OpenProjectModal.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { Box, Button, Text, Spinner, Input } from '@chakra-ui/react';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useEffect, useMemo, useState } from 'react';

@@ -1,3 +1,5 @@
+// [UI] widgets/ui - MelodyReanalysisPanel.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { Button } from "@chakra-ui/react";
 import React, { useState } from "react";
 

@@ -1,3 +1,5 @@
+// [Story] shared/ui - BarSelectDropdown.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { BarCountProvider } from '@entities/bar-count'
 import { BarSelectDropdown } from '@shared/ui'
 

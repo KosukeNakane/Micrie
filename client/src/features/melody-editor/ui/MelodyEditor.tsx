@@ -1,3 +1,5 @@
+// [UI] features/ui - MelodyEditor.tsx
+// 役割: 表示・入力のUIコンポーネント
 import styled from '@emotion/styled';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';

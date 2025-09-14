@@ -1,3 +1,5 @@
+// [Story] shared/ui - StyledSelect.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { StyledSelect } from '@shared/ui'
 
 import type { Meta, StoryObj } from '@storybook/react-vite'

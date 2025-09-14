@@ -1,3 +1,5 @@
+// [Model] features/model - useChordsPlayer.ts
+// 役割: ビジネスロジック/状態操作
 import * as Tone from 'tone';
 import { usePianoSampler } from '@/entities/audio';
 

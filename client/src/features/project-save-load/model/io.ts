@@ -1,3 +1,5 @@
+// [Model] features/model - io.ts
+// 役割: ビジネスロジック/状態操作
 import { doc, setDoc, serverTimestamp, getDoc, collection, addDoc, Timestamp, getDocs, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 

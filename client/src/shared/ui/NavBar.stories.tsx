@@ -1,3 +1,5 @@
+// [Story] shared/ui - NavBar.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { MemoryRouter } from 'react-router-dom'
 
 import { NavBar } from '@shared/ui'

@@ -1,3 +1,5 @@
+// [State] entities/model - DrumPatternContext.tsx
+// 役割: グローバル/ローカル状態の保持・提供
 import { createContext, useContext, useState } from 'react';
 
 type DrumPattern = 'basic' | 'hiphop' | 'funk' | 'rock' | 'jazz' | 'electro';

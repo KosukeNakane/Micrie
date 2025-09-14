@@ -1,3 +1,5 @@
+// [Model] features/model - useMelodyPlayer.ts
+// 役割: ビジネスロジック/状態操作
 import { usePianoSampler } from '@entities/audio/model/usePianoSampler';
 import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 import { majorPentatonicMap, minorPentatonicMap } from '@shared/lib/pitchMaps';

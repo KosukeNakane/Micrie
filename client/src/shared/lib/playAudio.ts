@@ -1,3 +1,5 @@
+// [Lib] shared/lib - playAudio.ts
+// 役割: 共通ユーティリティ/インフラ補助
 // 指定した AudioBuffer の一部または全体を再生するユーティリティ関数
 // startTime や endTime を指定することで部分再生も可能
 export const playAudio = async (

@@ -1,3 +1,5 @@
+// [Model] features/model - initial.ts
+// 役割: ビジネスロジック/状態操作
 import type { ProjectData, MelodyPitchItem } from '@/entities/project';
 
 // Returns the app's initial, untouched project data

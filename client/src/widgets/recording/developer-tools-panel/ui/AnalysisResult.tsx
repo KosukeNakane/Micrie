@@ -1,3 +1,5 @@
+// [UI] widgets/ui - AnalysisResult.tsx
+// 役割: 表示・入力のUIコンポーネント
 // MelodyセグメントとRhythmセグメントを統合し、解析結果を一覧表示するコンポーネント
 
 import { useState } from 'react';

@@ -1,3 +1,5 @@
+// [Model] entities - index.ts
+// 役割: ビジネスロジック/状態操作
 export { useAudioBuffer } from './model/useAudioBuffer';
 export { usePianoSampler } from './model/usePianoSampler';
 export { useAnalyser } from './model/useAnalyser';

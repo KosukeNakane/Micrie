@@ -1,3 +1,5 @@
+// [App] app - AppRouter.tsx
+// 役割: アプリ全体のセットアップ/プロバイダ
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useRef } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';

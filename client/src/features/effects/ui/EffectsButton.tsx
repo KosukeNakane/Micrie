@@ -1,3 +1,5 @@
+// [UI] features/ui - EffectsButton.tsx
+// 役割: 表示・入力のUIコンポーネント
 import React from 'react';
 
 import { RectButtonBase } from '@shared/ui/RectButton';

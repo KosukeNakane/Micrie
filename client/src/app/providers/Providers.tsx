@@ -1,3 +1,5 @@
+// [App] app/providers - Providers.tsx
+// 役割: アプリ全体のセットアップ/プロバイダ
 import { AnalysisModeProvider } from '@entities/analysis/model/AnalysisModeContext';
 import { GlobalAudioProvider } from '@entities/audio/model/GlobalAudioContext';
 import { RecordingProvider } from '@entities/audio/model/RecordingContext';

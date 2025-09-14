@@ -1,3 +1,5 @@
+// [UI] widgets/ui - ControlButton.tsx
+// 役割: 表示・入力のUIコンポーネント
 import styled from '@emotion/styled';
 
 import { scalePx } from '@/shared/lib/scale';

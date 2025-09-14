@@ -1,3 +1,5 @@
+// [Story] features/ui - DrumPatternSelect.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { DrumPatternProvider } from '@entities/pattern'
 
 import { DrumPatternSelect } from '@/features/pattern-select'

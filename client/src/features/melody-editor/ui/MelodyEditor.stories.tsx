@@ -1,3 +1,5 @@
+// [Story] features/ui - MelodyEditor.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import React, { useEffect } from 'react'
 
 import { GlobalAudioProvider } from '@/entities/audio'

@@ -1,3 +1,5 @@
+// [Model] features - index.ts
+// 役割: ビジネスロジック/状態操作
 export { VerticalFader } from './ui/VerticalFader';
 export { ReverbBinder } from './model/ReverbBinder';
 export { CutFiltersBinder } from './model/CutFiltersBinder';

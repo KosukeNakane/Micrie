@@ -1,3 +1,5 @@
+// [UI] features/ui - ScaleModeSelect.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 
 import { GlassSelect } from '@/shared/ui/GlassSelect';

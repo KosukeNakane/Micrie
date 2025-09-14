@@ -1,3 +1,5 @@
+// [API] shared/api - firestoreRest.ts
+// 役割: 外部API/バックエンド通信ラッパー
 import { getApp } from 'firebase/app';
 
 import { getFirebaseAuth } from "@/shared/api/firebase";

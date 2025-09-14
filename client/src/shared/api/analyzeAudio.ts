@@ -1,3 +1,5 @@
+// [API] shared/api - analyzeAudio.ts
+// 役割: 外部API/バックエンド通信ラッパー
 // 音声データをバックエンドに送信して、リズムまたはメロディーの解析を行う関数。
 // 解析モード（whisper/keras）に応じて適切なエンドポイントへ送信する。
 const baseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');

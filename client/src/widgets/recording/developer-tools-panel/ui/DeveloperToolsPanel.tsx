@@ -1,3 +1,5 @@
+// [UI] widgets/ui - DeveloperToolsPanel.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { ScaleModeSelect } from "@features/scale-mode";
 import { BarSelectDropdown } from "@shared/ui/BarSelectDropdown";
 import { MelodyRecButton, RhythmRecButton } from "@widgets/recording/mode-and-rec-group/";

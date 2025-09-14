@@ -1,3 +1,5 @@
+// [Story] features/ui - ChordPatternSelect.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { ChordPatternProvider } from '@entities/pattern'
 
 import { ChordPatternSelect } from '@/features/pattern-select'

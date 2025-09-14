@@ -1,3 +1,5 @@
+// [State] entities/model - useChannelsStore.ts
+// 役割: グローバル/ローカル状態の保持・提供
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 

@@ -1,3 +1,5 @@
+// [Story] features/ui - SplitHoldResetButton.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import React from 'react'
 
 import SplitHoldResetButton from './SplitHoldResetButton'

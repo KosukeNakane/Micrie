@@ -1,3 +1,5 @@
+// [App] app/providers - PortalRootContext.tsx
+// 役割: アプリ全体のセットアップ/プロバイダ
 import React, { createContext, useContext } from 'react';
 
 const PortalRootContext = createContext<HTMLElement | null>(null);

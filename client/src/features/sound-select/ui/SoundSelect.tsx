@@ -1,3 +1,5 @@
+// [UI] features/ui - SoundSelect.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { useState } from 'react';
 
 import { GlassSelect } from '@/shared/ui';

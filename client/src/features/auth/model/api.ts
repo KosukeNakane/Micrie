@@ -1,3 +1,5 @@
+// [Model] features/model - api.ts
+// 役割: ビジネスロジック/状態操作
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,

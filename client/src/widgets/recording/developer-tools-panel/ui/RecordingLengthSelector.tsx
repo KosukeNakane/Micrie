@@ -1,3 +1,5 @@
+// [UI] widgets/ui - RecordingLengthSelector.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { useBarCount } from "@entities/bar-count/model/BarCountContext";
 
 export function RecordingLengthSelector() {

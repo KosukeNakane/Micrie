@@ -1,3 +1,5 @@
+// [API] shared/api - apiClient.ts
+// 役割: 外部API/バックエンド通信ラッパー
 // src/shared/api/apiClient.ts
 console.log("VITE_API_BASE_URL raw value:", import.meta.env.VITE_API_BASE_URL);
 console.log("VITE_API_BASE_URL type:", typeof import.meta.env.VITE_API_BASE_URL);

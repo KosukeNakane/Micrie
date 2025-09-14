@@ -1,3 +1,5 @@
+// [Model] features - index.ts
+// 役割: ビジネスロジック/状態操作
 export { useSaveProject } from './model/useSaveProject';
 export { SaveProjectModal } from './ui/SaveProjectModal';
 // Public API 拡張: アプリ層で利用している各機能をバレル化

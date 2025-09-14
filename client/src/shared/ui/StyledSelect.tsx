@@ -1,3 +1,5 @@
+// [UI] shared/ui - StyledSelect.tsx
+// 役割: 表示・入力のUIコンポーネント
 // カスタムスタイルを適用したセレクトボックス用のスタイル定義。
 // styled-components（emotion）を用いて、見た目や挙動を装飾。
 

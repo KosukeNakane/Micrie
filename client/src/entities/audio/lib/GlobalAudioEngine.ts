@@ -1,3 +1,5 @@
+// [Lib] entities/lib - GlobalAudioEngine.ts
+// 役割: 共通ユーティリティ/インフラ補助
 // WebAudioFont（シンセ）と、ループBGM（<audio>）の両方を管理する永続エンジン。
 // 画面遷移してもインスタンスが破棄されないよう、シングルトンで提供。
 

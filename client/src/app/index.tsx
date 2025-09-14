@@ -1,3 +1,5 @@
+// [App] app - index.tsx
+// 役割: アプリ全体のセットアップ/プロバイダ
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 

@@ -1,3 +1,5 @@
+// [Model] features/model - useDrumPlayer.ts
+// 役割: ビジネスロジック/状態操作
 import { useEffect, useRef, useMemo, useCallback } from 'react';
 // import * as Tone from 'tone';
 

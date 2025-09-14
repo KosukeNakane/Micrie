@@ -1,3 +1,5 @@
+// [UI] pages/ui - EditPage.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { ChordsEditor } from "@features/chords-editor";
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
 import { BarWaveformSection, BarWaveformContainer } from "@widgets/waveform";

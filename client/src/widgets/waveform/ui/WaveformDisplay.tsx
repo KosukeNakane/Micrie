@@ -1,3 +1,5 @@
+// [UI] widgets/ui - WaveformDisplay.tsx
+// 役割: 表示・入力のUIコンポーネント
 // 波形表示・再生・ループ・セグメントラベル描画を担うメインUIコンポーネント
 import styled from '@emotion/styled';
 import { useState, useEffect, useRef } from 'react';

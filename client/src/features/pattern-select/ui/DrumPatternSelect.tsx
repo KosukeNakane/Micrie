@@ -1,3 +1,5 @@
+// [UI] features/ui - DrumPatternSelect.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { useDrumPattern } from '@entities/pattern/model/DrumPatternContext';
 
 import { GlassSelect } from '@/shared/ui/GlassSelect';

@@ -1,3 +1,5 @@
+// [UI] widgets/ui - ControlPanel.tsx
+// 役割: 表示・入力のUIコンポーネント
 // テンポとスケール（VIBE）等のコントロールをまとめたパネル
 import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 

@@ -1,3 +1,5 @@
+// [State] entities/model - chordsStore.ts
+// 役割: グローバル/ローカル状態の保持・提供
 import { create } from 'zustand';
 
 export type ChordQuality = 'maj' | 'min' | 'dim' | 'aug';

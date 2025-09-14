@@ -1,3 +1,5 @@
+// [Story] features/ui - TempoControl.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { TempoProvider } from '@entities/tempo'
 
 import { TempoControl } from '@/features/tempo'

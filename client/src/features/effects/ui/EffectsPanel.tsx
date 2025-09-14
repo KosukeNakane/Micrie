@@ -1,3 +1,5 @@
+// [UI] features/ui - EffectsPanel.tsx
+// 役割: 表示・入力のUIコンポーネント
 /** @jsxImportSource @emotion/react */
 import React from 'react';
 

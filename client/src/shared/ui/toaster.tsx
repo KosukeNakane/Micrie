@@ -1,3 +1,5 @@
+// [UI] shared/ui - toaster.tsx
+// 役割: 表示・入力のUIコンポーネント
 // toaster.tsx
 import {
   Toaster,

@@ -1,3 +1,5 @@
+// [Model] features/model - useSaveProject.tsx
+// 役割: ビジネスロジック/状態操作
 import { useCallback } from "react";
 
 import { stableStringify } from "@/shared/lib/stableStringify";

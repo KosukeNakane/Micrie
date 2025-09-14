@@ -1,3 +1,5 @@
+// [UI] shared/ui - StyledArea.tsx
+// 役割: 表示・入力のUIコンポーネント
 // ガラス風の背景スタイルを持つ共有エリア用のスタイル付きdivコンポーネント
 
 import styled from '@emotion/styled';

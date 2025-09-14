@@ -1,3 +1,5 @@
+// [Story] shared/ui - StyledArea.stories.tsx
+// 役割: Storybook用のドキュメント/検証用UI
 import { StyledArea } from '@shared/ui';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';

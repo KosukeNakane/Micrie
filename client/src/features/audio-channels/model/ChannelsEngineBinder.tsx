@@ -1,3 +1,5 @@
+// [Binder] features/model - ChannelsEngineBinder.tsx
+// 役割: エンジン/Transportとアプリ状態の接続（副作用）
 import React from 'react';
 
 import { useGlobalAudio, useChannelsStore } from '@/entities/audio';
