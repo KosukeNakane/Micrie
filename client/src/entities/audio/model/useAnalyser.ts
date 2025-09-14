@@ -5,7 +5,8 @@ export const useAnalyser = (): React.RefObject<HTMLCanvasElement | null> => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
-  const dataArrayRef = useRef<Uint8Array | null>(null);
+  // null安全のため、常に Uint8Array を保持（初期は長さ0）
+  const dataArrayRef = useRef<Uint8Array>(new Uint8Array(0));
   const rafIdRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -32,17 +33,17 @@ export const useAnalyser = (): React.RefObject<HTMLCanvasElement | null> => {
     const tick = () => {
       const canvas = canvasRef.current;
       const analyser = analyserRef.current;
-      const dataArray = dataArrayRef.current;
-      if (canvas && analyser && dataArray) {
+      const dataArray = dataArrayRef.current; // 常に Uint8Array
+      if (canvas && analyser) {
         const ctx = canvas.getContext('2d');
         if (ctx) {
           try {
-            analyser.getByteTimeDomainData(dataArray);
+            analyser.getByteTimeDomainData(dataArray as Uint8Array<ArrayBuffer>);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.lineWidth = 2;
             ctx.strokeStyle = '#333';
             ctx.beginPath();
-            const bufferLength = analyser.frequencyBinCount;
+            const bufferLength = dataArray.length;
             const sliceWidth = canvas.width / bufferLength;
             let x = 0;
             for (let i = 0; i < bufferLength; i++) {
@@ -70,11 +71,11 @@ export const useAnalyser = (): React.RefObject<HTMLCanvasElement | null> => {
         stream.getTracks().forEach(t => t.stop());
       }
       if (audioCtxRef.current) {
-        try { audioCtxRef.current.close(); } catch {}
+        try { audioCtxRef.current.close(); } catch { }
         audioCtxRef.current = null;
       }
       analyserRef.current = null;
-      dataArrayRef.current = null;
+      dataArrayRef.current = new Uint8Array(0);
     };
   }, []);
 
