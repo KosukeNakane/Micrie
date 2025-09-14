@@ -1,9 +1,9 @@
 import { useEffect, useRef, useMemo, useCallback } from 'react';
 // import * as Tone from 'tone';
 
-import { useGlobalAudio } from '@entities/audio/model/GlobalAudioContext';
-import { useDrumPattern } from '@entities/pattern/model/DrumPatternContext';
-import { useTempo } from '@entities/tempo/model/TempoContext';
+import { useGlobalAudio } from '@entities/audio';
+import { useDrumPattern } from '@entities/pattern';
+import { useTempo } from '@entities/tempo';
 
 type DrumType = 'kick' | 'snare' | 'hihat';
 type DrumEvent = { time: number; type: DrumType };
@@ -41,6 +41,8 @@ export const useDrumPlayer = () => {
 
   const drumPatterns = useMemo(() => getDrumPatterns(), [tempo]);
 
+  const engine = useGlobalAudio();
+
   useEffect(() => {
     const drumFiles: { [key in DrumType]: string } = {
       kick: '/samples/PublicSamples/Drums/kick135.wav',
@@ -54,9 +56,7 @@ export const useDrumPlayer = () => {
       buffersRef.current = Object.fromEntries(entries);
     };
     loadAll();
-  }, []);
-
-  const engine = useGlobalAudio();
+  }, [engine.audioContext]);
 
   // 単発ヒットをTransportのコールバックtimeに同期して鳴らす
   const playDrumHit = useCallback((type: DrumType, time: number) => {
@@ -90,3 +90,4 @@ export const useDrumPlayer = () => {
 
   return { playDrumLoop, playDrumHit, getDrumEvents };
 };
+

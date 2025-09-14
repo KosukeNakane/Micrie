@@ -14,10 +14,8 @@ import { TempoProvider } from '@entities/tempo/model/TempoContext';
 import { AuthStateListener } from '@entities/user';
 import { VolumeProvider } from '@entities/volume/model/VolumeContext';
 import { ChannelsEngineBinder } from '@features/audio-channels';
-import { ChordsPlaybackBinder } from '@features/chords-playback';
-import { DrumsPlaybackBinder } from '@features/drums-playback';
+import { PlaybackBinder } from '@features/playback';
 import { ReverbBinder, CutFiltersBinder, CrushBinder, DirtyBinder, CombBinder } from '@features/effects';
-import { MelodyPlaybackBinder } from '@features/melody-playback';
 import { ChordPatternToChordsBinder } from '@features/pattern-select/model/ChordPatternToChordsBinder';
 import { ToneMasterBridge } from '@features/playback';
 import { TempoTransportBinder } from '@features/tempo';
@@ -34,46 +32,44 @@ export const Providers = ({ children }: Props) => (
     {/* Firebase Auth の状態を購読してグローバル状態に反映 */}
     <AuthStateListener />
     {/* テンポ/ボリュームのコンテキストを上位に配置し、Binder を内部で利用 */}
-        <TempoProvider>
-          <VolumeProvider>
-            {/* テンポ変更を Tone.Transport に常時反映 */}
-            <TempoTransportBinder />
-            {/* ボリューム変更をエンジンに常時反映 */}
-            <VolumeEngineBinder />
-            {/* ミュート状態をエンジンに常時反映 */}
-            <ChannelsEngineBinder />
-      <AnalysisModeProvider>
-        <ModeProvider>
-          <RecordingProvider>
-            <RecordingUIProvider>
-              <SegmentProvider>
-                <BarCountProvider>
-                  <ScaleModeProvider>
-                    <CountBarsAndBeatsProvider>
-                      <ChordPatternProvider>
-                        <ChordPatternToChordsBinder />
-                        <DrumPatternProvider>
-                          <EffectsProvider>
-                            <CrushBinder />
-                            <ReverbBinder />
-                            <CutFiltersBinder />
-                            <CombBinder />
-                            <DirtyBinder />
-                            <ChordsPlaybackBinder />
-                            <DrumsPlaybackBinder />
-                            <MelodyPlaybackBinder />
-                            {children}
-                          </EffectsProvider>
-                        </DrumPatternProvider>
-                      </ChordPatternProvider>
-                    </CountBarsAndBeatsProvider>
-                  </ScaleModeProvider>
-                </BarCountProvider>
-              </SegmentProvider>
-            </RecordingUIProvider>
-          </RecordingProvider>
-        </ModeProvider>
-      </AnalysisModeProvider>
+    <TempoProvider>
+      <VolumeProvider>
+        {/* テンポ変更を Tone.Transport に常時反映 */}
+        <TempoTransportBinder />
+        {/* ボリューム変更をエンジンに常時反映 */}
+        <VolumeEngineBinder />
+        {/* ミュート状態をエンジンに常時反映 */}
+        <ChannelsEngineBinder />
+        <AnalysisModeProvider>
+          <ModeProvider>
+            <RecordingProvider>
+              <RecordingUIProvider>
+                <SegmentProvider>
+                  <BarCountProvider>
+                    <ScaleModeProvider>
+                      <CountBarsAndBeatsProvider>
+                        <ChordPatternProvider>
+                          <ChordPatternToChordsBinder />
+                          <DrumPatternProvider>
+                            <EffectsProvider>
+                              <CrushBinder />
+                              <ReverbBinder />
+                              <CutFiltersBinder />
+                              <CombBinder />
+                              <DirtyBinder />
+                              <PlaybackBinder />
+                              {children}
+                            </EffectsProvider>
+                          </DrumPatternProvider>
+                        </ChordPatternProvider>
+                      </CountBarsAndBeatsProvider>
+                    </ScaleModeProvider>
+                  </BarCountProvider>
+                </SegmentProvider>
+              </RecordingUIProvider>
+            </RecordingProvider>
+          </ModeProvider>
+        </AnalysisModeProvider>
       </VolumeProvider>
     </TempoProvider>
   </GlobalAudioProvider>

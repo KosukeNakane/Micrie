@@ -6,8 +6,8 @@ import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 import { useSegment } from '@entities/segment/model/SegmentContext';
 import { useTempo } from '@entities/tempo/model/TempoContext';
 import { useTransportStore } from '@entities/transport/model/useTransportStore';
-import { useDrumPlayer } from '@features/drums-playback/model/useDrumPlayer';
-import { useMelodyPlayer } from '@features/melody-playback/model/useMelodyPlayer';
+import { useDrumPlayer } from './useDrumPlayer';
+import { useMelodyPlayer } from './useMelodyPlayer';
 import { extractQuantizedNotes } from '@shared/lib/noteSegmentation';
 import { majorPentatonicMap, minorPentatonicMap } from '@shared/lib/pitchMaps';
 
@@ -55,38 +55,11 @@ export const usePlaybackController = () => {
     return `${bars}:${beatIdx}:${sixteenth}` as const;
   };
 
-  // Parts を再構築（内容変化時）
+  // Parts 構築は統合 PlaybackBinder に移行
   useEffect(() => {
-    // 既存破棄
-    drumsPartRef.current?.dispose();
-    chordsPartRef.current?.dispose();
-    melodyPartRef.current?.dispose();
-
-
-    // Drums: 16分グリッドのイベントをPart化
-    const drumEvents = getDrumEvents(); // time in beats
-    const drumItems = drumEvents.map(ev => [beatsToBBS(ev.time), ev.type] as [string, string]);
-    const drumsPart = new Tone.Part((time, type: any) => {
-      playDrumHit(type as any, time);
-    }, drumItems);
-    drumsPart.loop = false; drumsPart.start(0);
-    drumsPartRef.current = drumsPart;
-
-    // Chords: handled elsewhere
-    chordsPartRef.current = null;
-
-    // Melody: 16分グリッドの量子化ノート
-    const melodyItems = quantizedMelody.map(({ note, startIndex, length }) => ({
-      t: beatsToBBS(startIndex * 0.25), // 16分単位
-      n: note,
-      d: length * sixteenthSec,
-    }));
-    const melodyPart = new Tone.Part((time, ev: any) => {
-      playMelody(ev.n, time, ev.d);
-    }, melodyItems.map(ev => [ev.t, ev] as [string, any]));
-    melodyPart.loop = false; melodyPart.start(0);
-    melodyPartRef.current = melodyPart;
-
+    drumsPartRef.current?.dispose(); drumsPartRef.current = null;
+    chordsPartRef.current?.dispose(); chordsPartRef.current = null;
+    melodyPartRef.current?.dispose(); melodyPartRef.current = null;
     return () => {
       drumsPartRef.current?.dispose(); drumsPartRef.current = null;
       chordsPartRef.current?.dispose(); chordsPartRef.current = null;
