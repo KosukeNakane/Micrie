@@ -6,8 +6,8 @@ import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 import { useSegment } from '@entities/segment/model/SegmentContext';
 import { useTempo } from '@entities/tempo/model/TempoContext';
 import { useTransportStore } from '@entities/transport/model/useTransportStore';
-import { useDrumPlayer } from '@features/playback/model/useDrumPlayer';
-import { useMelodyPlayer } from '@features/playback/model/useMelodyPlayer';
+import { useDrumPlayer } from '@features/drums-playback/model/useDrumPlayer';
+import { useMelodyPlayer } from '@features/melody-playback/model/useMelodyPlayer';
 import { extractQuantizedNotes } from '@shared/lib/noteSegmentation';
 import { majorPentatonicMap, minorPentatonicMap } from '@shared/lib/pitchMaps';
 

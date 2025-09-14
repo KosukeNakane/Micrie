@@ -7,7 +7,7 @@ import { CountBarsAndBeatsProvider } from '@entities/count-bars-and-beats/model/
 import { EffectsProvider } from '@entities/effects/model/EffectsContext';
 import { ReverbBinder, CutFiltersBinder, CrushBinder, DirtyBinder, CombBinder } from '@features/effects';
 import { TempoTransportBinder } from '@features/tempo';
-import { ToneMasterBridge } from '@features/playback/model/ToneMasterBridge';
+import { ToneMasterBridge } from '@features/playback';
 import { ModeProvider } from '@entities/mode/model/ModeContext';
 import { ChordPatternProvider } from '@entities/pattern/model/ChordPatternContext';
 import { ChordPatternToChordsBinder } from '@features/pattern-select/model/ChordPatternToChordsBinder';
@@ -19,6 +19,8 @@ import { VolumeProvider } from '@entities/volume/model/VolumeContext';
 import { VolumeEngineBinder } from '@features/volume';
 import { ChannelsEngineBinder } from '@features/audio-channels';
 import { ChordsPlaybackBinder } from '@features/chords-playback';
+import { DrumsPlaybackBinder } from '@features/drums-playback';
+import { MelodyPlaybackBinder } from '@features/melody-playback';
 import { AuthStateListener } from '@entities/user';
 
 import type { ReactNode } from 'react';
@@ -58,6 +60,8 @@ export const Providers = ({ children }: Props) => (
                             <CombBinder />
                             <DirtyBinder />
                             <ChordsPlaybackBinder />
+                            <DrumsPlaybackBinder />
+                            <MelodyPlaybackBinder />
                             {children}
                           </EffectsProvider>
                         </DrumPatternProvider>

@@ -1,13 +1,12 @@
-// ドラムループの再生をTone.jsでスケジューリングするカスタムフック。
-// currentSegments.rhythm の内容に基づいて kick/snare/hihat を再生する。
-
-import { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as Tone from 'tone';
 
 import { useSegment } from '@entities/segment/model/SegmentContext';
 import { useTempo } from '@entities/tempo/model/TempoContext';
 
-export const useDrumLoopScheduler = () => {
+// 旧 useDrumLoopScheduler のロジックを Binder に移行
+// 注意: 旧実装同様、isLooping は常に false のため実質スケジュールは走りません（挙動不変）
+export const DrumsPlaybackBinder: React.FC = () => {
   const { tempo } = useTempo();
   const { loopMode, currentSegments } = useSegment();
   const [isLooping] = useState(false);
@@ -22,7 +21,7 @@ export const useDrumLoopScheduler = () => {
   const scheduleIdRef = useRef<number | null>(null);
 
   const normalizedSteps = useMemo(() => {
-    if (!currentSegments || typeof currentSegments !== 'object') return [];
+    if (!currentSegments || typeof currentSegments !== 'object') return [] as string[];
     const selectedSegments = loopMode === 'rhythm' ? currentSegments.rhythm : (loopMode === 'melody' ? [] : currentSegments.rhythm);
     return selectedSegments
       .filter((step): step is { label: string; start: number; end: number } =>

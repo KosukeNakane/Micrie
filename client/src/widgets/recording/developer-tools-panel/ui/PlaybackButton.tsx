@@ -1,5 +1,5 @@
 import { RectButton } from "@shared/ui/RectButton";
-import { usePlaybackController } from "@features/playback/model/usePlaybackController";
+import { usePlaybackController } from "@features/playback";
 
 interface PlaybackButtonProps {
   isPlaying: boolean;

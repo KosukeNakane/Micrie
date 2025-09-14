@@ -8,7 +8,7 @@ import { useCountBarsAndBeats } from '@entities/count-bars-and-beats';
 import { useSegment } from '@entities/segment';
 import { useTempo } from '@entities/tempo';
 import { ChordPatternSelect, DrumPatternSelect } from '@features/pattern-select';
-import { useDrumLoopScheduler, useMelodyLoopScheduler, useChordsLoopScheduler as useChordLoopScheduler } from '@features/playback';
+// 旧SchedulerはBinderへ移行。ここでは使用しない。
 import { RecordingBeatIndicator } from '@features/recording';
 import { RecButton } from '@features/recording/ui/RecButton';
 import { StyledArea } from '@shared/ui';
@@ -81,9 +81,7 @@ export const WaveformDisplay = ({ audioBlob: _audioBlob, onToggleRecording }: Pr
   const canvasRef = useAnalyser();
   const { tempo } = useTempo();
   const { setIsDrawing, isDrawing } = useRecordingUI();
-  useChordLoopScheduler(false); // 常にfalse
-  useDrumLoopScheduler();
-  useMelodyLoopScheduler();
+  // ループスケジューリングは各 PlaybackBinder に委譲
 
   // 再生/停止は TopPlaybackBar に移動したため、ここでは未使用
   // const { barCount } = useBarCount();

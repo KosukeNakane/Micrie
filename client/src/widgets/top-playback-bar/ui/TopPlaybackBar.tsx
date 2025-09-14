@@ -3,7 +3,7 @@ import { scalePx } from '@/shared/lib/scale';
 import { useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
 // import { RectButton } from '@shared/ui/RectButton';
-import { usePlaybackController } from '@features/playback/model/usePlaybackController';
+import { usePlaybackController } from '@features/playback';
 import { TempoControl } from '@features/tempo';
 import { VolumeControl } from '@features/volume';
 import { StyledArea } from '@shared/ui';
