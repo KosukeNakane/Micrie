@@ -250,9 +250,9 @@ export const Sidebar = ({
                 <Button
                   variant="ghost"
                   justifyContent="flex-start"
-                  onClick={handleSaveAs}
+                  onClick={() => setDevOpen(true)}
                   _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
-                  data-testid="sidebar-save-project-as"
+                  data-testid="sidebar-developer-tools"
                   fontSize="20px"
                   fontWeight="normal"
                   color="rgba(5, 4, 69, 0.8)"

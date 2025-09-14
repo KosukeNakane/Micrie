@@ -5,6 +5,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import CircleIcon from '@mui/icons-material/Circle';
 import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
+import * as Tone from 'tone';
+import { useGlobalAudio } from '@/entities/audio/model/GlobalAudioContext';
 
 type Chord = {
   rootIndex: number; // 0-11
@@ -46,15 +48,18 @@ const Card = styled(StyledArea)`
 `;
 
 const YellowLabel = styled.div`
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   height: 28px;
   padding: 0 10px;
   border-radius: 6px;
   background: linear-gradient(135deg, rgba(255, 248, 56, 0.9), rgb(255, 210, 97));
   color: #2b2b2b;
   font-weight: 700;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
 `;
 
 const Row = styled.div`
@@ -109,10 +114,11 @@ function formatChord(chord: Chord) {
 // 2つの丸を横並びで表示（塗りあり + 塗りなし）
 
 export const ChordsEditor: React.FC = () => {
+  const engine = useGlobalAudio();
   // 左から3つのカードを想定（必要に応じて増やせます）
   const [chords, setChords] = useState<Chord[]>([
-    { rootIndex: 5, quality: 'maj', tension: 'maj7' }, // Fmaj7
-    { rootIndex: 5, quality: 'maj', tension: 'maj7' }, // Fmaj7
+    { rootIndex: 5, quality: 'maj', tension: '7' }, // Fmaj7
+    { rootIndex: 5, quality: 'maj', tension: '7' }, // Fmaj7
     { rootIndex: 4, quality: 'maj', tension: '7' },    // E7
     { rootIndex: 4, quality: 'maj', tension: '7' },    // E7
     { rootIndex: 9, quality: 'min', tension: '7' },    // Am7
@@ -125,22 +131,77 @@ export const ChordsEditor: React.FC = () => {
     setChords((prev) => prev.map((c, idx) => (idx === i ? { ...c, ...next } : c)));
   };
 
+  // MelodySegmentEditor と同等のプレビュー仕様：
+  // - ユーザー操作のたびに短く試聴音を鳴らす
+  // - AudioContext/Tone 起動とミュート解除を保証
+  // - 同時発音で三和音＋テンションを鳴らす
+  const poly = React.useMemo(() => new Tone.PolySynth(Tone.Synth).toDestination(), []);
+
+  const chordToNotes = (c: Chord): string[] => {
+    // ルートは 3 オクターブ基準（低すぎ/高すぎ防止）
+    const rootName = `${NOTES[c.rootIndex]}3`;
+    let rootMidi = 60; // fallback C4
+    try { rootMidi = Tone.Frequency(rootName).toMidi(); } catch { /* noop */ }
+    const intervals: number[] = (() => {
+      switch (c.quality) {
+        case 'min': return [0, 3, 7];
+        case 'dim': return [0, 3, 6];
+        case 'aug': return [0, 4, 8];
+        default: return [0, 4, 7]; // maj
+      }
+    })();
+    const ext: number | null = (() => {
+      switch (c.tension) {
+        case 'maj7': return 11;
+        case '7': return 10;
+        case '6': return 9;
+        case '9': return 14;
+        case '11': return 17;
+        case '13': return 21;
+        default: return null;
+      }
+    })();
+    const mids = intervals.map(iv => rootMidi + iv);
+    if (ext !== null) mids.push(rootMidi + ext);
+    // 音域を適度に保つため、C6(84)を超える場合は1オクターブ下げる簡易処理
+    const bounded = mids.map(m => (m > 84 ? m - 12 : m));
+    return bounded.map(m => Tone.Frequency(m, 'midi').toNote());
+  };
+
+  const previewChord = async (c: Chord) => {
+    try { if ((Tone.getContext() as any).state !== 'running') await Tone.start(); } catch { }
+    try { await engine.ensureStarted(); } catch { }
+    try { await engine.setMasterMuted(false); } catch { }
+    try {
+      const notes = chordToNotes(c);
+      poly.triggerAttackRelease(notes, '8n');
+    } catch { }
+  };
+
   const cards = useMemo(() => chords.map((c, i) => {
     const label = formatChord(c);
-    const nextRoot = (dir: 1 | -1) => () => update(i, { rootIndex: (c.rootIndex + dir + 12) % 12 });
+    const nextRoot = (dir: 1 | -1) => () => {
+      const next: Chord = { ...c, rootIndex: (c.rootIndex + dir + 12) % 12 };
+      update(i, { rootIndex: next.rootIndex });
+      previewChord(next);
+    };
     const nextQuality = (dir: 1 | -1) => () => {
       const idx = QUALITIES.indexOf(c.quality);
       const ni = (idx + dir + QUALITIES.length) % QUALITIES.length;
-      update(i, { quality: QUALITIES[ni] });
+      const next: Chord = { ...c, quality: QUALITIES[ni] };
+      update(i, { quality: next.quality });
+      previewChord(next);
     };
     const nextTension = (dir: 1 | -1) => () => {
       const idx = TENSIONS.indexOf(c.tension);
       const ni = (idx + dir + TENSIONS.length) % TENSIONS.length;
-      update(i, { tension: TENSIONS[ni] });
+      const next: Chord = { ...c, tension: TENSIONS[ni] };
+      update(i, { tension: next.tension });
+      previewChord(next);
     };
     return (
       <Card key={i}>
-        <YellowLabel>{label}</YellowLabel>
+        <YellowLabel onClick={() => previewChord(c)} title="プレビュー再生">{label}</YellowLabel>
         <Row>
           <TriadBox>
             <SideButton pos="left"><ArrowDropDownIcon onClick={nextRoot(-1)} /></SideButton>
