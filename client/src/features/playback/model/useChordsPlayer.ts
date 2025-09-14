@@ -1,6 +1,7 @@
 // [Model] features/model - useChordsPlayer.ts
 // 役割: ビジネスロジック/状態操作
 import * as Tone from 'tone';
+
 import { usePianoSampler } from '@/entities/audio';
 
 // Chords の発音ロジックをカプセル化
@@ -18,18 +19,18 @@ export const useChordsPlayer = () => {
   ): string[] => {
     const rootName = `${NOTES[rootIndex]}3`;
     let rootMidi = 60;
-    try { rootMidi = Tone.Frequency(rootName).toMidi(); } catch {}
+    try { rootMidi = Tone.Frequency(rootName).toMidi(); } catch { }
     const intervals = quality === 'min' ? [0, 3, 7]
       : quality === 'dim' ? [0, 3, 6]
-      : quality === 'aug' ? [0, 4, 8]
-      : [0, 4, 7];
+        : quality === 'aug' ? [0, 4, 8]
+          : [0, 4, 7];
     const ext = tension === 'maj7' ? 11
       : tension === '7' ? 10
-      : tension === '6' ? 9
-      : tension === '9' ? 14
-      : tension === '11' ? 17
-      : tension === '13' ? 21
-      : null;
+        : tension === '6' ? 9
+          : tension === '9' ? 14
+            : tension === '11' ? 17
+              : tension === '13' ? 21
+                : null;
     const mids = intervals.map((iv) => rootMidi + iv);
     if (ext !== null) mids.push(rootMidi + ext);
     return mids.map((m) => (m > 84 ? Tone.Frequency(m - 12, 'midi').toNote() : Tone.Frequency(m, 'midi').toNote()));
@@ -38,7 +39,7 @@ export const useChordsPlayer = () => {
   const playChordAt = (notes: string[], time: number, duration: number) => {
     try {
       notes.forEach((n) => samplerRef.current?.triggerAttackRelease(n, duration, time));
-    } catch {}
+    } catch { }
   };
 
   return { chordToNotes, playChordAt } as const;

@@ -22,6 +22,10 @@ export class GlobalAudioEngine {
   private melodyGain: GainNode | null = null;
   private drumGain: GainNode | null = null;
   private chordGain: GainNode | null = null;
+  // preview channels (editor preview sounds)
+  private melodyPreviewGain: GainNode | null = null;
+  private drumPreviewGain: GainNode | null = null;
+  private chordPreviewGain: GainNode | null = null;
   private melodyMuted = false;
   private drumMuted = false;
   private chordMuted = false;
@@ -99,6 +103,17 @@ export class GlobalAudioEngine {
       this.melodyGain.connect(this.masterGain);
       this.drumGain.connect(this.masterGain);
       this.chordGain.connect(this.masterGain);
+
+      // preview channels -> master
+      this.melodyPreviewGain = this.ctx.createGain();
+      this.drumPreviewGain = this.ctx.createGain();
+      this.chordPreviewGain = this.ctx.createGain();
+      this.melodyPreviewGain.gain.value = 1;
+      this.drumPreviewGain.gain.value = 1;
+      this.chordPreviewGain.gain.value = 1;
+      this.melodyPreviewGain.connect(this.masterGain);
+      this.drumPreviewGain.connect(this.masterGain);
+      this.chordPreviewGain.connect(this.masterGain);
     }
     if (this.ctx.state === 'suspended') await this.ctx.resume();
   }
@@ -183,10 +198,14 @@ export class GlobalAudioEngine {
   get masterInput(): AudioNode | null { return this.masterGain; }
 
   // Channel I/O accessors — route new sources here (future: insert per-channel effects)
-  getChannelInput(kind: 'melody' | 'drum' | 'chord'): AudioNode | null {
+  getChannelInput(kind: 'melody' | 'drum' | 'chord' | 'melody-preview' | 'drum-preview' | 'chord-preview'): AudioNode | null {
     if (kind === 'melody') return this.melodyGain ?? this.masterGain;
     if (kind === 'drum') return this.drumGain ?? this.masterGain;
-    return this.chordGain ?? this.masterGain;
+    if (kind === 'chord') return this.chordGain ?? this.masterGain;
+    if (kind === 'melody-preview') return this.melodyPreviewGain ?? this.masterGain;
+    if (kind === 'drum-preview') return this.drumPreviewGain ?? this.masterGain;
+    if (kind === 'chord-preview') return this.chordPreviewGain ?? this.masterGain;
+    return this.masterGain;
   }
 
   // Per-source mute controls

@@ -109,6 +109,18 @@ export default tseslint.config(
           ],
         },
       ],
+      // Destination/直出し禁止（必ずエンジンのチャンネルへ直結）
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "CallExpression[callee.property.name='toDestination']",
+          message: 'toDestination は使用禁止。GlobalAudioEngineのチャンネルへ直接 connect してください。',
+        },
+        {
+          selector: "MemberExpression[object.name='Tone'][property.name='Destination']",
+          message: 'Tone.Destination は使用禁止。GlobalAudioEngineのチャンネルへ直接 connect してください。',
+        },
+      ],
       // unused-imports plugin
       'unused-imports/no-unused-imports': 'error',
       // typescript-eslint rules

@@ -111,8 +111,19 @@ export const MelodyEditor: FC<Props> = () => {
     try { await engine.ensureStarted(); } catch { }
     try { await engine.setMasterMuted(false); } catch { }
     try {
-      const synth = new Tone.Synth().toDestination();
+      const synth = new Tone.Synth();
+      try {
+        const ctx = engine.audioContext;
+        if (ctx && Tone.getContext().rawContext !== ctx) {
+          const toneCtx = new Tone.Context({ context: ctx as any });
+          Tone.setContext(toneCtx);
+        }
+      } catch {}
+      try { (synth as any).disconnect?.(); } catch {}
+      const input = engine.getChannelInput('melody-preview') as unknown as AudioNode | null;
+      if (input) { try { (synth as any).connect(input as any); } catch {} }
       synth.triggerAttackRelease(note, '8n');
+      setTimeout(() => { try { synth.dispose(); } catch {} }, 800);
     } catch { }
   };
 

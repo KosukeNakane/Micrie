@@ -127,7 +127,21 @@ export const ChordsEditor: React.FC = () => {
   // - ユーザー操作のたびに短く試聴音を鳴らす
   // - AudioContext/Tone 起動とミュート解除を保証
   // - 同時発音で三和音＋テンションを鳴らす
-  const poly = React.useMemo(() => new Tone.PolySynth(Tone.Synth).toDestination(), []);
+  const poly = React.useMemo(() => new Tone.PolySynth(Tone.Synth), []);
+  React.useEffect(() => {
+    (async () => {
+      try { if ((Tone.getContext() as any).state !== 'running') await Tone.start(); } catch {}
+      try { await engine.ensureStarted(); } catch {}
+      const ctx = engine.audioContext;
+      if (ctx && Tone.getContext().rawContext !== ctx) {
+        try { const toneCtx = new Tone.Context({ context: ctx as any }); Tone.setContext(toneCtx); } catch {}
+      }
+      try { (poly as any).disconnect?.(); } catch {}
+      const input = engine.getChannelInput('chord-preview') as unknown as AudioNode | null;
+      if (input) { try { (poly as any).connect(input as any); } catch {} }
+    })();
+    return () => { try { poly.dispose(); } catch {} };
+  }, [engine, poly]);
 
   const chordToNotes = (c: Chord): string[] => {
     // ルートは 3 オクターブ基準（低すぎ/高すぎ防止）

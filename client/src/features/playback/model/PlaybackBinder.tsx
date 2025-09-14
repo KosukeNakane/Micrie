@@ -3,17 +3,19 @@
 import React from 'react';
 import * as Tone from 'tone';
 
-import { useTempo } from '@/entities/tempo';
-import { useSegment } from '@/entities/segment';
+import { useGlobalAudio, useChannelsStore } from '@/entities/audio';
+import { useChords } from '@/entities/chords';
 import { useScaleMode } from '@/entities/scale-mode';
+import { useSegment } from '@/entities/segment';
+import { useTempo } from '@/entities/tempo';
 import { useTransportStore } from '@/entities/transport';
+import { extractQuantizedNotes } from '@/shared/lib/noteSegmentation';
+import { majorPentatonicMap, minorPentatonicMap } from '@/shared/lib/pitchMaps';
+
+import { useChordsPlayer } from './useChordsPlayer';
 import { useDrumPlayer } from './useDrumPlayer';
 import { useMelodyPlayer } from './useMelodyPlayer';
-import { majorPentatonicMap, minorPentatonicMap } from '@/shared/lib/pitchMaps';
-import { extractQuantizedNotes } from '@/shared/lib/noteSegmentation';
-import { useChords } from '@/entities/chords';
-import { useGlobalAudio, useChannelsStore } from '@/entities/audio';
-import { useChordsPlayer } from './useChordsPlayer';
+
 
 // 統合 Playback Binder: melody/drum の Part 構築 + chords のスケジューリングを一元管理
 export const PlaybackBinder: React.FC = () => {

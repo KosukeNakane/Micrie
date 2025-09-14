@@ -48,15 +48,39 @@ const drumOrder = ["kick", "snare", "hihat"] as const;
 
 type Props = { barIndex: number; width?: number };
 
-const synths = {
-  kick: new Tone.MembraneSynth().toDestination(),
-  snare: new Tone.NoiseSynth({ noise: { type: "white" }, envelope: { attack: 0.001, decay: 0.1, sustain: 0 } }).toDestination(),
-  hihat: new Tone.NoiseSynth({ noise: { type: "white" }, envelope: { attack: 0.0001, decay: 0.02, sustain: 0 } }).toDestination(),
-} as const;
-
 export const RhythmSegmentEditor = ({ barIndex, width = 600 }: Props) => {
   const { currentSegments, updateRhythmSegment } = useSegment();
   const engine = useGlobalAudio();
+  const synths = React.useMemo(() => ({
+    kick: new Tone.MembraneSynth(),
+    snare: new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.1, sustain: 0 } }),
+    hihat: new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.0001, decay: 0.02, sustain: 0 } }),
+  }) as const, []);
+
+  React.useEffect(() => {
+    (async () => {
+      try { if ((Tone.getContext() as any).state !== 'running') await Tone.start(); } catch {}
+      try { await engine.ensureStarted(); } catch {}
+      const ctx = engine.audioContext;
+      if (ctx && Tone.getContext().rawContext !== ctx) {
+        try { const toneCtx = new Tone.Context({ context: ctx as any }); Tone.setContext(toneCtx); } catch {}
+      }
+      const input = engine.getChannelInput('drum-preview') as unknown as AudioNode | null;
+      try { (synths.kick as any).disconnect?.(); } catch {}
+      try { (synths.snare as any).disconnect?.(); } catch {}
+      try { (synths.hihat as any).disconnect?.(); } catch {}
+      if (input) {
+        try { (synths.kick as any).connect(input as any); } catch {}
+        try { (synths.snare as any).connect(input as any); } catch {}
+        try { (synths.hihat as any).connect(input as any); } catch {}
+      }
+    })();
+    return () => {
+      try { synths.kick.dispose(); } catch {}
+      try { synths.snare.dispose(); } catch {}
+      try { synths.hihat.dispose(); } catch {}
+    };
+  }, [engine, synths]);
 
   const shiftDrum = (index: number, direction: number) => {
     const label = currentSegments.rhythm[index].label;

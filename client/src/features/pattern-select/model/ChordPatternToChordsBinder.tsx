@@ -2,85 +2,14 @@
 // 役割: エンジン/Transportとアプリ状態の接続（副作用）
 import React from 'react';
 
+import { PRESETS, type ChordPresetSlot as PresetSlot } from '@shared/lib/chord-presets';
+
 import { useBarCount } from '@/entities/bar-count';
 import { useChords } from '@/entities/chords';
-import type { Chord, PlayType } from '@/entities/chords';
 import { useChordPattern } from '@/entities/pattern';
 
 // 2bars想定のデフォルト進行（slot数=8）。barsが増えた場合は繰り返しで埋める。
-type PresetSlot = { chord: Chord; plays?: [PlayType, PlayType] };
-const PRESETS: Record<string, PresetSlot[]> = {
-  pattern1: [
-    { chord: { rootIndex: 5, quality: 'maj', tension: 'maj7' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 5, quality: 'maj', tension: 'maj7' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 4, quality: 'maj', tension: '7' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 4, quality: 'maj', tension: '7' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'min', tension: '7' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'min', tension: '7' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'min', tension: '7' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 0, quality: 'maj', tension: '7' }, plays: ['root', 'chord'] },
-  ],
-  pattern2: [
-    { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-  ],
-  pattern3: [
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-  ],
-  pattern4: [
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 4, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 4, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
-  ],
-  pattern5: [
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-  ],
-  pattern6: [
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-  ],
-  pattern7: [
-    { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 4, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 4, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-  ],
-};
+// PRESETS は shared/lib に分離
 
 export const ChordPatternToChordsBinder: React.FC = () => {
   const { chordPattern } = useChordPattern();

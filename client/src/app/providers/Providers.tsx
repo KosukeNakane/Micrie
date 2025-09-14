@@ -16,10 +16,9 @@ import { TempoProvider } from '@entities/tempo/model/TempoContext';
 import { AuthStateListener } from '@entities/user';
 import { VolumeProvider } from '@entities/volume/model/VolumeContext';
 import { ChannelsEngineBinder } from '@features/audio-channels';
-import { PlaybackBinder } from '@features/playback';
 import { ReverbBinder, CutFiltersBinder, CrushBinder, DirtyBinder, CombBinder } from '@features/effects';
 import { ChordPatternToChordsBinder } from '@features/pattern-select/model/ChordPatternToChordsBinder';
-import { ToneMasterBridge } from '@features/playback';
+import { PlaybackBinder } from '@features/playback';
 import { TempoTransportBinder } from '@features/tempo';
 import { VolumeEngineBinder } from '@features/volume';
 
@@ -29,8 +28,7 @@ type Props = { children: ReactNode };
 
 export const Providers = ({ children }: Props) => (
   <GlobalAudioProvider>
-    {/* Tone のコンテキストを最優先でエンジンに統一 */}
-    <ToneMasterBridge />
+    {/* Tone ノードは各フックでエンジンへ直結（Context整合は各所で実施） */}
     {/* Firebase Auth の状態を購読してグローバル状態に反映 */}
     <AuthStateListener />
     {/* テンポ/ボリュームのコンテキストを上位に配置し、Binder を内部で利用 */}
