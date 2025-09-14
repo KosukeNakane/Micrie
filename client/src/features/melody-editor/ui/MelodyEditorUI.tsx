@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import styled from '@emotion/styled';
 import { StyledArea } from '@/shared/ui';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -6,11 +6,8 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import CircleIcon from '@mui/icons-material/Circle';
 import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
 import * as Tone from 'tone';
-
-type NoteCard = {
-  midi: number;
-  muted: boolean;
-};
+import { useSegment } from '@/entities/segment/model/SegmentContext';
+import { useGlobalAudio } from '@/entities/audio/model/GlobalAudioContext';
 
 const Container = styled(StyledArea)`
   background: transparent;
@@ -42,10 +39,6 @@ const Card = styled(StyledArea)`
   min-width: 0;
   min-height: 204px; /* 144 (box) + 28 (label) + 16 (card padding) + 16 (gaps) */
 `;
-
-
-
-
 
 const YellowLabel = styled.div`
   display: grid;
@@ -101,94 +94,75 @@ const CircleRow = styled.div`
 `;
 
 export const MelodyEditorUI: React.FC = () => {
-  const [cards, setCards] = useState<NoteCard[]>([
-    { midi: Tone.Frequency('F4').toMidi(), muted: false },
-    { midi: Tone.Frequency('F4').toMidi(), muted: false },
-    { midi: Tone.Frequency('E4').toMidi(), muted: false },
-    { midi: Tone.Frequency('E4').toMidi(), muted: false },
-    { midi: Tone.Frequency('A3').toMidi(), muted: false },
-    { midi: Tone.Frequency('A3').toMidi(), muted: false },
-    { midi: Tone.Frequency('G3').toMidi(), muted: false },
-    { midi: Tone.Frequency('C4').toMidi(), muted: false },
-    { midi: Tone.Frequency('F4').toMidi(), muted: false },
-    { midi: Tone.Frequency('F4').toMidi(), muted: false },
-    { midi: Tone.Frequency('E4').toMidi(), muted: false },
-    { midi: Tone.Frequency('E4').toMidi(), muted: false },
-    { midi: Tone.Frequency('A3').toMidi(), muted: false },
-    { midi: Tone.Frequency('A3').toMidi(), muted: false },
-    { midi: Tone.Frequency('G3').toMidi(), muted: false },
-    { midi: Tone.Frequency('C4').toMidi(), muted: false },
-    { midi: Tone.Frequency('F4').toMidi(), muted: false },
-    { midi: Tone.Frequency('F4').toMidi(), muted: false },
-    { midi: Tone.Frequency('E4').toMidi(), muted: false },
-    { midi: Tone.Frequency('E4').toMidi(), muted: false },
-    { midi: Tone.Frequency('A3').toMidi(), muted: false },
-    { midi: Tone.Frequency('A3').toMidi(), muted: false },
-    { midi: Tone.Frequency('G3').toMidi(), muted: false },
-    { midi: Tone.Frequency('C4').toMidi(), muted: false },
-    { midi: Tone.Frequency('F4').toMidi(), muted: false },
-    { midi: Tone.Frequency('F4').toMidi(), muted: false },
-    { midi: Tone.Frequency('E4').toMidi(), muted: false },
-    { midi: Tone.Frequency('E4').toMidi(), muted: false },
-    { midi: Tone.Frequency('A3').toMidi(), muted: false },
-    { midi: Tone.Frequency('A3').toMidi(), muted: false },
-    { midi: Tone.Frequency('G3').toMidi(), muted: false },
-    { midi: Tone.Frequency('C4').toMidi(), muted: false },
-  ]);
+  const { currentSegments, updateMelodySegment } = useSegment();
+  const engine = useGlobalAudio();
 
-  const getLabel = (midi: number, muted: boolean) => muted ? '-' : Tone.Frequency(midi, 'midi').toNote();
+  const previousNotesRef = useRef<string[]>([]);
+  if (previousNotesRef.current.length !== currentSegments.melody.length) {
+    previousNotesRef.current = currentSegments.melody.map(seg => seg.note !== 'rest' ? (seg.note ?? 'C4') : 'C4');
+  }
 
-  const trigger = async (midi: number) => {
-    try {
-      if ((Tone.getContext() as any).state !== 'running') {
-        await Tone.start();
-      }
-    } catch { }
+  const triggerPreview = async (note: string) => {
+    try { if ((Tone.getContext() as any).state !== 'running') await Tone.start(); } catch { }
+    try { await engine.ensureStarted(); } catch { }
+    try { await engine.setMasterMuted(false); } catch { }
     try {
       const synth = new Tone.Synth().toDestination();
-      synth.triggerAttackRelease(Tone.Frequency(midi, 'midi').toNote(), '8n');
+      synth.triggerAttackRelease(note, '8n');
     } catch { }
   };
 
   const changePitch = (index: number, delta: number) => {
-    setCards(prev => prev.map((c, i) => {
-      if (i !== index) return c;
-      const nextMidi = Math.max(0, Math.min(127, c.midi + delta));
-      const next = { ...c, midi: nextMidi };
-      if (!next.muted) trigger(nextMidi);
-      return next;
-    }));
+    const seg = currentSegments.melody[index];
+    const note = seg?.note;
+    if (!note || note === 'rest') return;
+    try {
+      const midi = Tone.Frequency(note).toMidi();
+      const newMidi = Math.max(0, Math.min(127, midi + delta));
+      const newNote = Tone.Frequency(newMidi, 'midi').toNote();
+      updateMelodySegment(index, { note: newNote, label: newNote });
+      triggerPreview(newNote);
+    } catch { }
   };
 
   const toggleMute = (index: number) => {
-    setCards(prev => prev.map((c, i) => {
-      if (i !== index) return c;
-      const next = { ...c, muted: !c.muted };
-      if (!next.muted) trigger(next.midi);
-      return next;
-    }));
+    const seg = currentSegments.melody[index];
+    if (!seg) return;
+    if (seg.note === 'rest') {
+      const restored = previousNotesRef.current[index] || 'C4';
+      updateMelodySegment(index, { note: restored, label: restored });
+      triggerPreview(restored);
+    } else {
+      const cur = typeof seg.note === 'string' ? seg.note : 'C4';
+      previousNotesRef.current[index] = cur;
+      updateMelodySegment(index, { note: 'rest', label: 'rest' });
+    }
   };
 
-  const uiCards = useMemo(() => cards.map((c, i) => (
-    <Card key={i}>
-      <YellowLabel>{getLabel(c.midi, c.muted)}</YellowLabel>
-      <SmallBox>
-        <ControlButton pos="up" role="button" aria-label="pitch-up" onClick={() => changePitch(i, 1)}>
-          <ArrowDropUpIcon style={{ fontSize: 40 }} />
-        </ControlButton>
-        <ControlButton pos="down" role="button" aria-label="pitch-down" onClick={() => changePitch(i, -1)}>
-          <ArrowDropDownIcon style={{ fontSize: 40 }} />
-        </ControlButton>
-      </SmallBox>
-      <CircleRow>
-        {c.muted ? (
-          <PanoramaFishEyeIcon fontSize="small" onClick={() => toggleMute(i)} style={{ cursor: 'pointer' }} />
-        ) : (
-          <CircleIcon fontSize="small" onClick={() => toggleMute(i)} style={{ cursor: 'pointer' }} />
-        )}
-      </CircleRow>
-    </Card>
-  )), [cards]);
+  const uiCards = useMemo(() => currentSegments.melody.slice(0, 32).map((seg, i) => {
+    const muted = seg.note === 'rest';
+    const label = muted ? '-' : (seg.note ?? '-');
+    return (
+      <Card key={i}>
+        <YellowLabel>{label}</YellowLabel>
+        <SmallBox>
+          <ControlButton pos="up" role="button" aria-label="pitch-up" onClick={() => changePitch(i, 1)}>
+            <ArrowDropUpIcon style={{ fontSize: 40 }} />
+          </ControlButton>
+          <ControlButton pos="down" role="button" aria-label="pitch-down" onClick={() => changePitch(i, -1)}>
+            <ArrowDropDownIcon style={{ fontSize: 40 }} />
+          </ControlButton>
+        </SmallBox>
+        <CircleRow>
+          {muted ? (
+            <PanoramaFishEyeIcon fontSize="small" onClick={() => toggleMute(i)} style={{ cursor: 'pointer' }} />
+          ) : (
+            <CircleIcon fontSize="small" onClick={() => toggleMute(i)} style={{ cursor: 'pointer' }} />
+          )}
+        </CircleRow>
+      </Card>
+    );
+  }), [currentSegments.melody]);
 
   return (
     <Container>
@@ -198,3 +172,6 @@ export const MelodyEditorUI: React.FC = () => {
     </Container>
   );
 };
+
+export default MelodyEditorUI;
+

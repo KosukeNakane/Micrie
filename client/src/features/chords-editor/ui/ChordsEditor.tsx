@@ -1,12 +1,14 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { StyledArea } from '@/shared/ui';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import CircleIcon from '@mui/icons-material/Circle';
 import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
+import AdjustIcon from '@mui/icons-material/Adjust';
 import * as Tone from 'tone';
 import { useGlobalAudio } from '@/entities/audio/model/GlobalAudioContext';
+import { useChords } from '@/entities/chords';
 
 type Chord = {
   rootIndex: number; // 0-11
@@ -30,9 +32,9 @@ const Container = styled(StyledArea)`
   max-width: 1050px;
 `;
 
-const Grid = styled.div`
+const Grid = styled.div<{ cols: number }>`
   display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-columns: ${({ cols }) => `repeat(${cols}, minmax(0, 1fr))`};
   gap: 8px;
 `;
 
@@ -115,21 +117,8 @@ function formatChord(chord: Chord) {
 
 export const ChordsEditor: React.FC = () => {
   const engine = useGlobalAudio();
-  // 左から3つのカードを想定（必要に応じて増やせます）
-  const [chords, setChords] = useState<Chord[]>([
-    { rootIndex: 5, quality: 'maj', tension: '7' }, // Fmaj7
-    { rootIndex: 5, quality: 'maj', tension: '7' }, // Fmaj7
-    { rootIndex: 4, quality: 'maj', tension: '7' },    // E7
-    { rootIndex: 4, quality: 'maj', tension: '7' },    // E7
-    { rootIndex: 9, quality: 'min', tension: '7' },    // Am7
-    { rootIndex: 9, quality: 'min', tension: '7' },    // Am7
-    { rootIndex: 7, quality: 'min', tension: '7' },    // Gm7
-    { rootIndex: 0, quality: 'maj', tension: '7' },    // C7
-  ]);
-
-  const update = (i: number, next: Partial<Chord>) => {
-    setChords((prev) => prev.map((c, idx) => (idx === i ? { ...c, ...next } : c)));
-  };
+  const { slots, setChordAt, setSlotPlayType, bars } = useChords();
+  const ICONS = [CircleIcon, AdjustIcon, PanoramaFishEyeIcon] as const;
 
   // MelodySegmentEditor と同等のプレビュー仕様：
   // - ユーザー操作のたびに短く試聴音を鳴らす
@@ -178,25 +167,35 @@ export const ChordsEditor: React.FC = () => {
     } catch { }
   };
 
-  const cards = useMemo(() => chords.map((c, i) => {
+  const cards = useMemo(() => slots.map((slot, i) => {
+    const c = slot.chord;
+    // アイコン循環クリックハンドラ
+    const cycleIcon = (pos: 0 | 1) => () => {
+      const currentType = slot.plays[pos];
+      const nextType = currentType === 'chord' ? 'root' : currentType === 'root' ? 'rest' : 'chord';
+      setSlotPlayType(i, pos, nextType);
+    };
+    const typeToIconIndex = (t: 'chord' | 'root' | 'rest') => (t === 'chord' ? 0 : t === 'root' ? 1 : 2);
+    const LeftIcon = ICONS[typeToIconIndex(slot.plays[0])];
+    const RightIcon = ICONS[typeToIconIndex(slot.plays[1])];
     const label = formatChord(c);
     const nextRoot = (dir: 1 | -1) => () => {
       const next: Chord = { ...c, rootIndex: (c.rootIndex + dir + 12) % 12 };
-      update(i, { rootIndex: next.rootIndex });
+      setChordAt(i, { rootIndex: next.rootIndex });
       previewChord(next);
     };
     const nextQuality = (dir: 1 | -1) => () => {
       const idx = QUALITIES.indexOf(c.quality);
       const ni = (idx + dir + QUALITIES.length) % QUALITIES.length;
       const next: Chord = { ...c, quality: QUALITIES[ni] };
-      update(i, { quality: next.quality });
+      setChordAt(i, { quality: next.quality });
       previewChord(next);
     };
     const nextTension = (dir: 1 | -1) => () => {
       const idx = TENSIONS.indexOf(c.tension);
       const ni = (idx + dir + TENSIONS.length) % TENSIONS.length;
       const next: Chord = { ...c, tension: TENSIONS[ni] };
-      update(i, { tension: next.tension });
+      setChordAt(i, { tension: next.tension });
       previewChord(next);
     };
     return (
@@ -220,16 +219,16 @@ export const ChordsEditor: React.FC = () => {
           </TriadBox>
         </Row>
         <CircleRow>
-          <CircleIcon fontSize="small" />
-          <PanoramaFishEyeIcon fontSize="small" />
+          <LeftIcon fontSize="small" onClick={cycleIcon(0)} style={{ cursor: 'pointer' }} />
+          <RightIcon fontSize="small" onClick={cycleIcon(1)} style={{ cursor: 'pointer' }} />
         </CircleRow>
       </Card>
     );
-  }), [chords]);
+  }), [slots, setChordAt, setSlotPlayType]);
 
   return (
     <Container>
-      <Grid>
+      <Grid cols={bars * 4}>
         {cards}
       </Grid>
     </Container>

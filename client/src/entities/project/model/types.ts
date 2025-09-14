@@ -14,6 +14,14 @@ export interface ProjectData {
   tempo: number;
   chordPattern?: string;
   drumPattern?: string;
+  chordsProgression?: {
+    bars: number;
+    chordsPerBar: number;
+    slots: Array<{
+      chord: { rootIndex: number; quality: 'maj'|'min'|'dim'|'aug'; tension: ''|'maj7'|'7'|'6'|'9'|'11'|'13' };
+      plays: ['chord'|'root'|'rest', 'chord'|'root'|'rest'];
+    }>;
+  };
   volume?: {
     master?: number;
     melody?: number;

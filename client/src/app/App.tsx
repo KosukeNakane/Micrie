@@ -32,6 +32,7 @@ import { stableStringify } from "@/shared/lib/stableStringify";
 import { useVolume } from "@/entities/volume/model/VolumeContext";
 import { useScaleMode } from "@/entities/scale-mode/model/ScaleModeContext";
 import { useChordPattern } from "@/entities/pattern/model/ChordPatternContext";
+import { useChords } from "@/entities/chords";
 import { useDrumPattern } from "@/entities/pattern/model/DrumPatternContext";
 import { getInitialProjectData } from "@/features/project-save-load/model/initial";
 import { NavBar } from "@/shared/ui";
@@ -68,6 +69,7 @@ export const App = () => {
     const { setVolume } = useVolume();
     const { setScaleMode } = useScaleMode();
     const { setChordPattern } = useChordPattern();
+    const { setBars: setChordBars, setChordAt, setSlotPlayType } = useChords();
     const { setDrumPattern } = useDrumPattern();
 
     const handleSaveProject = async () => {
@@ -200,6 +202,19 @@ export const App = () => {
         const d = doc.data;
         if (typeof d.tempo === 'number') setTempo(d.tempo);
         if (d.chordPattern) setChordPattern(d.chordPattern as any);
+        if (d.chordsProgression && Array.isArray(d.chordsProgression.slots)) {
+          try {
+            if (typeof d.chordsProgression.bars === 'number') setChordBars(d.chordsProgression.bars);
+            const slots = d.chordsProgression.slots as any[];
+            slots.forEach((s, i) => {
+              if (s?.chord) setChordAt(i, s.chord);
+              if (Array.isArray(s?.plays) && s.plays.length === 2) {
+                setSlotPlayType(i, 0, s.plays[0]);
+                setSlotPlayType(i, 1, s.plays[1]);
+              }
+            });
+          } catch {}
+        }
         if (d.drumPattern) setDrumPattern(d.drumPattern as any);
         if (d.effects) setEffects(d.effects as any);
         if (d.effectsHold) {

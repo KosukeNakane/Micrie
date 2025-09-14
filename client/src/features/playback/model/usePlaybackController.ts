@@ -6,7 +6,6 @@ import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 import { useSegment } from '@entities/segment/model/SegmentContext';
 import { useTempo } from '@entities/tempo/model/TempoContext';
 import { useTransportStore } from '@entities/transport/model/useTransportStore';
-import { useChordsPlayer } from '@features/playback/model/useChordsPlayer';
 import { useDrumPlayer } from '@features/playback/model/useDrumPlayer';
 import { useMelodyPlayer } from '@features/playback/model/useMelodyPlayer';
 import { extractQuantizedNotes } from '@shared/lib/noteSegmentation';
@@ -38,7 +37,7 @@ export const usePlaybackController = () => {
   const chordDurSec = Tone.Time('8n').toSeconds(); // 0.5 beat
   const sixteenthSec = Tone.Time('16n').toSeconds();
 
-  const { playChordAt, chords } = useChordsPlayer();
+  // chords playback is handled by ChordsPlaybackBinder (from ChordsStore)
   const { playMelody } = useMelodyPlayer();
   const { playDrumHit, getDrumEvents } = useDrumPlayer();
 
@@ -73,14 +72,8 @@ export const usePlaybackController = () => {
     drumsPart.loop = false; drumsPart.start(0);
     drumsPartRef.current = drumsPart;
 
-    // Chords: 8分 or 4分ごと（元ロジックに合わせ2m/8=8分? ここでは chordDuration 毎）
-    const chordItems: [string, number][] = chords.map((_, i) => [beatsToBBS(i * 0.5), i]);
-    const chordsPart = new Tone.Part((time, idx: number) => {
-      const chord = chords[idx] ?? [];
-      playChordAt(chord, time, chordDurSec);
-    }, chordItems);
-    chordsPart.loop = false; chordsPart.start(0);
-    chordsPartRef.current = chordsPart;
+    // Chords: handled elsewhere
+    chordsPartRef.current = null;
 
     // Melody: 16分グリッドの量子化ノート
     const melodyItems = quantizedMelody.map(({ note, startIndex, length }) => ({
@@ -99,7 +92,7 @@ export const usePlaybackController = () => {
       chordsPartRef.current?.dispose(); chordsPartRef.current = null;
       melodyPartRef.current?.dispose(); melodyPartRef.current = null;
     };
-  }, [chords, quantizedMelody, getDrumEvents, playDrumHit, playChordAt, playMelody]);
+  }, [quantizedMelody, getDrumEvents, playDrumHit, playMelody]);
 
   const loopPlay = async () => {
     if (isLoopPlaying) return;

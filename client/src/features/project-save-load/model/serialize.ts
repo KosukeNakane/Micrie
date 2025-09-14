@@ -6,6 +6,7 @@ import type { ProjectData, MelodyPitchItem } from "@/entities/project";
 import { useVolume } from "@/entities/volume/model/VolumeContext";
 import { useScaleMode } from "@/entities/scale-mode/model/ScaleModeContext";
 import { useChordPattern } from "@/entities/pattern/model/ChordPatternContext";
+import { useChords } from "@/entities/chords";
 import { useDrumPattern } from "@/entities/pattern/model/DrumPatternContext";
 import { useSegment } from "@/entities/segment/model/SegmentContext";
 import { useBarCount } from "@/entities/bar-count/model/BarCountContext";
@@ -21,6 +22,7 @@ export function useAssembleProjectData(): () => ProjectData {
   const { volume } = useVolume();
   const { scaleMode } = useScaleMode();
   const { chordPattern } = useChordPattern();
+  const { bars: chordBars, chordsPerBar, slots } = useChords();
   const { drumPattern } = useDrumPattern();
   const { melodySegments } = useSegment();
   const { barCount } = useBarCount();
@@ -28,6 +30,11 @@ export function useAssembleProjectData(): () => ProjectData {
   return () => ({
     tempo: tempo ?? 120,
     chordPattern,
+    chordsProgression: {
+      bars: chordBars,
+      chordsPerBar,
+      slots: slots.map(s => ({ chord: s.chord, plays: ['root', 'chord'].plays })) as any,
+    },
     drumPattern,
     volume: { master: volume },
     scale: { root: 'C', mode: scaleMode },

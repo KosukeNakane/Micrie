@@ -10,12 +10,15 @@ import { TempoTransportBinder } from '@features/tempo';
 import { ToneMasterBridge } from '@features/playback/model/ToneMasterBridge';
 import { ModeProvider } from '@entities/mode/model/ModeContext';
 import { ChordPatternProvider } from '@entities/pattern/model/ChordPatternContext';
+import { ChordPatternToChordsBinder } from '@features/pattern-select/model/ChordPatternToChordsBinder';
 import { DrumPatternProvider } from '@entities/pattern/model/DrumPatternContext';
 import { ScaleModeProvider } from '@entities/scale-mode/model/ScaleModeContext';
 import { SegmentProvider } from '@entities/segment/model/SegmentContext';
 import { TempoProvider } from '@entities/tempo/model/TempoContext';
 import { VolumeProvider } from '@entities/volume/model/VolumeContext';
 import { VolumeEngineBinder } from '@features/volume';
+import { ChannelsEngineBinder } from '@features/audio-channels';
+import { ChordsPlaybackBinder } from '@features/chords-playback';
 import { AuthStateListener } from '@entities/user';
 
 import type { ReactNode } from 'react';
@@ -29,12 +32,14 @@ export const Providers = ({ children }: Props) => (
     {/* Firebase Auth の状態を購読してグローバル状態に反映 */}
     <AuthStateListener />
     {/* テンポ/ボリュームのコンテキストを上位に配置し、Binder を内部で利用 */}
-    <TempoProvider>
-      <VolumeProvider>
-        {/* テンポ変更を Tone.Transport に常時反映 */}
-        <TempoTransportBinder />
-        {/* ボリューム変更をエンジンに常時反映 */}
-        <VolumeEngineBinder />
+        <TempoProvider>
+          <VolumeProvider>
+            {/* テンポ変更を Tone.Transport に常時反映 */}
+            <TempoTransportBinder />
+            {/* ボリューム変更をエンジンに常時反映 */}
+            <VolumeEngineBinder />
+            {/* ミュート状態をエンジンに常時反映 */}
+            <ChannelsEngineBinder />
       <AnalysisModeProvider>
         <ModeProvider>
           <RecordingProvider>
@@ -44,6 +49,7 @@ export const Providers = ({ children }: Props) => (
                   <ScaleModeProvider>
                     <CountBarsAndBeatsProvider>
                       <ChordPatternProvider>
+                        <ChordPatternToChordsBinder />
                         <DrumPatternProvider>
                           <EffectsProvider>
                             <CrushBinder />
@@ -51,6 +57,7 @@ export const Providers = ({ children }: Props) => (
                             <CutFiltersBinder />
                             <CombBinder />
                             <DirtyBinder />
+                            <ChordsPlaybackBinder />
                             {children}
                           </EffectsProvider>
                         </DrumPatternProvider>
