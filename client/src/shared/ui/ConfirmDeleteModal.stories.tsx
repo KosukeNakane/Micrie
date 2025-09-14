@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
 import { ConfirmDeleteModal } from '@shared/ui'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof ConfirmDeleteModal> = {
   title: 'Shared/ConfirmDeleteModal',

@@ -1,11 +1,14 @@
 import styled from '@emotion/styled';
-import { scalePx } from '@/shared/lib/scale';
-import { useNavigate } from 'react-router-dom';
-import { StyledArea } from '@shared/ui/StyledArea';
 import MicIcon from '@mui/icons-material/Mic';
 import TuneIcon from '@mui/icons-material/Tune';
+import { useNavigate } from 'react-router-dom';
+
+import { StyledArea } from '@shared/ui/StyledArea';
+
+
 // SVG は SVGR を使用して React コンポーネントとして読み込む
 import PerformanceIcon from '@/assets/icons/performance-icon.svg?react';
+import { scalePx } from '@/shared/lib/scale';
 
 // ガラス風のナビゲーションバー（全体コンテナ）
 const NavBarArea = styled(StyledArea)`

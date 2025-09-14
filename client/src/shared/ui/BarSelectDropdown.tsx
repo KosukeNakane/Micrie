@@ -2,10 +2,11 @@
 // グローバル状態 barCount を変更する機能を持つ。
 
 import styled from '@emotion/styled';
-import { scalePx, scaleShadow } from '@/shared/lib/scale';
 import { useState } from 'react';
 
 import { useBarCount } from '@entities/bar-count/model/BarCountContext';
+
+import { scalePx, scaleShadow } from '@/shared/lib/scale';
 
 import { RectButton } from './RectButton';
 

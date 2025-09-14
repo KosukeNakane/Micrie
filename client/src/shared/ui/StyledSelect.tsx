@@ -2,6 +2,7 @@
 // styled-components（emotion）を用いて、見た目や挙動を装飾。
 
 import styled from '@emotion/styled';
+
 import { scalePx, scaleShadow } from '@/shared/lib/scale';
 
 // セレクトボックス本体のスタイル（active状態に応じて背景や影が変化）

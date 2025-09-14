@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+
 import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
 import { useEffects } from "@entities/effects/model/EffectsContext";
 

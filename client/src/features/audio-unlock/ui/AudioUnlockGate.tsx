@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { GlobalAudioEngine } from '@/entities/audio/lib/GlobalAudioEngine';
+
+import { GlobalAudioEngine } from '@/entities/audio';
 
 export default function AudioUnlockGate() {
     const [unlocked, setUnlocked] = useState(false);

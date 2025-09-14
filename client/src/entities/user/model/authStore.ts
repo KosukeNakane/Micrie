@@ -1,6 +1,7 @@
-import { create } from 'zustand';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { useEffect } from 'react';
+import { create } from 'zustand';
+
 import { getFirebaseAuth } from '@/shared/api/firebase';
 
 export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';

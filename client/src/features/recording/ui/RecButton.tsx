@@ -2,7 +2,7 @@
 // 録音状態に応じてスタイルと動作を変更する
 
 import styled from '@emotion/styled';
-import { scalePx } from '@/shared/lib/scale';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 import { useRecording } from '@entities/audio/model/RecordingContext';
 import { useRecordingUI } from '@entities/audio/model/RecordingUIContext';
@@ -10,7 +10,9 @@ import { useBarCount } from '@entities/bar-count/model/BarCountContext';
 import { useCountBarsAndBeats } from '@entities/count-bars-and-beats/model/CountBarsAndBeatsContext';
 import { useTempo } from '@entities/tempo/model/TempoContext';
 import { RectButtonBase } from '@shared/ui/RectButton';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+
+import { scalePx } from '@/shared/lib/scale';
+
 
 // 録音状態に応じて色・影・押し込み表現が変わるスタイル付き丸型ボタン
 const CircularButton = styled(RectButtonBase) <{ recording: boolean }>`

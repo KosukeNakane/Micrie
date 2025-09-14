@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
-import { TempoControl } from '@/features/tempo'
 import { TempoProvider } from '@entities/tempo'
+
+import { TempoControl } from '@/features/tempo'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof TempoControl> = {
   title: 'Features/Tempo/TempoControl',

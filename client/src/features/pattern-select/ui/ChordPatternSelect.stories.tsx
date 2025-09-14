@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
-import { ChordPatternSelect } from '@/features/pattern-select'
 import { ChordPatternProvider } from '@entities/pattern'
+
+import { ChordPatternSelect } from '@/features/pattern-select'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof ChordPatternSelect> = {
   title: 'Features/PatternSelect/ChordPatternSelect',

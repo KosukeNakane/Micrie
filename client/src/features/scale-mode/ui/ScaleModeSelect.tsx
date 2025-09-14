@@ -1,5 +1,6 @@
-import { GlassSelect } from '@/shared/ui/GlassSelect';
 import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
+
+import { GlassSelect } from '@/shared/ui/GlassSelect';
 
 type ScaleValue = 'major' | 'minor' | 'chromatic';
 

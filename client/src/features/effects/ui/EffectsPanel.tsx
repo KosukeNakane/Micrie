@@ -1,5 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import React from 'react';
+
 import { StyledArea } from '@shared/ui';
 
 type Props = {

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useMemo, useCallback } from 'react';
 // import * as Tone from 'tone';
 
-import { useDrumPattern } from '@entities/pattern/model/DrumPatternContext';
 import { useGlobalAudio } from '@entities/audio/model/GlobalAudioContext';
+import { useDrumPattern } from '@entities/pattern/model/DrumPatternContext';
 import { useTempo } from '@entities/tempo/model/TempoContext';
 
 type DrumType = 'kick' | 'snare' | 'hihat';

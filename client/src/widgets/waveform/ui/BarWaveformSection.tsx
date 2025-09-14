@@ -1,12 +1,13 @@
 import styled from '@emotion/styled';
-import { scalePx } from '@/shared/lib/scale';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useBarCount } from '@entities/bar-count';
 import { useSegment } from '@entities/segment';
-import { RhythmSegmentEditor } from '@/features/rhythm-segment-edit';
 import { MelodyEditor } from '@features/melody-editor';
 import { StyledArea } from '@shared/ui';
+
+import { RhythmSegmentEditor } from '@/features/rhythm-segment-edit';
+import { scalePx } from '@/shared/lib/scale';
 
 const BarWaveformCard = styled(StyledArea)`
   position: relative;

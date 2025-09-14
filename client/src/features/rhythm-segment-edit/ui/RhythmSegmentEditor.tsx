@@ -3,8 +3,8 @@ import React from "react";
 import { TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
 import * as Tone from "tone";
 
-import { useSegment } from "@entities/segment/model/SegmentContext";
 import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
+import { useSegment } from "@entities/segment/model/SegmentContext";
 
 const GlassButtonUp = styled.button`
   background: rgba(255, 255, 255, 0.1);

@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import { GlobalAudioProvider } from '@/entities/audio';
+
 import { ChordsEditor } from './ChordsEditor';
-import { GlobalAudioProvider } from '@/entities/audio/model/GlobalAudioContext';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof ChordsEditor> = {
   title: 'Features/ChordsEditor',

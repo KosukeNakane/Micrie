@@ -1,11 +1,10 @@
 import React from 'react';
 import * as Tone from 'tone';
-import { useChords } from '@/entities/chords';
+
+import { useGlobalAudio, useChannelsStore, usePianoSampler } from '@/entities/audio';
 import { useBarCount } from '@/entities/bar-count';
-import { useGlobalAudio } from '@/entities/audio/model/GlobalAudioContext';
-import { useChannelsStore } from '@/entities/audio/model/useChannelsStore';
-import { useTransportStore } from '@/entities/transport/model/useTransportStore';
-import { usePianoSampler } from '@/entities/audio/model/usePianoSampler';
+import { useChords } from '@/entities/chords';
+import { useTransportStore } from '@/entities/transport';
 
 // 同じサウンドフォントを利用するため、エンジン側と同じ宣言名を参照
 declare const _tone_0000_Aspirin_sf2_file: any;

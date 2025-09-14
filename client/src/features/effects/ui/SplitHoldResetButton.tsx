@@ -1,5 +1,6 @@
-import React from 'react';
 import styled from '@emotion/styled';
+import React from 'react';
+
 import { scalePx } from '@/shared/lib/scale';
 
 type Props = {

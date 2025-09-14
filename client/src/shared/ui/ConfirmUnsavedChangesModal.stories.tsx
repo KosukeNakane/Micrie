@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
 import { ConfirmUnsavedChangesModal } from '@shared/ui'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof ConfirmUnsavedChangesModal> = {
   title: 'Shared/ConfirmUnsavedChangesModal',

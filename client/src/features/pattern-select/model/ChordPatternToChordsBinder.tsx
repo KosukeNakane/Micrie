@@ -1,8 +1,9 @@
 import React from 'react';
-import { useChordPattern } from '@/entities/pattern/model/ChordPatternContext';
+
+import { useBarCount } from '@/entities/bar-count';
 import { useChords } from '@/entities/chords';
 import type { Chord, PlayType } from '@/entities/chords';
-import { useBarCount } from '@/entities/bar-count/model/BarCountContext';
+import { useChordPattern } from '@/entities/pattern';
 
 // 2bars想定のデフォルト進行（slot数=8）。barsが増えた場合は繰り返しで埋める。
 type PresetSlot = { chord: Chord; plays?: [PlayType, PlayType] };

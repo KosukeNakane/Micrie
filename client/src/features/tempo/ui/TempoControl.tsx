@@ -1,6 +1,8 @@
 // TEMPOの値を調整するためのボタンとドロップダウンUIコンポーネント（初期実装）
 import styled from '@emotion/styled';
+
 import { scalePx } from '@/shared/lib/scale';
+
 import RcSlider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { useState, useEffect } from 'react';

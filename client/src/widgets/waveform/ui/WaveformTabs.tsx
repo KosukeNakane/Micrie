@@ -1,5 +1,5 @@
-import React from "react";
 import { Tabs } from "@chakra-ui/react";
+import React from "react";
 
 type Props = {
   melody?: React.ReactNode;

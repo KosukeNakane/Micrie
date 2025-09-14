@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+
 import { useGlobalAudio } from '@entities/audio/model/GlobalAudioContext';
 import { useVolume } from '@entities/volume/model/VolumeContext';
 

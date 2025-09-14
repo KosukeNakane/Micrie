@@ -1,5 +1,7 @@
 import Select from 'react-select';
+
 import { scalePx } from '@/shared/lib/scale';
+
 import type { SingleValue } from 'react-select';
 
 export type GlassOption<T extends string = string> = { value: T; label: string };

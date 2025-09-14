@@ -1,6 +1,6 @@
 import React from 'react';
-import { useGlobalAudio } from '@/entities/audio/model/GlobalAudioContext';
-import { useChannelsStore } from '@/entities/audio/model/useChannelsStore';
+
+import { useGlobalAudio, useChannelsStore } from '@/entities/audio';
 
 export const ChannelsEngineBinder: React.FC = () => {
   const engine = useGlobalAudio();
@@ -13,4 +13,3 @@ export const ChannelsEngineBinder: React.FC = () => {
   React.useEffect(() => { engine.setChannelMuted('chord', !!chordMuted); }, [engine, chordMuted]);
   return null;
 };
-

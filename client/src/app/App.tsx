@@ -2,40 +2,38 @@
 // 各種コンテキストプロバイダーで状態を共有しつつ、AppContentを表示する。
 /** @jsxImportSource @emotion/react */
 import { createSystem, defineConfig, defaultConfig, ChakraProvider } from "@chakra-ui/react";
-import { ToasterHost } from "@/shared/ui/toaster";
 import { css } from '@emotion/react';
-import { glassBackground } from "@/shared/styles";
+import { useState, useEffect } from "react";
 
-import AudioUnlockGate from "@/features/audio-unlock/ui/AudioUnlockGate";
 import { Providers } from '@app/providers/Providers';
 import { AppRouter } from '@app/routes/AppRouter';
 import { Sidebar } from '@widgets/sidebar';
-import { Scaler, useScaler, BASE_H } from '@/app/providers/Scaler';
-import { SaveProjectModal, useSaveProject } from "@/features/project-save-load";
-import { OpenProjectModal } from "@/features/project-save-load/ui/OpenProjectModal";
-import { ensureAuth } from "@/features/project-save-load/model/auth";
-import { listProjects, loadProject } from "@/features/project-save-load/model/io";
-import { downloadLocalProject } from "@/features/project-save-load/model/local";
-import { useAssembleProjectData } from "@/features/project-save-load/model/serialize";
-import { useTempo } from "@/entities/tempo/model/TempoContext";
-import { useEffects } from "@/entities/effects/model/EffectsContext";
-import { useEffectsUiStore } from "@/features/effects";
-import { useChannelsStore } from "@/entities/audio/model/useChannelsStore";
-import { useSegment } from "@/entities/segment/model/SegmentContext";
-import { useBarCount } from "@/entities/bar-count/model/BarCountContext";
-import { useState, useEffect } from "react";
-import { openLoginModal } from "@/features/auth/model/uiStore";
-import { LoginRequiredModal } from "@/shared/ui/LoginRequiredModal";
-import { useProjectState } from "@/features/project-save-load/model/store";
-import { ConfirmUnsavedChangesModal } from "@/shared/ui/ConfirmUnsavedChangesModal";
-import { stableStringify } from "@/shared/lib/stableStringify";
-import { useVolume } from "@/entities/volume/model/VolumeContext";
-import { useScaleMode } from "@/entities/scale-mode/model/ScaleModeContext";
-import { useChordPattern } from "@/entities/pattern/model/ChordPatternContext";
+
+import { Scaler, useScaler } from '@/app/providers/Scaler';
+import { useChannelsStore } from "@/entities/audio";
+import { useBarCount } from "@/entities/bar-count";
 import { useChords } from "@/entities/chords";
-import { useDrumPattern } from "@/entities/pattern/model/DrumPatternContext";
-import { getInitialProjectData } from "@/features/project-save-load/model/initial";
+import { useEffects } from "@/entities/effects";
+import { useChordPattern, useDrumPattern } from "@/entities/pattern";
+import { useScaleMode } from "@/entities/scale-mode";
+import { useSegment } from "@/entities/segment";
+import { useTempo } from "@/entities/tempo";
+import { useVolume } from "@/entities/volume";
+import { AudioUnlockGate } from "@/features/audio-unlock";
+import { openLoginModal } from "@/features/auth";
+import { useEffectsUiStore } from "@/features/effects";
+import { SaveProjectModal, useSaveProject } from "@/features/project-save-load";
+import { OpenProjectModal, ensureAuth, listProjects, loadProject, downloadLocalProject, useAssembleProjectData, useProjectState, getInitialProjectData } from "@/features/project-save-load";
+
+
+
+// useProjectState は上記のバレルから取得
+import { stableStringify } from "@/shared/lib/stableStringify";
 import { NavBar } from "@/shared/ui";
+import { ConfirmUnsavedChangesModal } from "@/shared/ui/ConfirmUnsavedChangesModal";
+// getInitialProjectData は上記のバレルから取得
+import { LoginRequiredModal } from "@/shared/ui/LoginRequiredModal";
+import { ToasterHost } from "@/shared/ui/toaster";
 
 const config = defineConfig({
   globalCss: {

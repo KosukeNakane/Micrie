@@ -1,10 +1,12 @@
 import { useCallback } from "react";
-import { toaster } from "@/shared/ui/toaster";
+
 import { stableStringify } from "@/shared/lib/stableStringify";
+import { toaster } from "@/shared/ui/toaster";
+
 import { ensureAuth } from "./auth";
-import { useProjectState } from "./store";
-import { useAssembleProjectData } from "./serialize";
 import { createOrUpdateProjectDoc } from "./io";
+import { useAssembleProjectData } from "./serialize";
+import { useProjectState } from "./store";
 
 type SaveOptions = {
   audioBlob?: Blob | null;
@@ -32,7 +34,7 @@ export function useSaveProject() {
     }
     const data = assemble();
     if (import.meta.env.DEV) console.log('[save] saveAs: got uid & assembled data', { uid, data });
-    let projectId: string | null = null;
+    const projectId: string | null = null;
     // Storage アップロードを一時停止: audioBlob があっても無視し、Firestore のみ保存
     try {
       const effectiveName = (name ?? '').trim() || 'Untitled';

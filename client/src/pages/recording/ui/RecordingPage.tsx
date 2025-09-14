@@ -3,14 +3,14 @@
 
 /** @jsxImportSource @emotion/react */
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
-import { useTempo } from "@entities/tempo/model/TempoContext";
 import { useSegment } from "@entities/segment";
+import { useTempo } from "@entities/tempo/model/TempoContext";
 import { RealtimeLabel, useAudioRecorder } from "@features/recording";
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
 import { WaveformDisplay } from "@widgets/waveform";
-import { useNavigate } from "react-router-dom";
 
 export const RecordingPage = () => {
 

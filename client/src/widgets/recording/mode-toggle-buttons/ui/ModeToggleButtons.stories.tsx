@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
-import { ModeToggleButtons } from '@/widgets/recording/mode-toggle-buttons'
 import { AnalysisModeProvider } from '@entities/analysis'
+
+import { ModeToggleButtons } from '@/widgets/recording/mode-toggle-buttons'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof ModeToggleButtons> = {
   title: 'Widgets/Recording/ModeToggleButtons',

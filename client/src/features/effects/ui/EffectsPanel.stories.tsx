@@ -1,5 +1,6 @@
+import EffectsPanel from './EffectsPanel'
+
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import EffectsPanel from '@/features/effects/ui/EffectsPanel'
 
 const meta: Meta<typeof EffectsPanel> = {
   title: 'Features/Effects/EffectsPanel',
@@ -16,4 +17,3 @@ export const WithContent: Story = {
     </EffectsPanel>
   ),
 }
-

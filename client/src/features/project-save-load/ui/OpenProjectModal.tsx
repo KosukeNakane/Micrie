@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
 import { Box, Button, Text, Spinner, Input } from '@chakra-ui/react';
-import { toaster } from '@/shared/ui/toaster';
-import { createPortal } from 'react-dom';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { ensureAuth } from '@/features/project-save-load/model/auth';
-import { deleteProject } from '@/features/project-save-load/model/io';
+import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
+
+import { ensureAuth, deleteProject } from '@/features/project-save-load';
 import { ConfirmDeleteModal } from '@/shared/ui/ConfirmDeleteModal';
+import { toaster } from '@/shared/ui/toaster';
 
 type Item = { id: string; name: string; updatedAt?: number; createdAt?: number };
 

@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
-import { ControlPanel } from '@/widgets/recording/control-panel'
 import { ScaleModeProvider } from '@entities/scale-mode'
+
+import { ControlPanel } from '@/widgets/recording/control-panel'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof ControlPanel> = {
   title: 'Widgets/Recording/ControlPanel',

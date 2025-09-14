@@ -1,15 +1,15 @@
-import { useTempo } from "@/entities/tempo/model/TempoContext";
-import { useEffects } from "@/entities/effects/model/EffectsContext";
-import { useEffectsUiStore } from "@/features/effects";
-import { useChannelsStore } from "@/entities/audio/model/useChannelsStore";
-import type { ProjectData, MelodyPitchItem } from "@/entities/project";
-import { useVolume } from "@/entities/volume/model/VolumeContext";
-import { useScaleMode } from "@/entities/scale-mode/model/ScaleModeContext";
-import { useChordPattern } from "@/entities/pattern/model/ChordPatternContext";
+import { useChannelsStore } from "@/entities/audio";
+import { useBarCount } from "@/entities/bar-count";
 import { useChords } from "@/entities/chords";
-import { useDrumPattern } from "@/entities/pattern/model/DrumPatternContext";
-import { useSegment } from "@/entities/segment/model/SegmentContext";
-import { useBarCount } from "@/entities/bar-count/model/BarCountContext";
+import { useEffects } from "@/entities/effects";
+import { useChordPattern } from "@/entities/pattern";
+import { useDrumPattern } from "@/entities/pattern";
+import type { ProjectData, MelodyPitchItem } from "@/entities/project";
+import { useScaleMode } from "@/entities/scale-mode";
+import { useSegment } from "@/entities/segment";
+import { useTempo } from "@/entities/tempo";
+import { useVolume } from "@/entities/volume";
+import { useEffectsUiStore } from "@/features/effects";
 
 export function useAssembleProjectData(): () => ProjectData {
   const { tempo } = useTempo();

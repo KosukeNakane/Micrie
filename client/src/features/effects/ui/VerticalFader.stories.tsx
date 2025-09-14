@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
-import { VerticalFader } from '@/features/effects'
 import React from 'react'
+
+import { VerticalFader } from '@/features/effects'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof VerticalFader> = {
   title: 'Features/Effects/VerticalFader',

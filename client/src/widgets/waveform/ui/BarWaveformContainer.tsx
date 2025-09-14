@@ -1,5 +1,7 @@
-import { StyledArea } from "@/shared/ui";
 import React, { useMemo } from "react";
+
+import { StyledArea } from "@/shared/ui";
+
 import { WaveformTabs } from "./WaveformTabs";
 
 type Props = {

@@ -1,6 +1,7 @@
+import { useChordPattern } from '@entities/pattern/model/ChordPatternContext';
+
 import { GlassSelect } from '@/shared/ui/GlassSelect';
 
-import { useChordPattern } from '@entities/pattern/model/ChordPatternContext';
 
 type ChordPattern = 'pattern1' | 'pattern2' | 'pattern3' | 'pattern4' | 'pattern5' | 'pattern6' | 'pattern7';
 

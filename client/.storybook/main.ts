@@ -1,5 +1,6 @@
-import type { StorybookConfig } from '@storybook/react-vite';
 import { fileURLToPath, URL } from 'node:url';
+
+import type { StorybookConfig } from '@storybook/react-vite';
 
 const config: StorybookConfig = {
   "stories": [

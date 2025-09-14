@@ -12,6 +12,7 @@ import { ChordPatternSelect, DrumPatternSelect } from '@features/pattern-select'
 import { RecordingBeatIndicator } from '@features/recording';
 import { RecButton } from '@features/recording/ui/RecButton';
 import { StyledArea } from '@shared/ui';
+
 import { MoodSelect } from '@/features/mood-select';
 import { SoundSelect } from '@/features/sound-select';
 

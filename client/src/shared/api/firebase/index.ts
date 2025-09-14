@@ -7,6 +7,7 @@ import {
   type Firestore,
 } from "firebase/firestore";
 import { getStorage, type FirebaseStorage } from "firebase/storage";
+
 import { runFirebasePostInitDiagnosticsOnce } from "@/shared/api/firebase/postInitDiagnostics";
 
 let app: FirebaseApp | null = null;
@@ -28,13 +29,13 @@ export function getFirebaseApp(): FirebaseApp {
       try {
         setLogLevel("debug");
         // 実際に使うプロジェクトID等を明示して混在を検知
-        // eslint-disable-next-line no-console
+         
         console.log("[firebase] projectId:", cfg.projectId, "appId:", cfg.appId);
         // 追加のデバッグ出力: storageBucket (env / 実アプリ)
-        // eslint-disable-next-line no-console
+         
         console.log("[firebase] storageBucket (cfg):", cfg.storageBucket);
         try {
-          // eslint-disable-next-line no-console
+           
           console.log("[firebase] storageBucket (app):", getApp().options.storageBucket);
         } catch {}
       } catch {

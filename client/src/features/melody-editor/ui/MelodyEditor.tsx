@@ -1,14 +1,16 @@
-import { useMemo, useRef } from 'react';
-import type { FC } from 'react';
 import styled from '@emotion/styled';
-import { StyledArea } from '@/shared/ui';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import CircleIcon from '@mui/icons-material/Circle';
 import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
+import { useMemo, useRef } from 'react';
 import * as Tone from 'tone';
-import { useSegment } from '@/entities/segment/model/SegmentContext';
-import { useGlobalAudio } from '@/entities/audio/model/GlobalAudioContext';
+
+import { useGlobalAudio } from '@/entities/audio';
+import { useSegment } from '@/entities/segment';
+import { StyledArea } from '@/shared/ui';
+
+import type { FC } from 'react';
 
 type Props = { barIndex: number; width?: number };
 

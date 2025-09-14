@@ -1,8 +1,9 @@
 import { Button } from "@chakra-ui/react";
-import { toaster } from "@/shared/ui/toaster";
 import React, { useState } from "react";
 
 import { useMelodyFileProcessing } from "@features/analysis/model/useMelodyFileProcessing";
+
+import { toaster } from "@/shared/ui/toaster";
 
 type Props = { audioBlob: Blob | null };
 

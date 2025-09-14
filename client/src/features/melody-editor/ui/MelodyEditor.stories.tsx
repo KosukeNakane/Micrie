@@ -1,8 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
 import React, { useEffect } from 'react'
+
+import { GlobalAudioProvider } from '@/entities/audio'
+import { SegmentProvider, useSegment } from '@/entities/segment'
+
 import { MelodyEditor } from './MelodyEditor'
-import { GlobalAudioProvider } from '@/entities/audio/model/GlobalAudioContext'
-import { SegmentProvider, useSegment } from '@/entities/segment/model/SegmentContext'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 // Storybook 用の初期状態セットアップ（Zustand ストアにダミーのメロディーセグメントを投入）
 const SetupState: React.FC = () => {

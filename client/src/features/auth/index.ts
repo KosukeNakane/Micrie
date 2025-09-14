@@ -16,3 +16,4 @@ export {
   unlinkCurrentUserProvider,
 } from './model/api';
 export type { OAuthProviderKey, AccountExistsLinkInfo } from './model/api';
+export { useAuthUiStore, openLoginModal, closeLoginModal } from './model/uiStore';

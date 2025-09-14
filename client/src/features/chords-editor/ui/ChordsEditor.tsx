@@ -1,14 +1,15 @@
-import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
-import { StyledArea } from '@/shared/ui';
+import AdjustIcon from '@mui/icons-material/Adjust';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import CircleIcon from '@mui/icons-material/Circle';
 import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
-import AdjustIcon from '@mui/icons-material/Adjust';
+import React, { useMemo } from 'react';
 import * as Tone from 'tone';
-import { useGlobalAudio } from '@/entities/audio/model/GlobalAudioContext';
+
+import { useGlobalAudio } from '@/entities/audio';
 import { useChords } from '@/entities/chords';
+import { StyledArea } from '@/shared/ui';
 
 type Chord = {
   rootIndex: number; // 0-11

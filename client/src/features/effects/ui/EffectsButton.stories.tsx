@@ -1,5 +1,6 @@
+import EffectsButton from './EffectsButton'
+
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import EffectsButton from '@/features/effects/ui/EffectsButton'
 
 const meta: Meta<typeof EffectsButton> = {
   title: 'Features/Effects/EffectsButton',
@@ -17,4 +18,3 @@ export const Default: Story = {}
 export const ActiveLarge: Story = {
   args: { active: true, size: 56 },
 }
-

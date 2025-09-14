@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
-import { StyledArea } from "@/shared/ui";
 import React from "react";
+
+import { StyledArea } from "@/shared/ui";
 
 const Container = styled.div`
   display: flex;

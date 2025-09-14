@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
-import { BarSelectDropdown } from '@shared/ui'
 import { BarCountProvider } from '@entities/bar-count'
+import { BarSelectDropdown } from '@shared/ui'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof BarSelectDropdown> = {
   title: 'Shared/BarSelectDropdown',

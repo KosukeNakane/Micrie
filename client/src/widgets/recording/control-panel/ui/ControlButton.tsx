@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+
 import { scalePx } from '@/shared/lib/scale';
 
 type Props = {

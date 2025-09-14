@@ -1,3 +1,4 @@
+import { ScaleModeSelect } from "@features/scale-mode";
 import { BarSelectDropdown } from "@shared/ui/BarSelectDropdown";
 import { MelodyRecButton, RhythmRecButton } from "@widgets/recording/mode-and-rec-group/";
 import { ModeToggleButtons } from "@widgets/recording/mode-toggle-buttons";
@@ -7,7 +8,6 @@ import { AudioFileUploader } from "./AudioFileUploader";
 import { MelodyReanalysisPanel } from "./MelodyReanalysisPanel";
 import { PlaybackButton } from "./PlaybackButton";
 import { TrimmingToggle } from "./TrimmingToggle";
-import { ScaleModeSelect } from "@features/scale-mode";
 
 interface DeveloperToolsPanelProps {
   isPlaying: boolean;

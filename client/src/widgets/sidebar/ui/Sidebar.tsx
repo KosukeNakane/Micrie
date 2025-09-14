@@ -1,12 +1,16 @@
 /** @jsxImportSource @emotion/react */
 import { Box, Button, Text } from "@chakra-ui/react";
-import { createPortal } from "react-dom";
-import { usePortalRoot } from "@/app/providers/PortalRootContext";
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useAuthUiStore } from "@/features/auth/model/uiStore";
-import { LoginModal } from "./LoginModal";
-import { UserProfileModal } from "./UserProfileModal";
+import { createPortal } from "react-dom";
+
+import { StyledArea } from "@shared/ui";
+import { DeveloperToolsPanel } from "@widgets/recording/developer-tools-panel";
+
+import { usePortalRoot } from "@/app/providers/PortalRootContext";
+import { BASE_W, BASE_H } from "@/app/providers/Scaler";
 import { useAuthStore, getDisplayName } from "@/entities/user";
+import { useAuthUiStore } from "@/features/auth";
 import {
   signInWithEmailPassword,
   signInWithGoogle,
@@ -15,11 +19,11 @@ import {
   signOut,
   registerWithEmailPassword,
 } from "@/features/auth";
-import LogoutIcon from '@mui/icons-material/Logout';
-import { useProjectState } from "@/features/project-save-load/model/store";
-import { StyledArea } from "@shared/ui";
-import { DeveloperToolsPanel } from "@widgets/recording/developer-tools-panel";
-import { BASE_W, BASE_H } from "@/app/providers/Scaler";
+import { useProjectState } from "@/features/project-save-load";
+
+import { LoginModal } from "./LoginModal";
+import { UserProfileModal } from "./UserProfileModal";
+
 
 type Props = {
   onNewProject?: () => void;

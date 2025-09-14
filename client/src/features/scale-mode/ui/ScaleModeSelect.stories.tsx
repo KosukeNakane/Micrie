@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
-import { ScaleModeSelect } from '@/features/scale-mode'
 import { ScaleModeProvider } from '@entities/scale-mode'
+
+import { ScaleModeSelect } from '@/features/scale-mode'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof ScaleModeSelect> = {
   title: 'Features/ScaleMode/ScaleModeSelect',

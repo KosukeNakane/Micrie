@@ -1,6 +1,7 @@
 import { Box, Button, Input, Text } from "@chakra-ui/react";
-import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+
 import { useAuthStore } from "@/entities/user";
 import { updateDisplayName, linkCurrentUserWithProvider, linkCurrentUserWithPassword, unlinkCurrentUserProvider } from "@/features/auth";
 import { SmallModal } from "@/shared/ui";

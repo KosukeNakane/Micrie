@@ -1,5 +1,6 @@
-import { GlassSelect } from '@/shared/ui/GlassSelect';
 import { useDrumPattern } from '@entities/pattern/model/DrumPatternContext';
+
+import { GlassSelect } from '@/shared/ui/GlassSelect';
 
 export type DrumPattern = 'basic' | 'hiphop' | 'funk' | 'rock' | 'jazz' | 'electro';
 

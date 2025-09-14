@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
+
+import type { ChannelKind } from '@/entities/audio';
+
 import { useGlobalAudio } from './GlobalAudioContext';
-import type { ChannelKind } from '@/entities/audio/model/useChannelsStore';
 
 let _samplerMelody: Tone.Sampler | null = null;
 let _samplerChord: Tone.Sampler | null = null;

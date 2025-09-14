@@ -1,10 +1,10 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useRef } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
-import { RecordingPage } from '@pages/recording';
 import { EditPage } from '@pages/edit';
 import { PerformancePage } from '@pages/performance';
+import { RecordingPage } from '@pages/recording';
 
 const routeOrder: Record<string, number> = {
   '/recording': 0,

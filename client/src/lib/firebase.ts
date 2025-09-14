@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { initializeFirestore, setLogLevel, getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+
 import { runFirebasePostInitDiagnosticsOnce } from '@/shared/api/firebase/postInitDiagnostics';
 
 const config = {
@@ -40,7 +41,7 @@ export const storage = getStorage(app);
 // 開発時の軽いデバッグ出力
 if (import.meta.env.DEV) {
   try {
-    // eslint-disable-next-line no-console
+     
     console.log('[firebase] storageBucket (app):', getApp().options.storageBucket);
   } catch {}
 }

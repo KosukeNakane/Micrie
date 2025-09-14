@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
-import SplitHoldResetButton from '@/features/effects/ui/SplitHoldResetButton'
 import React from 'react'
+
+import SplitHoldResetButton from './SplitHoldResetButton'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof SplitHoldResetButton> = {
   title: 'Features/Effects/SplitHoldResetButton',
@@ -23,4 +25,3 @@ export const Default: Story = {
     )
   },
 }
-

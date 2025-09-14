@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
 import { ControlButton } from '@/widgets/recording/control-panel'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof ControlButton> = {
   title: 'Widgets/Recording/ControlButton',

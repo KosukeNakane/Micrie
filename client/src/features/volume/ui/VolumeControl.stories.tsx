@@ -1,7 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
-import { VolumeControl } from '@/features/volume'
 import { GlobalAudioProvider } from '@entities/audio'
 import { VolumeProvider } from '@entities/volume'
+
+import { VolumeControl } from '@/features/volume'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof VolumeControl> = {
   title: 'Features/Volume/VolumeControl',

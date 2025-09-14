@@ -1,15 +1,18 @@
 import styled from '@emotion/styled';
-import { scalePx } from '@/shared/lib/scale';
+import PauseIcon from '@mui/icons-material/Pause';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StopIcon from '@mui/icons-material/Stop';
 import { useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
+
 // import { RectButton } from '@shared/ui/RectButton';
 import { usePlaybackController } from '@features/playback';
 import { TempoControl } from '@features/tempo';
 import { VolumeControl } from '@features/volume';
 import { StyledArea } from '@shared/ui';
-import PauseIcon from '@mui/icons-material/Pause';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import StopIcon from '@mui/icons-material/Stop';
+
+
+import { scalePx } from '@/shared/lib/scale';
 
 const BarWrapper = styled(StyledArea)`
   box-sizing: border-box;

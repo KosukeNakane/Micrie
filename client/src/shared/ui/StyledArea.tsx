@@ -1,6 +1,7 @@
 // ガラス風の背景スタイルを持つ共有エリア用のスタイル付きdivコンポーネント
 
 import styled from '@emotion/styled';
+
 import { scalePx, scaleShadow } from '@/shared/lib/scale';
 
 // ガラス風のぼかし・枠線・影・グラデーション背景を含むレイアウトエリア

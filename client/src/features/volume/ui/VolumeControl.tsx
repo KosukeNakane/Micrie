@@ -1,9 +1,12 @@
 // VOLUMEの値を調整するためのボタンと入力・スライダーのUIコンポーネント（UIのみ）
 import styled from '@emotion/styled';
+
 import { scalePx } from '@/shared/lib/scale';
+
 import RcSlider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { useState, useEffect } from 'react';
+
 import { useGlobalAudio } from '@entities/audio/model/GlobalAudioContext';
 import { useVolume, VOLUME_MIN as MIN, VOLUME_MAX as MAX } from '@entities/volume/model/VolumeContext';
 
