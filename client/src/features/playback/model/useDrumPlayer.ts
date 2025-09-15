@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react';
 import * as Tone from 'tone';
 
 import { useGlobalAudio } from '@entities/audio';
-import { useDrumPlayers } from '@entities/audio/model/useDrumPlayers';
+import { useDrumPlayers } from '@/entities/audio/model/useDrumSampler';
 import { useDrumPattern } from '@entities/pattern';
 import { useTempo } from '@entities/tempo';
 
@@ -22,7 +22,7 @@ export const useDrumPlayer = () => {
 
   // 単発ヒットをTransportのコールバックtimeに同期して鳴らす
   const playDrumHit = useCallback((type: DrumType, time: number) => {
-    try { trigger(type, time); } catch {}
+    try { trigger(type, time); } catch { }
   }, [trigger]);
 
   // 現在選択のパターンイベントを返す（timeは拍単位）
@@ -37,7 +37,7 @@ export const useDrumPlayer = () => {
     const delta = Math.max(0, startTime - ctxNow);
     events.forEach(({ type, time }) => {
       const when = base + delta + time * beatDuration;
-      try { trigger(type, when); } catch {}
+      try { trigger(type, when); } catch { }
     });
   };
 

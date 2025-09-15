@@ -4,7 +4,6 @@ import { usePianoSampler } from '@entities/audio/model/usePianoSampler';
 import { useScaleMode } from '@entities/scale-mode/model/ScaleModeContext';
 import { mapNoteToScale, transposeUpTwoOctaves } from '@shared/lib/noteMapping';
 
-declare const _tone_0000_Aspirin_sf2_file: any;
 
 export const useMelodyPlayer = () => {
   const { scaleMode } = useScaleMode();

@@ -98,14 +98,23 @@ const CircleRow = styled.div`
 `;
 
 export const MelodyEditor: FC<Props> = () => {
-  const { currentSegments, updateMelodySegment } = useSegment();
+  const { currentSegments, melodySegments, setMelodySegments, updateMelodySegment } = useSegment();
   const engine = useGlobalAudio();
 
   const previousNotesRef = useRef<string[]>([]);
-  if (previousNotesRef.current.length !== currentSegments.melody.length) {
-    previousNotesRef.current = currentSegments.melody.map(seg => seg.note !== 'rest' ? (seg.note ?? 'C4') : 'C4');
+  const placeholderSegments = useMemo(() => (
+    Array.from({ length: 32 }, (_, i) => ({ label: 'rest', note: 'rest', start: i / 16, end: (i + 1) / 16 }))
+  ), []);
+  const displaySegments = (currentSegments.melody.length > 0 ? currentSegments.melody : placeholderSegments) as any[];
+  if (previousNotesRef.current.length !== displaySegments.length) {
+    previousNotesRef.current = displaySegments.map((seg: any) => seg.note !== 'rest' ? (seg.note ?? 'C4') : 'C4');
   }
 
+  const ensureSegmentsInStore = () => {
+    if (!Array.isArray(melodySegments) || melodySegments.length === 0) {
+      setMelodySegments(placeholderSegments as any);
+    }
+  };
   const triggerPreview = async (note: string) => {
     try { if ((Tone.getContext() as any).state !== 'running') await Tone.start(); } catch { }
     try { await engine.ensureStarted(); } catch { }
@@ -118,17 +127,18 @@ export const MelodyEditor: FC<Props> = () => {
           const toneCtx = new Tone.Context({ context: ctx as any });
           Tone.setContext(toneCtx);
         }
-      } catch {}
-      try { (synth as any).disconnect?.(); } catch {}
+      } catch { }
+      try { (synth as any).disconnect?.(); } catch { }
       const input = engine.getChannelInput('melody-preview') as unknown as AudioNode | null;
-      if (input) { try { (synth as any).connect(input as any); } catch {} }
+      if (input) { try { (synth as any).connect(input as any); } catch { } }
       synth.triggerAttackRelease(note, '8n');
-      setTimeout(() => { try { synth.dispose(); } catch {} }, 800);
+      setTimeout(() => { try { synth.dispose(); } catch { } }, 800);
     } catch { }
   };
 
   const changePitch = (index: number, delta: number) => {
-    const seg = currentSegments.melody[index];
+    ensureSegmentsInStore();
+    const seg = (currentSegments.melody.length > 0 ? currentSegments.melody : placeholderSegments as any)[index];
     const note = seg?.note;
     if (!note || note === 'rest') return;
     try {
@@ -141,7 +151,8 @@ export const MelodyEditor: FC<Props> = () => {
   };
 
   const toggleMute = (index: number) => {
-    const seg = currentSegments.melody[index];
+    ensureSegmentsInStore();
+    const seg = (currentSegments.melody.length > 0 ? currentSegments.melody : placeholderSegments as any)[index];
     if (!seg) return;
     if (seg.note === 'rest') {
       const restored = previousNotesRef.current[index] || 'C4';
@@ -154,12 +165,19 @@ export const MelodyEditor: FC<Props> = () => {
     }
   };
 
-  const uiCards = useMemo(() => currentSegments.melody.slice(0, 32).map((seg, i) => {
+  const uiCards = useMemo(() => (displaySegments as any[]).slice(0, 32).map((seg, i) => {
     const muted = seg.note === 'rest';
     const label = muted ? '-' : (seg.note ?? '-');
     return (
       <Card key={i}>
-        <YellowLabel>{label}</YellowLabel>
+        <YellowLabel
+          role="button"
+          title={muted ? '' : 'Click to preview'}
+          style={{ cursor: muted ? 'default' : 'pointer' }}
+          onClick={() => { if (!muted) triggerPreview(label); }}
+        >
+          {label}
+        </YellowLabel>
         <SmallBox>
           <ControlButton pos="up" role="button" aria-label="pitch-up" onClick={() => changePitch(i, 1)}>
             <ArrowDropUpIcon style={{ fontSize: 40 }} />
@@ -177,7 +195,7 @@ export const MelodyEditor: FC<Props> = () => {
         </CircleRow>
       </Card>
     );
-  }), [currentSegments.melody]);
+  }), [displaySegments]);
 
   return (
     <Container>
