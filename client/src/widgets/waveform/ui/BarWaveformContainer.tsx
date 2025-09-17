@@ -23,7 +23,7 @@ export const BarWaveformContainer: React.FC<Props> = ({ children, melody, chords
     <StyledArea
       style={{
         width: 1050,
-        height: 480,
+        height: 544, // +64px to reduce need for inner scrolling
         margin: '12px auto',
         padding: 16,
         gap: 8,
@@ -31,7 +31,7 @@ export const BarWaveformContainer: React.FC<Props> = ({ children, melody, chords
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'stretch',
-        overflow: 'auto',
+        overflow: 'visible',
       }}
     >
       <WaveformTabs

@@ -18,6 +18,7 @@ import { VolumeProvider } from '@entities/volume/model/VolumeContext';
 import { ChannelsEngineBinder } from '@features/audio-channels';
 import { ReverbBinder, CutFiltersBinder, CrushBinder, DirtyBinder, CombBinder } from '@features/effects';
 import { ChordPatternToChordsBinder } from '@features/pattern-select/model/ChordPatternToChordsBinder';
+import { DrumPatternToRhythmSegmentsBinder } from '@features/pattern-select/model/DrumPatternToRhythmSegmentsBinder';
 import { PlaybackBinder } from '@features/playback';
 import { TempoTransportBinder } from '@features/tempo';
 import { VolumeEngineBinder } from '@features/volume';
@@ -51,6 +52,7 @@ export const Providers = ({ children }: Props) => (
                         <ChordPatternProvider>
                           <ChordPatternToChordsBinder />
                           <DrumPatternProvider>
+                            <DrumPatternToRhythmSegmentsBinder />
                             <EffectsProvider>
                               <CrushBinder />
                               <ReverbBinder />

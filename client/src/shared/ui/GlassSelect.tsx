@@ -12,10 +12,10 @@ type Props<T extends string = string> = {
   options: GlassOption<T>[];
   value: GlassOption<T> | null;
   onChange: (opt: GlassOption<T>) => void;
-  widthPx?: number; // ベース幅（コントロール幅は約0.75倍で従来と同じ見た目）
+  widthPx?: number;
 };
 
-export const GlassSelect = <T extends string = string>({ options, value, onChange, widthPx = 180 }: Props<T>) => {
+export const GlassSelect = <T extends string = string>({ options, value, onChange, widthPx = 135 }: Props<T>) => {
   return (
     <Select
       options={options as GlassOption[]}
@@ -25,13 +25,21 @@ export const GlassSelect = <T extends string = string>({ options, value, onChang
       }}
       menuPlacement="auto"
       styles={{
+        container: (base) => ({
+          ...base,
+          width: `${widthPx}px`,
+          minWidth: `${widthPx}px`,
+          maxWidth: `${widthPx}px`,
+          flex: '0 0 auto',
+        }),
         menu: (base) => ({
           ...base,
           marginTop: '9px',
           zIndex: 200,
           borderRadius: scalePx(10),
           background: 'rgba(255, 255, 255, 0.95)',
-          boxShadow: `0 ${scalePx(6)} ${scalePx(10)} rgba(0, 0, 0, 0.1)`
+          boxShadow: `0 ${scalePx(6)} ${scalePx(10)} rgba(0, 0, 0, 0.1)`,
+          width: `${widthPx}px`,
         }),
         menuList: (base) => ({ ...base, borderRadius: scalePx(10), overflow: 'auto', padding: 0, maxHeight: scalePx(180) }),
         control: (base, state) => ({
@@ -53,7 +61,7 @@ export const GlassSelect = <T extends string = string>({ options, value, onChang
           transition: 'background 0.3s ease',
           cursor: 'pointer',
           minHeight: scalePx(30),
-          width: `${widthPx * 0.75}px`,
+          width: `${widthPx}px`,
         }),
         option: (base, state) => ({
           ...base,

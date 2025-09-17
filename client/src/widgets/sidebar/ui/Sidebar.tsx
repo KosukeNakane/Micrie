@@ -18,7 +18,6 @@ import {
   signInWithGoogle,
   signInWithGithub,
   requestPasswordReset,
-  signOut,
   registerWithEmailPassword,
 } from "@/features/auth";
 import { useProjectState } from "@/features/project-save-load";
@@ -36,7 +35,6 @@ type Props = {
 };
 
 export const Sidebar = ({
-  onNewProject,
   onOpenProject,
   onSaveProject,
   onSaveProjectAs,
@@ -47,7 +45,7 @@ export const Sidebar = ({
   const closingTimer = useRef<number | null>(null);
   const mouseXRef = useRef<number>(Infinity);
   const hoveringNavRef = useRef<boolean>(false);
-  const HOTSPOT_BASE = 300; // 左端ホットスポットの基準幅
+  const HOTSPOT_BASE = 150; // 左端ホットスポットの基準幅
   const NAV_BASE_W = 300; // サイドバーの基準幅（スケール前）
   const OVERSHOOT = 64; // 閉時に完全退避させるための追加オフセット
 
@@ -77,7 +75,6 @@ export const Sidebar = ({
   const { user } = useAuthStore();
   const projectName = useProjectState((s) => s.currentProjectName);
   const projectTitle = (projectName?.trim() ? projectName.trim() : "Untitled");
-  const handleNew = () => onNewProject?.();
   const handleOpen = () => onOpenProject?.();
   const handleSave = () => onSaveProject?.();
   const handleSaveAs = () => onSaveProjectAs?.();

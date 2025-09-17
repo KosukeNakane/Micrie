@@ -5,6 +5,7 @@ import * as Tone from 'tone';
 
 import { useGlobalAudio } from '@entities/audio';
 import { useDrumPattern } from '@entities/pattern';
+import { useSegment } from '@entities/segment';
 import { useTempo } from '@entities/tempo';
 
 import { useDrumPlayers } from '@/entities/audio/model/useDrumSampler';
@@ -14,11 +15,26 @@ type DrumType = 'kick' | 'snare' | 'hihat';
 
 export const useDrumPlayer = () => {
   const { drumPattern } = useDrumPattern();
+  const { rhythmSegments } = useSegment();
   const { tempo } = useTempo();
   const engine = useGlobalAudio();
   const { trigger } = useDrumPlayers();
 
-  const eventsForCurrent = useMemo<DrumEvent[]>(() => getDrumEvents(drumPattern), [drumPattern]);
+  const eventsForCurrent = useMemo<DrumEvent[]>(() => {
+    // Prefer rhythmSegments if available; fallback to pattern library
+    const stepDur = 0.5; // 8th note
+    const events: DrumEvent[] = [];
+    let recognized = 0;
+    for (let i = 0; i < 16 && i < (rhythmSegments?.length ?? 0); i++) {
+      const label = (rhythmSegments[i]?.label ?? '') as any;
+      if (label === 'kick' || label === 'snare' || label === 'hihat') {
+        recognized++;
+        events.push({ time: i * stepDur, type: label });
+      }
+    }
+    if (recognized > 0) return events;
+    return getDrumEvents(drumPattern);
+  }, [drumPattern, rhythmSegments]);
 
   // 単発ヒットをTransportのコールバックtimeに同期して鳴らす
   const playDrumHit = useCallback((type: DrumType, time: number) => {

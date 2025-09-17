@@ -12,7 +12,7 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin-top: 70px;
+  margin-top: 78px;
 `;
 
 const Card = styled(StyledArea)`

@@ -41,3 +41,17 @@ export const HIPHOP = [
   { time: 7.5, type: 'hihat' },
 ] as const;
 
+// Placeholder patterns (currently same as BASIC). Replace with real ones later.
+export const FUNK = [...BASIC] as const;
+export const ROCK = [...BASIC] as const;
+export const JAZZ = [...BASIC] as const;
+export const ELECTRO = [...BASIC] as const;
+
+export const PATTERNS = {
+  basic: BASIC,
+  hiphop: HIPHOP,
+  funk: FUNK,
+  rock: ROCK,
+  jazz: JAZZ,
+  electro: ELECTRO,
+} as const;
