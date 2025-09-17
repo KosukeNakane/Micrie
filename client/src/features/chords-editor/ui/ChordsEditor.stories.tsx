@@ -4,7 +4,7 @@ import { GlobalAudioProvider } from '@/entities/audio';
 
 import { ChordsEditor } from './ChordsEditor';
 
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof ChordsEditor> = {
   title: 'Features/ChordsEditor',

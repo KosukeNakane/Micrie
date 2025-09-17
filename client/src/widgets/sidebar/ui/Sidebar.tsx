@@ -25,6 +25,7 @@ import { useProjectState } from "@/features/project-save-load";
 
 import { LoginModal } from "./LoginModal";
 import { UserProfileModal } from "./UserProfileModal";
+import { LogoutConfirmModal } from "@/widgets/logout-confirm-modal";
 
 
 type Props = {
@@ -354,33 +355,8 @@ export const Sidebar = ({
           portalRoot ?? document.body
         )}
 
-        {logoutConfirm && createPortal(
-          <Box position="fixed" inset={0} zIndex={1100}>
-            <Box position="absolute" inset={0} bg="blackAlpha.600" onClick={() => setLogoutConfirm(false)} />
-            <Box
-              position="absolute"
-              left="50%"
-              top="50%"
-              transform="translate(-50%, -50%)"
-              bg="white"
-              borderRadius="md"
-              boxShadow="xl"
-              width="min(92vw, 420px)"
-              p={5}
-            >
-              <Text fontSize="md" fontWeight="bold" mb={3}>ログアウトしますか？</Text>
-              <Text fontSize="sm" color="gray.700" mb={4}>作業内容の保存を確認してください。</Text>
-              <Box display="flex" justifyContent="flex-end" gap={2}>
-                <Button variant="ghost" onClick={() => setLogoutConfirm(false)}>キャンセル</Button>
-                <Button colorPalette="red" onClick={async () => {
-                  setLogoutConfirm(false);
-                  try { await signOut(); } catch (e) { console.error(e); }
-                }}>ログアウト</Button>
-              </Box>
-            </Box>
-          </Box>,
-          portalRoot ?? document.body
-        )}
+        {/* ログアウト確認モーダル */}
+        <LogoutConfirmModal isOpen={logoutConfirm} onClose={() => setLogoutConfirm(false)} />
       </Box>
     </>
   );

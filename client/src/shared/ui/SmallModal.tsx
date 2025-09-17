@@ -3,6 +3,8 @@
 import { Box, Button, Text } from '@chakra-ui/react';
 import { createPortal } from 'react-dom';
 
+import { StyledArea } from './StyledArea';
+
 type Props = {
   isOpen: boolean;
   title?: string;
@@ -15,25 +17,32 @@ export const SmallModal = ({ isOpen, title, message, onClose }: Props) => {
   return createPortal(
     <Box position="fixed" inset={0} zIndex={1100}>
       <Box position="absolute" inset={0} bg="blackAlpha.500" onClick={onClose} />
-      <Box
-        position="absolute"
-        left="50%"
-        top="50%"
-        transform="translate(-50%, -50%)"
-        bg="white"
-        borderRadius="md"
-        boxShadow="xl"
-        width="min(92vw, 270px)"
-        p={5}
+      <StyledArea
+        style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 'min(92vw, 270px)',
+          padding: '20px',
+          margin: 0,
+          display: 'block',
+        }}
       >
         {title && (
-          <Text fontWeight="bold" mb={2}>{title}</Text>
+          <Text fontWeight="bold" mb={2} color="white">{title}</Text>
         )}
-        <Text mb={4}>{message}</Text>
+        <Text mb={4} color="white">{message}</Text>
         <Box display="flex" justifyContent="flex-end">
-          <Button onClick={onClose}>OK</Button>
+          <Button 
+            onClick={onClose}
+            bg="transparent"
+            color="white"
+            _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+            borderColor="rgba(255, 255, 255, 0.3)"
+          >OK</Button>
         </Box>
-      </Box>
+      </StyledArea>
     </Box>,
     document.body
   );

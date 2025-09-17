@@ -7,6 +7,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 const meta: Meta<typeof SmallModal> = {
   title: 'Shared/SmallModal',
   component: SmallModal,
+  argTypes: {
+    onClose: { action: 'closed' },
+  },
   args: {
     isOpen: true,
     title: 'Information',
@@ -18,10 +21,18 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Open: Story = {
-  args: { isOpen: true },
+  args: {
+    ...meta.args,
+    isOpen: true,
+    onClose: () => console.log('Closed'),
+  },
 }
 
 export const WithoutTitle: Story = {
-  args: { isOpen: true, title: undefined },
+  args: {
+    ...meta.args,
+    isOpen: true,
+    title: undefined,
+    onClose: () => console.log('Closed'),
+  },
 }
-

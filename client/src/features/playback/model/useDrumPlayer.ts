@@ -4,10 +4,10 @@ import { useCallback, useMemo } from 'react';
 import * as Tone from 'tone';
 
 import { useGlobalAudio } from '@entities/audio';
-import { useDrumPlayers } from '@/entities/audio/model/useDrumSampler';
 import { useDrumPattern } from '@entities/pattern';
 import { useTempo } from '@entities/tempo';
 
+import { useDrumPlayers } from '@/entities/audio/model/useDrumSampler';
 import { getDrumEvents, type DrumEvent } from '@/features/drums-playback/model/drumEvents';
 
 type DrumType = 'kick' | 'snare' | 'hihat';
