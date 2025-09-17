@@ -130,17 +130,17 @@ export const ChordsEditor: React.FC = () => {
   const poly = React.useMemo(() => new Tone.PolySynth(Tone.Synth), []);
   React.useEffect(() => {
     (async () => {
-      try { if ((Tone.getContext() as any).state !== 'running') await Tone.start(); } catch {}
-      try { await engine.ensureStarted(); } catch {}
+      try { if ((Tone.getContext() as any).state !== 'running') await Tone.start(); } catch { }
+      try { await engine.ensureStarted(); } catch { }
       const ctx = engine.audioContext;
       if (ctx && Tone.getContext().rawContext !== ctx) {
-        try { const toneCtx = new Tone.Context({ context: ctx as any }); Tone.setContext(toneCtx); } catch {}
+        try { const toneCtx = new Tone.Context({ context: ctx as any }); Tone.setContext(toneCtx); } catch { }
       }
-      try { (poly as any).disconnect?.(); } catch {}
+      try { (poly as any).disconnect?.(); } catch { }
       const input = engine.getChannelInput('chord-preview') as unknown as AudioNode | null;
-      if (input) { try { (poly as any).connect(input as any); } catch {} }
+      if (input) { try { (poly as any).connect(input as any); } catch { } }
     })();
-    return () => { try { poly.dispose(); } catch {} };
+    return () => { try { poly.dispose(); } catch { } };
   }, [engine, poly]);
 
   const chordToNotes = (c: Chord): string[] => {

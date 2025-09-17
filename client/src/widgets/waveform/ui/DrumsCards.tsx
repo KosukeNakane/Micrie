@@ -1,5 +1,5 @@
-// [UI] widgets/ui - MelodyCards.tsx
-// 役割: 表示・入力のUIコンポーネント
+// [UI] widgets/ui - DrumsCards.tsx
+// 役割: 表示・入力のUIコンポーネント（ChordsCards と同じUI）
 import styled from "@emotion/styled";
 import React from "react";
 
@@ -12,7 +12,6 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin-top: 70px;
 `;
 
 const Card = styled(StyledArea)`
@@ -23,7 +22,7 @@ const Card = styled(StyledArea)`
   justify-content: center;
 `;
 
-export const MelodyCards: React.FC = () => {
+export const DrumsCards: React.FC = () => {
   return (
     <Container>
       {Array.from({ length: 6 }).map((_, i) => (
