@@ -197,6 +197,22 @@ export class GlobalAudioEngine {
   get player() { return this.wafPlayer; }
   get masterInput(): AudioNode | null { return this.masterGain; }
 
+  // Per-channel volume (0..1)
+  async setChannelVolume(kind: 'melody' | 'drum' | 'chord', v: number) {
+    await this.ensureStarted();
+    const clamped = Math.max(0, Math.min(1, v));
+    const gain = kind === 'melody' ? this.melodyGain : (kind === 'drum' ? this.drumGain : this.chordGain);
+    const ctx = this.ctx;
+    if (!gain || !ctx) return;
+    const now = ctx.currentTime;
+    try {
+      gain.gain.cancelScheduledValues(now);
+      gain.gain.setTargetAtTime(clamped, now, 0.02);
+    } catch {
+      try { gain.gain.value = clamped; } catch {}
+    }
+  }
+
   // Channel I/O accessors — route new sources here (future: insert per-channel effects)
   getChannelInput(kind: 'melody' | 'drum' | 'chord' | 'melody-preview' | 'drum-preview' | 'chord-preview'): AudioNode | null {
     if (kind === 'melody') return this.melodyGain ?? this.masterGain;

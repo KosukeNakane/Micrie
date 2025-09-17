@@ -11,6 +11,7 @@ import EffectsPanel from "@features/effects/ui/EffectsPanel";
 import SplitHoldResetButton from "@features/effects/ui/SplitHoldResetButton";
 import { VerticalFader } from "@features/effects/ui/VerticalFader";
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
+import { VolumeControlPanel } from "@features/volume";
 
 import { useChannelsStore } from "@/entities/audio";
 import { useEffectsUiStore } from "@/features/effects";
@@ -95,30 +96,37 @@ export const PerformancePage = () => {
       {/* 再生バー */}
       <TopPlaybackBar />
 
-      <EffectsPanel>
-
-        <div
-          css={{
-            display: "flex",
-            justifyContent: "center",
-            // alignItems: "center",
-            gap: 12,
-          }}
-        >
-          {/* 左側：RANDOM ALL（右側ボタン列と同じ幅・UI） */}
-          <div css={{ display: "flex", flexDirection: "column", gap: 12, alignItems: 'center', width: 60 }}>
-            <EffectsButton label="RAND ALL" size={120} width={60} onClick={randomAll} />
-            <EffectsButton label="MELODY" size={32} width={60} active={melodyMuted} onClick={() => toggleMuted('melody')} />
-            <EffectsButton label="CHORD" size={32} width={60} active={chordMuted} onClick={() => toggleMuted('chord')} />
-            <EffectsButton label="DRUM" size={32} width={60} active={drumMuted} onClick={() => toggleMuted('drum')} />
-          </div>
-          <Faders springBack={!hold} />
-          <div css={{ display: "flex", flexDirection: "column", gap: 12, alignItems: 'center', width: 60 }}>
-            <EffectsButton label="HOLD ALL" size={120} width={60} active={hold} onClick={toggleHold} />
-            <EffectsButton label="RESET ALL" size={120} width={60} onClick={resetAll} />
-          </div>
+      {/* EffectsPanel と VolumeControlPanel を横並びに */}
+      <div
+        css={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "flex-start",
+          justifyContent: "center",
+        }}
+      >
+        <div css={{ marginRight: 32 }}>
+          <EffectsPanel>
+            <div
+              css={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 12,
+              }}
+            >
+              <Faders springBack={!hold} />
+              <div css={{ display: "flex", flexDirection: "column", gap: 12, alignItems: 'center', width: 60 }}>
+                <EffectsButton label="RAND ALL" size={95} width={80} onClick={randomAll} />
+                <EffectsButton label="HOLD ALL" size={95} width={80} active={hold} onClick={toggleHold} />
+                <EffectsButton label="RESET ALL" size={95} width={80} onClick={resetAll} />
+              </div>
+            </div>
+          </EffectsPanel>
         </div>
-      </EffectsPanel>
-    </div >
+        <div>
+          <VolumeControlPanel />
+        </div>
+      </div>
+    </div>
   );
 };
