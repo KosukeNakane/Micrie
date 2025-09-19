@@ -11,3 +11,4 @@ export { ConfirmDeleteModal } from './ConfirmDeleteModal';
 export { ConfirmUnsavedChangesModal } from './ConfirmUnsavedChangesModal';
 export { LoginRequiredModal } from './LoginRequiredModal';
 export { ToasterHost, toaster } from './toaster';
+export { GlassModal } from './GlassModal';

@@ -2,12 +2,11 @@
 // 役割: 表示・入力のUIコンポーネント
 import { Box, Button, Input, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+
 
 import { useAuthStore } from "@/entities/user";
 import { updateDisplayName, linkCurrentUserWithProvider, linkCurrentUserWithPassword, unlinkCurrentUserProvider } from "@/features/auth";
-import { SmallModal } from "@/shared/ui";
-import { StyledArea } from "@/shared/ui/StyledArea";
+import { GlassModal } from "@shared/ui";
 
 type Props = {
   isOpen: boolean;
@@ -107,22 +106,9 @@ export const UserProfileModal = ({ isOpen, onClose }: Props) => {
     }
   };
 
-  return createPortal(
-    <Box position="fixed" inset={0} zIndex={1000}>
-      <Box position="absolute" inset={0} bg="blackAlpha.600" onClick={onClose} />
-      <StyledArea
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 'min(92vw, 540px)',
-          padding: '20px',
-          margin: 0,
-          display: 'block',
-        }}
-      >
-        <Text fontSize="lg" fontWeight="bold" mb={4} color="white">Account</Text>
+  return (
+    <>
+      <GlassModal isOpen={isOpen} onClose={onClose} title="Account" widthPx={540}>
 
         <Box mb={4}>
           <Text fontSize="sm" color="rgba(255, 255, 255, 0.7)">Email</Text>
@@ -261,47 +247,20 @@ export const UserProfileModal = ({ isOpen, onClose }: Props) => {
             _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
           >Close</Button>
         </Box>
-      </StyledArea>
-      <SmallModal isOpen={okOpen.open} message={okOpen.message} onClose={() => setOkOpen({ open: false, message: '' })} />
-
-      {confirm.open && (
-        <Box position="fixed" inset={0} zIndex={1100}>
-          <Box position="absolute" inset={0} bg="blackAlpha.600" onClick={() => setConfirm({ open: false, provider: null })} />
-          <StyledArea
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: 'min(92vw, 420px)',
-              padding: '20px',
-              margin: 0,
-              display: 'block',
-            }}
-          >
-            <Text fontSize="md" fontWeight="bold" mb={3} color="white">リンクを解除しますか？</Text>
-            <Text fontSize="sm" color="rgba(255, 255, 255, 0.7)" mb={4}>この操作はいつでも再度リンクできます。</Text>
-            <Box display="flex" justifyContent="flex-end" gap={2}>
-              <Button 
-                variant="ghost" 
-                onClick={() => setConfirm({ open: false, provider: null })}
-                color="white"
-                _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
-              >キャンセル</Button>
-              <Button 
-                bg="linear-gradient(135deg, rgba(226, 86, 86, 0.9), rgba(235, 116, 116, 0.9))"
-                color="white"
-                _hover={{ bg: 'linear-gradient(135deg, rgba(206, 76, 76, 0.9), rgba(215, 96, 96, 0.9))' }}
-                onClick={async () => {
-                  const p = confirm.provider!;
-                  setConfirm({ open: false, provider: null });
-                  await handleUnlinkProvider(p);
-              }}>解除する</Button>
-            </Box>
-          </StyledArea>
+      </GlassModal>
+      <GlassModal isOpen={okOpen.open} onClose={() => setOkOpen({ open: false, message: '' })} title="Info" widthPx={390}>
+        <Text color="white">{okOpen.message}</Text>
+        <Box display="flex" justifyContent="flex-end" mt={3}>
+          <Button onClick={() => setOkOpen({ open: false, message: '' })} bg="transparent" color="white" _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }} borderColor="rgba(255, 255, 255, 0.3)">OK</Button>
         </Box>
-      )}
-    </Box>,
-    document.body
+      </GlassModal>
+      <GlassModal isOpen={confirm.open} onClose={() => setConfirm({ open: false, provider: null })} title="リンクを解除しますか？" widthPx={420}>
+        <Text fontSize="sm" color="rgba(255, 255, 255, 0.7)" mb={4}>この操作はいつでも再度リンクできます。</Text>
+        <Box display="flex" justifyContent="flex-end" gap={2}>
+          <Button variant="ghost" onClick={() => setConfirm({ open: false, provider: null })} color="white" _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}>キャンセル</Button>
+          <Button bg="linear-gradient(135deg, rgba(226, 86, 86, 0.9), rgba(235, 116, 116, 0.9))" color="white" _hover={{ bg: 'linear-gradient(135deg, rgba(206, 76, 76, 0.9), rgba(215, 96, 96, 0.9))' }} onClick={async () => { const p = confirm.provider!; setConfirm({ open: false, provider: null }); await handleUnlinkProvider(p); }}>解除する</Button>
+        </Box>
+      </GlassModal>
+    </>
   );
 };

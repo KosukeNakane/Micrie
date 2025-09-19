@@ -4,12 +4,11 @@
 import { Box, Button, Text } from "@chakra-ui/react";
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 
-import { StyledArea } from "@shared/ui";
+import { GlassModal } from "@shared/ui";
 import { DeveloperToolsPanel } from "@widgets/recording/developer-tools-panel";
+import { AboutLinksPanel, AboutLinksModal } from "@/widgets/about-links";
 
-import { usePortalRoot } from "@/app/providers/PortalRootContext";
 import { BASE_W, BASE_H } from "@/app/providers/Scaler";
 import { useAuthStore, getDisplayName } from "@/entities/user";
 import { useAuthUiStore } from "@/features/auth";
@@ -39,7 +38,6 @@ export const Sidebar = ({
   onSaveProject,
   onSaveProjectAs,
 }: Props) => {
-  const portalRoot = usePortalRoot();
   // スライドイン制御
   const [open, setOpen] = useState(false);
   const closingTimer = useRef<number | null>(null);
@@ -80,6 +78,7 @@ export const Sidebar = ({
   const handleSaveAs = () => onSaveProjectAs?.();
   // Developer Tools state (moved from RecordingPage)
   const [devOpen, setDevOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [trimmingEnabled, setTrimmingEnabled] = useState(false);
 
@@ -262,6 +261,18 @@ export const Sidebar = ({
                 >
                   Developer Tools
                 </Button>
+                <Button
+                  variant="ghost"
+                  justifyContent="flex-start"
+                  onClick={() => setAboutOpen(true)}
+                  _hover={{ bg: 'rgba(172, 203, 229, 0.45)' }}
+                  data-testid="sidebar-about-links"
+                  fontSize="20px"
+                  fontWeight="normal"
+                  color="rgba(5, 4, 69, 0.8)"
+                >
+                  About & Links
+                </Button>
               </Box>
             </Box>
 
@@ -328,26 +339,19 @@ export const Sidebar = ({
         <UserProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
 
         {/* Developer Tools Modal */}
-        {devOpen && createPortal(
-          <Box position="fixed" inset={0} zIndex={1200}>
-            <Box position="absolute" inset={0} bg="blackAlpha.500" onClick={() => setDevOpen(false)} />
-            <Box position="absolute" left="50%" top="50%" transform="translate(-50%, -50%)" width="min(95vw, 960px)">
-              <StyledArea style={{ padding: 16 }}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                  <Text fontWeight="bold">Developer Tools</Text>
-                  <Button variant="ghost" onClick={() => setDevOpen(false)}>Close</Button>
-                </Box>
-                <DeveloperToolsPanel
-                  isPlaying={isPlaying}
-                  setIsPlaying={setIsPlaying}
-                  trimmingEnabled={trimmingEnabled}
-                  setTrimmingEnabled={setTrimmingEnabled}
-                />
-              </StyledArea>
-            </Box>
-          </Box>,
-          portalRoot ?? document.body
-        )}
+        <GlassModal isOpen={devOpen} onClose={() => setDevOpen(false)} title="Developer Tools" widthPx={360}>
+          <DeveloperToolsPanel
+            isPlaying={isPlaying}
+            setIsPlaying={setIsPlaying}
+            trimmingEnabled={trimmingEnabled}
+            setTrimmingEnabled={setTrimmingEnabled}
+          />
+        </GlassModal>
+
+        {/* About & Links Modal (専用コンポーネント) */}
+        <AboutLinksModal isOpen={aboutOpen} onClose={() => setAboutOpen(false)} >
+          <AboutLinksPanel />
+        </AboutLinksModal>
 
         {/* ログアウト確認モーダル */}
         <LogoutConfirmModal isOpen={logoutConfirm} onClose={() => setLogoutConfirm(false)} />

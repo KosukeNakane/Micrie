@@ -21,9 +21,9 @@ export const DeveloperToolsPanel = ({
 }: DeveloperToolsPanelProps) => {
   return (
     <div style={{ marginTop: '8px' }}>
-      <ModeToggleButtons />
+      <TrimmingToggle enabled={trimmingEnabled} onChange={setTrimmingEnabled} />
       <div style={{ marginTop: '16px' }}>
-        <TrimmingToggle enabled={trimmingEnabled} onChange={setTrimmingEnabled} />
+        <ModeToggleButtons />
       </div>
       <div style={{ marginTop: '16px' }}>
         <MelodyRecButton /> <RhythmRecButton />

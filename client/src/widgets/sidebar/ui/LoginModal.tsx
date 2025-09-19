@@ -2,14 +2,13 @@
 // 役割: 表示・入力のUIコンポーネント
 import { Box, Button, Input, Text } from "@chakra-ui/react";
 import { useState } from "react";
-import { createPortal } from "react-dom";
 
 import {
   startOAuthSignInWithLinking,
   linkAccountsWithPassword,
   linkAccountsWithProviders,
 } from '@/features/auth';
-import { StyledArea } from "@/shared/ui/StyledArea";
+import { GlassModal } from "@shared/ui";
 
 type Props = {
   isOpen: boolean;
@@ -101,76 +100,78 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
     _placeholder: { color: 'rgba(255, 255, 255, 0.5)' },
   };
 
-  return createPortal(
-    <Box position="fixed" inset={0} zIndex={1000}>
-      {/* Overlay */}
-      <Box position="absolute" inset={0} bg="blackAlpha.600" onClick={onClose} />
-      {/* Content */}
-      <StyledArea
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 'min(92vw, 420px)',
-          padding: '20px',
-          margin: 0,
-          display: 'block',
-        }}
-      >
-        <Text fontSize="lg" fontWeight="bold" mb={4} color="white">
-          {mode === 'login' ? 'Login' : 'Create account'}
-        </Text>
+  return (
+    <GlassModal isOpen={isOpen} onClose={onClose} title={mode === 'login' ? 'Login' : 'Create account'} widthPx={420}>
         <Box display="flex" flexDir="column" gap={3}>
           {mode === 'signup' && (
             <Box>
               <Text fontSize="sm" mb={1} color="white">Username</Text>
-              <Input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="your name"
-                borderColor={showValidation && !username.trim() ? 'red.500' : inputStyles.borderColor}
-                {...inputStyles}
-              />
+              {(() => {
+                const borderColor = showValidation && !username.trim() ? 'red.500' : inputStyles.borderColor;
+                return (
+                  <Input
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="your name"
+                    {...inputStyles}
+                    borderColor={borderColor}
+                  />
+                );
+              })()}
             </Box>
           )}
           <Box>
             <Text fontSize="sm" mb={1} color="white">
               Email
             </Text>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              borderColor={mode==='signup' && showValidation && (!email.trim() || !isValidEmail(email)) ? 'red.500' : inputStyles.borderColor}
-              {...inputStyles}
-            />
+            {(() => {
+              const borderColor = (mode==='signup' && showValidation && (!email.trim() || !isValidEmail(email))) ? 'red.500' : inputStyles.borderColor;
+              return (
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  {...inputStyles}
+                  borderColor={borderColor}
+                />
+              );
+            })()}
           </Box>
           <Box>
             <Text fontSize="sm" mb={1} color="white">
               Password
             </Text>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              borderColor={mode==='signup' && showValidation && (!password.trim() || !isStrongPassword(password)) ? 'red.500' : inputStyles.borderColor}
-              {...inputStyles}
-            />
+            {(() => {
+              const borderColor = (mode==='signup' && showValidation && (!password.trim() || !isStrongPassword(password))) ? 'red.500' : inputStyles.borderColor;
+              return (
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  {...inputStyles}
+                  borderColor={borderColor}
+                />
+              );
+            })()}
           </Box>
           {mode === 'signup' && (
             <Box>
               <Text fontSize="sm" mb={1} color="white">Confirm Password</Text>
-              <Input
-                type="password"
-                value={passwordConfirm}
-                onChange={(e) => setPasswordConfirm(e.target.value)}
-                placeholder="••••••••"
-                borderColor={showValidation && (!passwordConfirm.trim() || passwordConfirm !== password) ? 'red.500' : inputStyles.borderColor}
-                {...inputStyles}
-              />
+              {(() => {
+                const borderColor = (showValidation && (!passwordConfirm.trim() || passwordConfirm !== password)) ? 'red.500' : inputStyles.borderColor;
+                return (
+                  <Input
+                    type="password"
+                    value={passwordConfirm}
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                    placeholder="••••••••"
+                    {...inputStyles}
+                    borderColor={borderColor}
+                  />
+                );
+              })()}
             </Box>
           )}
         </Box>
@@ -179,11 +180,25 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
         )}
         <Box display="flex" justifyContent="space-between" alignItems="center" mt={4}>
           {mode === 'login' ? (
-            <Button variant="link" color="rgba(255, 255, 255, 0.7)" onClick={() => email && onForgotPassword?.(email)}>
+            <Button
+              variant="ghost"
+              bg="transparent"
+              px={0}
+              color="rgba(255, 255, 255, 0.7)"
+              _hover={{ bg: 'transparent', textDecoration: 'underline' }}
+              onClick={() => email && onForgotPassword?.(email)}
+            >
               Forgot password?
             </Button>
           ) : (
-            <Button variant="link" color="rgba(255, 255, 255, 0.7)" onClick={() => setMode('login')}> 
+            <Button
+              variant="ghost"
+              bg="transparent"
+              px={0}
+              color="rgba(255, 255, 255, 0.7)"
+              _hover={{ bg: 'transparent', textDecoration: 'underline' }}
+              onClick={() => setMode('login')}
+            > 
               Have an account? Log in
             </Button>
           )}
@@ -210,7 +225,14 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
 
         {mode === 'login' && (
           <Box mt={2}>
-            <Button variant="link" color="rgba(255, 255, 255, 0.7)" onClick={() => setMode('signup')}> 
+            <Button
+              variant="ghost"
+              bg="transparent"
+              px={0}
+              color="rgba(255, 255, 255, 0.7)"
+              _hover={{ bg: 'transparent', textDecoration: 'underline' }}
+              onClick={() => setMode('signup')}
+            > 
               Create an account
             </Button>
           </Box>
@@ -324,8 +346,6 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
             </Box>
           </Box>
         )}
-      </StyledArea>
-    </Box>,
-    document.body
+    </GlassModal>
   );
 };
