@@ -1,16 +1,68 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+// [App] app - AppRouter.tsx
+// 役割: アプリ全体のセットアップ/プロバイダ
+import { AnimatePresence, motion, type Variants } from 'framer-motion';
+import { useEffect, useMemo, useRef } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
-import { CreatePage } from '@pages/create';
-import { MelodyPage } from '@pages/melody';
-import { PlayPage } from '@pages/play';
-import { RhythmPage } from '@pages/rhythm';
+import { EditPage } from '@pages/edit';
+import { PerformancePage } from '@pages/performance';
+import { RecordingPage } from '@pages/recording';
 
-export const AppRouter = () => (
-  <Routes>
-    <Route path="/" element={<Navigate to="/create" replace />} />
-    <Route path="/create" element={<CreatePage />} />
-    <Route path="/rhythm" element={<RhythmPage />} />
-    <Route path="/melody" element={<MelodyPage />} />
-    <Route path="/play" element={<PlayPage />} />
-  </Routes>
-);
+const routeOrder: Record<string, number> = {
+  '/recording': 0,
+  '/edit': 1,
+  '/performance': 2,
+};
+
+export const AppRouter = () => {
+  const location = useLocation();
+  const pathname = location.pathname in routeOrder ? location.pathname : '/recording';
+  const currentIndex = routeOrder[pathname];
+  const prevIndexRef = useRef<number>(currentIndex);
+
+  // direction: 1 = forward (slide left), -1 = backward (slide right)
+  const direction = useMemo(() => {
+    const prev = prevIndexRef.current;
+    return currentIndex > prev ? 1 : currentIndex < prev ? -1 : 0;
+  }, [currentIndex]);
+
+  useEffect(() => {
+    prevIndexRef.current = currentIndex;
+  }, [currentIndex]);
+
+  const variants: Variants = {
+    enter: (dir: number) => {
+      const offset = typeof window !== 'undefined' ? window.innerWidth : 1000;
+      return { x: dir >= 0 ? offset : -offset, opacity: 0 };
+    },
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => {
+      const offset = typeof window !== 'undefined' ? window.innerWidth : 1000;
+      return { x: dir >= 0 ? -offset : offset, opacity: 0 };
+    },
+  };
+
+  return (
+    <div style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', width: '100%' }}>
+      <AnimatePresence initial={false} mode="wait" custom={direction}>
+        <motion.div
+          key={pathname}
+          custom={direction}
+          variants={variants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ type: 'tween', duration: 0.18, ease: 'easeInOut' }}
+          style={{ width: '100%' }}
+        >
+          <Routes location={location}>
+            <Route path="/" element={<Navigate to="/recording" replace />} />
+            <Route path="/recording" element={<RecordingPage />} />
+            <Route path="/edit" element={<EditPage />} />
+            <Route path="/performance" element={<PerformancePage />} />
+          </Routes>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+};

@@ -1,5 +1,8 @@
-import { getFirebaseAuth } from "@/shared/api/firebase";
+// [API] shared/api - firestoreRest.ts
+// 役割: 外部API/バックエンド通信ラッパー
 import { getApp } from 'firebase/app';
+
+import { getFirebaseAuth } from "@/shared/api/firebase";
 
 type FirestoreValue =
   | { nullValue: null }
@@ -60,7 +63,7 @@ if (import.meta.env.DEV) {
   const used = projectId;
   const appId = appProjectId || '(none)';
   const envId = envProjectId || '(none)';
-  // eslint-disable-next-line no-console
+   
   console.log('[rest] projectId:', { used, appId, envId, mismatch: appId && envId && appId !== envId });
 }
 const base = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`;

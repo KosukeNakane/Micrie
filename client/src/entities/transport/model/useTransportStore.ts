@@ -1,3 +1,5 @@
+// [State] entities/model - useTransportStore.ts
+// 役割: グローバル/ローカル状態の保持・提供
 // /client/src/stores/useTransportStore.ts
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';

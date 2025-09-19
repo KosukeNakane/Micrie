@@ -66,3 +66,8 @@ client/src/hooks/useNoireSampler.ts
 client/src/hooks/useOliverDrumPlayer.ts
 
 node_modules/
+
+*storybook.log
+storybook-static
+
+client/src/__archive__

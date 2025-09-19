@@ -1,3 +1,5 @@
+// [UI] features/ui - RealtimeLabel.tsx
+// 役割: 表示・入力のUIコンポーネント
 // 現在認識されている音声ラベルを画面右上に表示
 import styled from '@emotion/styled';
 

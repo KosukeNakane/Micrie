@@ -1,38 +1,41 @@
+// [App] app - App.tsx
+// 役割: アプリ全体のセットアップ/プロバイダ
 // Micrie アプリのルートコンポーネント。
 // 各種コンテキストプロバイダーで状態を共有しつつ、AppContentを表示する。
 /** @jsxImportSource @emotion/react */
 import { createSystem, defineConfig, defaultConfig, ChakraProvider } from "@chakra-ui/react";
-import { ToasterHost } from "@/shared/ui/toaster";
 import { css } from '@emotion/react';
+import { useState } from "react";
 
-import AudioUnlockGate from "@/features/audio-unlock/ui/AudioUnlockGate";
 import { Providers } from '@app/providers/Providers';
 import { AppRouter } from '@app/routes/AppRouter';
 import { Sidebar } from '@widgets/sidebar';
-import { SaveProjectModal, useSaveProject } from "@/features/project-save-load";
-import { OpenProjectModal } from "@/features/project-save-load/ui/OpenProjectModal";
-import { ensureAuth } from "@/features/project-save-load/model/auth";
-import { listProjects, loadProject } from "@/features/project-save-load/model/io";
-import { downloadLocalProject } from "@/features/project-save-load/model/local";
-import { useAssembleProjectData } from "@/features/project-save-load/model/serialize";
-import { useTempo } from "@/entities/tempo/model/TempoContext";
-import { useEffects } from "@/entities/effects/model/EffectsContext";
+
+import { Scaler, useScaler } from '@/app/providers/Scaler';
+import { useChannelsStore } from "@/entities/audio";
+import { useBarCount } from "@/entities/bar-count";
+import { useChords } from "@/entities/chords";
+import { useEffects } from "@/entities/effects";
+import { useChordPattern, useDrumPattern } from "@/entities/pattern";
+import { useScaleMode } from "@/entities/scale-mode";
+import { useSegment } from "@/entities/segment";
+import { useTempo } from "@/entities/tempo";
+import { useVolume } from "@/entities/volume";
+import { AudioUnlockGate } from "@/features/audio-unlock";
+import { openLoginModal } from "@/features/auth";
 import { useEffectsUiStore } from "@/features/effects";
-import { useChannelsStore } from "@/entities/audio/model/useChannelsStore";
-import { useSegment } from "@/entities/segment/model/SegmentContext";
-import { useBarCount } from "@/entities/bar-count/model/BarCountContext";
-import { useState } from "react";
-import { openLoginModal } from "@/features/auth/model/uiStore";
-import { LoginRequiredModal } from "@/shared/ui/LoginRequiredModal";
-import { useProjectState } from "@/features/project-save-load/model/store";
-import { ProjectTitleBar } from "@/shared/ui/ProjectTitleBar";
-import { ConfirmUnsavedChangesModal } from "@/shared/ui/ConfirmUnsavedChangesModal";
+import { SaveProjectModal, useSaveProject } from "@/features/project-save-load";
+import { OpenProjectModal, ensureAuth, listProjects, loadProject, downloadLocalProject, useAssembleProjectData, useProjectState, getInitialProjectData } from "@/features/project-save-load";
+
+
+
+// useProjectState は上記のバレルから取得
 import { stableStringify } from "@/shared/lib/stableStringify";
-import { useVolume } from "@/entities/volume/model/VolumeContext";
-import { useScaleMode } from "@/entities/scale-mode/model/ScaleModeContext";
-import { useChordPattern } from "@/entities/pattern/model/ChordPatternContext";
-import { useDrumPattern } from "@/entities/pattern/model/DrumPatternContext";
-import { getInitialProjectData } from "@/features/project-save-load/model/initial";
+import { NavBar } from "@/shared/ui";
+import { ConfirmUnsavedChangesModal } from "@/shared/ui/ConfirmUnsavedChangesModal";
+// getInitialProjectData は上記のバレルから取得
+import { LoginRequiredModal } from "@/shared/ui/LoginRequiredModal";
+import { ToasterHost } from "@/shared/ui/toaster";
 
 const config = defineConfig({
   globalCss: {
@@ -66,6 +69,7 @@ export const App = () => {
     const { setVolume } = useVolume();
     const { setScaleMode } = useScaleMode();
     const { setChordPattern } = useChordPattern();
+    const { setBars: setChordBars, setChordAt, setSlotPlayType } = useChords();
     const { setDrumPattern } = useDrumPattern();
 
     const handleSaveProject = async () => {
@@ -120,7 +124,7 @@ export const App = () => {
           setConfirmUnsavedOpen(true);
           return;
         }
-      } catch {}
+      } catch { }
       setOpenModal(true);
     };
 
@@ -128,14 +132,14 @@ export const App = () => {
       project.clear();
       project.setProject(null, 'Untitled');
       project.setLastSavedHash(null);
-      try { setTempo(90); } catch {}
-      try { setVolume(100); } catch {}
-      try { resetEffects(); } catch {}
-      try { setScaleMode('major' as any); } catch {}
-      try { setChordPattern('pattern1' as any); } catch {}
-      try { setDrumPattern('basic' as any); } catch {}
-      try { setHold(false); } catch {}
-      try { setMuted('melody', false); setMuted('chord', false); setMuted('drum', false); } catch {}
+      try { setTempo(90); } catch { }
+      try { setVolume(100); } catch { }
+      try { resetEffects(); } catch { }
+      try { setScaleMode('major' as any); } catch { }
+      try { setChordPattern('pattern1' as any); } catch { }
+      try { setDrumPattern('basic' as any); } catch { }
+      try { setHold(false); } catch { }
+      try { setMuted('melody', false); setMuted('chord', false); setMuted('drum', false); } catch { }
     };
 
     const handleNewProject = () => {
@@ -150,7 +154,7 @@ export const App = () => {
           setConfirmUnsavedOpen(true);
           return;
         }
-      } catch {}
+      } catch { }
       // No changes -> reset immediately
       resetToInitialProject();
     };
@@ -193,11 +197,24 @@ export const App = () => {
         try {
           const name = (doc as any)?.meta?.name ?? id;
           project.setProject(id, String(name));
-          try { project.setLastSavedHash(stableStringify((doc as any).data)); } catch {}
-        } catch {}
+          try { project.setLastSavedHash(stableStringify((doc as any).data)); } catch { }
+        } catch { }
         const d = doc.data;
         if (typeof d.tempo === 'number') setTempo(d.tempo);
         if (d.chordPattern) setChordPattern(d.chordPattern as any);
+        if (d.chordsProgression && Array.isArray(d.chordsProgression.slots)) {
+          try {
+            if (typeof d.chordsProgression.bars === 'number') setChordBars(d.chordsProgression.bars);
+            const slots = d.chordsProgression.slots as any[];
+            slots.forEach((s, i) => {
+              if (s?.chord) setChordAt(i, s.chord);
+              if (Array.isArray(s?.plays) && s.plays.length === 2) {
+                setSlotPlayType(i, 0, s.plays[0]);
+                setSlotPlayType(i, 1, s.plays[1]);
+              }
+            });
+          } catch {}
+        }
         if (d.drumPattern) setDrumPattern(d.drumPattern as any);
         if (d.effects) setEffects(d.effects as any);
         if (d.effectsHold) {
@@ -221,7 +238,7 @@ export const App = () => {
             }));
             setMelodySegments(segments as any);
           }
-        } catch {}
+        } catch { }
         if (d.channelsMuted) {
           setMuted('melody', !!d.channelsMuted.melody);
           setMuted('chord', !!d.channelsMuted.chord);
@@ -305,9 +322,6 @@ export const App = () => {
           onSaveProject={handleSaveProject}
           onSaveProjectAs={handleSaveProjectAs}
         />
-        {/* アプリ全体に渡す状態管理のコンテキストプロバイダー群 + ルーティング */}
-        <AudioUnlockGate /> {/* AudioContextのロック解除を促すUI */}
-        <AppRouter />
 
         {/* Save モーダル */}
         <SaveProjectModal
@@ -351,9 +365,9 @@ export const App = () => {
               const id = String(meta.id || 'local');
               const name = String(meta.name || 'Untitled');
               project.setProject(id, name);
-            } catch {}
+            } catch { }
             const d = (doc as any).data || doc;
-            try { project.setLastSavedHash(stableStringify(d)); } catch {}
+            try { project.setLastSavedHash(stableStringify(d)); } catch { }
             if (typeof d.tempo === 'number') setTempo(d.tempo);
             if ((d as any).chordPattern) setChordPattern((d as any).chordPattern as any);
             if ((d as any).drumPattern) setDrumPattern((d as any).drumPattern as any);
@@ -370,7 +384,7 @@ export const App = () => {
             }
             // Melody segments from saved pitch data (local)
             try {
-            const mp = Array.isArray((d as any).melodyPitch) ? (d as any).melodyPitch as any[] : [];
+              const mp = Array.isArray((d as any).melodyPitch) ? (d as any).melodyPitch as any[] : [];
               if (mp.length > 0) {
                 const tempoForCalc = typeof (d as any).tempo === 'number' ? (d as any).tempo : 120;
                 const bars = (barCount && Number.isFinite(barCount)) ? barCount : 2;
@@ -384,7 +398,7 @@ export const App = () => {
                 }));
                 setMelodySegments(segments as any);
               }
-            } catch {}
+            } catch { }
           }}
         />
 
@@ -446,42 +460,68 @@ export const App = () => {
   overflow: hidden;
  `;
 
-  /* ぼかしフィルター付きの背景画像 */
+  /* ぼかしフィルター付きの背景画像（常にビューポート全体をカバー） */
   const backgroundStyle = css`
-  position: absolute;
-  inset: 0;
-  background-image: url(/background.jpg);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: blur(50px);
-  z-index: 0;
- `;
+    position: fixed;
+    /* ブラーで端が透けないように少し拡大した領域を確保 */
+    inset: -80px;
+    /* ややグレーのトーンを重ねる */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(23, 92, 221, 0.453)), url(/background.jpg);
+    background-size: cover;      /* アスペクト比を保ったまま全面カバー */
+    background-position: center; /* 中央寄せ */
+    background-repeat: no-repeat;
+    filter: blur(50px);
+    z-index: 0;
+    pointer-events: none;
+  `;
 
   /* 背景の上に重ねるUIのコンテンツレイヤー */
   const contentStyle = css`
   position: relative;
   z-index: 1;
   /* 左サイドバーの幅分だけ右側にオフセット */
-  padding-left: 240px;
-  /* タイトルバーの高さ分だけ上に余白 */
-  padding-top: 56px;
+  padding-left: 0;
+  /* タイトルバー撤去に伴い上余白を詰める */
+  padding-top: 0;
  `;
+
+  // NavBar の下余白をスケール追従 + レターボックス補正で算出
+  const { scale } = useScaler();
+  void scale;
 
   return (
     <div css={appStyle}>
+      {/* 背景はスケール外で常にビューポートをカバー */}
       <div css={backgroundStyle} />
-      <div css={contentStyle}>
-        <ChakraProvider value={system}>
-          <Providers>
-            {/* 画面上部に現在のプロジェクト名を表示 */}
-            <ProjectTitleBar />
-            <AppInner />
-          </Providers>
+      <ChakraProvider value={system}>
+        <Providers>
+          {/* Sidebar はビューポート左端に固定したいので Scaler の外に配置 */}
+          <AppInner />
           {/* Global toast host (Chakra v3 toaster) */}
           <ToasterHost />
-        </ChakraProvider>
-      </div>
+          {/* スケール対象のアプリ本体 */}
+          <Scaler>
+            <div css={contentStyle}>
+              {/* ルーティング等のメインコンテンツ */}
+              <AudioUnlockGate />
+              <AppRouter />
+              {/* 画面最下部のNavBar（スケール追従の下余白） */}
+              <div
+                style={{
+                  position: 'fixed',
+                  left: '50%',
+                  transform: 'translateX(calc(-50% - 12px))',
+                  bottom: 'calc(20px + env(safe-area-inset-bottom, 0px))',
+                  zIndex: 5,
+                  pointerEvents: 'auto',
+                }}
+              >
+                <NavBar />
+              </div>
+            </div>
+          </Scaler>
+        </Providers>
+      </ChakraProvider>
     </div>
   );
 };

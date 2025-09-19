@@ -1,3 +1,5 @@
+// [State] entities/model - GlobalAudioContext.tsx
+// 役割: グローバル/ローカル状態の保持・提供
 import React, { createContext, useContext, useMemo } from "react";
 
 import { GlobalAudioEngine } from "@entities/audio/lib/GlobalAudioEngine";

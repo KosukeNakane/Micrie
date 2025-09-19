@@ -1,5 +1,8 @@
+// [UI] features/ui - AudioUnlockGate.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { useEffect, useState } from 'react';
-import { GlobalAudioEngine } from '@/entities/audio/lib/GlobalAudioEngine';
+
+import { GlobalAudioEngine } from '@/entities/audio';
 
 export default function AudioUnlockGate() {
     const [unlocked, setUnlocked] = useState(false);

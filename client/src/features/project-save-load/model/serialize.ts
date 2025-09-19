@@ -1,14 +1,17 @@
-import { useTempo } from "@/entities/tempo/model/TempoContext";
-import { useEffects } from "@/entities/effects/model/EffectsContext";
-import { useEffectsUiStore } from "@/features/effects";
-import { useChannelsStore } from "@/entities/audio/model/useChannelsStore";
+// [Model] features/model - serialize.ts
+// 役割: ビジネスロジック/状態操作
+import { useChannelsStore } from "@/entities/audio";
+import { useBarCount } from "@/entities/bar-count";
+import { useChords } from "@/entities/chords";
+import { useEffects } from "@/entities/effects";
+import { useChordPattern } from "@/entities/pattern";
+import { useDrumPattern } from "@/entities/pattern";
 import type { ProjectData, MelodyPitchItem } from "@/entities/project";
-import { useVolume } from "@/entities/volume/model/VolumeContext";
-import { useScaleMode } from "@/entities/scale-mode/model/ScaleModeContext";
-import { useChordPattern } from "@/entities/pattern/model/ChordPatternContext";
-import { useDrumPattern } from "@/entities/pattern/model/DrumPatternContext";
-import { useSegment } from "@/entities/segment/model/SegmentContext";
-import { useBarCount } from "@/entities/bar-count/model/BarCountContext";
+import { useScaleMode } from "@/entities/scale-mode";
+import { useSegment } from "@/entities/segment";
+import { useTempo } from "@/entities/tempo";
+import { useVolume } from "@/entities/volume";
+import { useEffectsUiStore } from "@/features/effects";
 
 export function useAssembleProjectData(): () => ProjectData {
   const { tempo } = useTempo();
@@ -21,6 +24,7 @@ export function useAssembleProjectData(): () => ProjectData {
   const { volume } = useVolume();
   const { scaleMode } = useScaleMode();
   const { chordPattern } = useChordPattern();
+  const { bars: chordBars, chordsPerBar, slots } = useChords();
   const { drumPattern } = useDrumPattern();
   const { melodySegments } = useSegment();
   const { barCount } = useBarCount();
@@ -28,6 +32,11 @@ export function useAssembleProjectData(): () => ProjectData {
   return () => ({
     tempo: tempo ?? 120,
     chordPattern,
+    chordsProgression: {
+      bars: chordBars,
+      chordsPerBar,
+      slots: slots.map((slot) => ({ chord: slot.chord, plays: slot.plays })),
+    },
     drumPattern,
     volume: { master: volume },
     scale: { root: 'C', mode: scaleMode },

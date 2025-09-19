@@ -1,5 +1,8 @@
+// [UI] features/ui - EffectsPanel.tsx
+// 役割: 表示・入力のUIコンポーネント
 /** @jsxImportSource @emotion/react */
 import React from 'react';
+
 import { StyledArea } from '@shared/ui';
 
 type Props = {
@@ -17,6 +20,8 @@ export const EffectsPanel: React.FC<Props> = ({ children, width = 600 }) => {
         width: '100%',
         maxWidth: width,
         margin: '12px auto 0',
+        padding: 12,
+        height: '260px',
       }}
     >
       {children}

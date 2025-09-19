@@ -1,10 +1,14 @@
+// [UI] shared/ui - RectButton.tsx
+// 役割: 表示・入力のUIコンポーネント
 // スタイリング済みの長方形ボタンコンポーネント
 // active 状態や柔軟なレイアウト制御に対応
 
 import styled from '@emotion/styled';
 
+import { scalePx, scaleShadow } from '@/shared/lib/scale';
+
 // active 状態と flexGrow に応じてスタイルが変化するカスタムボタン
-export const StyledButton = styled.button<{
+export const RectButtonBase = styled.button<{
   active?: boolean;
   flexGrow?: number | string;
   widthPx?: number | string;
@@ -14,24 +18,24 @@ export const StyledButton = styled.button<{
   font-family: "brandon-grotesque", sans-serif;
   font-weight: 500;
   font-style: normal;
-  font-size:14px;
+  font-size:${scalePx(14)};
   flex: ${({ flexGrow }) => flexGrow ?? '0 1 auto'};
-  ${({ widthPx }) => (widthPx != null ? `width: ${typeof widthPx === 'number' ? `${widthPx}px` : widthPx};` : '')}
-  ${({ minWidthPx }) => (minWidthPx != null ? `min-width: ${typeof minWidthPx === 'number' ? `${minWidthPx}px` : minWidthPx};` : '')}
+  ${({ widthPx }) => (widthPx != null ? `width: ${typeof widthPx === 'number' ? `${widthPx * 0.75}px` : widthPx};` : '')}
+  ${({ minWidthPx }) => (minWidthPx != null ? `min-width: ${typeof minWidthPx === 'number' ? `${minWidthPx * 0.75}px` : minWidthPx};` : '')}
   background: ${({ active }) =>
     active
       ? 'linear-gradient(135deg, rgba(172, 203, 229, 0.45), rgba(165, 178, 220, 0.74))'
       : 'linear-gradient(135deg,rgba(255, 255, 255, 0.87),rgb(212, 221, 240))'};
   color: rgba(5, 4, 69, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
-  padding: 8px 10px;
+  border-radius: ${scalePx(10)};
+  padding: ${scalePx(8)} ${scalePx(10)};
   cursor: pointer;
   transition: background 0.3s ease;
   box-shadow: ${({ active }) =>
     active
-      ? 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
-      : '0 6px 10px 0 rgba(31, 38, 135, 0.37)'};
+      ? `${scaleShadow(0, 2, 4)} rgba(0, 0, 0, 0.2)`
+      : `${scaleShadow(0, 6, 10, 0)} rgba(31, 38, 135, 0.37)`};
   backdrop-filter: blur(20px);
 
   &:hover {
@@ -45,7 +49,7 @@ export const StyledButton = styled.button<{
   }
 `;
 
-// ラベルとクリックイベント、状態を受け取り StyledButton を描画するシンプルな UI コンポーネント
+// ラベルとクリックイベント、状態を受け取り RectButtonBase を描画するシンプルな UI コンポーネント
 export const RectButton = ({
   label,
   active,
@@ -54,7 +58,7 @@ export const RectButton = ({
   widthPx,
   minWidthPx,
 }: {
-  label: string;
+  label: React.ReactNode;
   active?: boolean;
   onClick?: () => void;
   flexGrow?: number | string;
@@ -62,8 +66,10 @@ export const RectButton = ({
   minWidthPx?: number | string;
 }) => {
   return (
-    <StyledButton active={active} onClick={onClick} flexGrow={flexGrow} widthPx={widthPx} minWidthPx={minWidthPx}>
+    <RectButtonBase active={active} onClick={onClick} flexGrow={flexGrow} widthPx={widthPx} minWidthPx={minWidthPx}>
       {label}
-    </StyledButton>
+    </RectButtonBase>
   );
 };
+
+// Note: StyledButton は廃止。代わりに RectButtonBase を使用してください。

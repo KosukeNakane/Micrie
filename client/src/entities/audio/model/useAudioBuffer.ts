@@ -1,3 +1,5 @@
+// [Model] entities/model - useAudioBuffer.ts
+// 役割: ビジネスロジック/状態操作
 import { useEffect, useState } from 'react';
 
 import { useSegment } from '@entities/segment/model/SegmentContext';

@@ -1,3 +1,5 @@
+// [State] entities/model - SegmentContext.tsx
+// 役割: グローバル/ローカル状態の保持・提供
 import React from 'react';
 import { create } from 'zustand';
 
@@ -19,6 +21,8 @@ type StoreState = {
   melodyBuffer: AudioBuffer | null;
   rhythmBuffer: AudioBuffer | null;
   recMode: 'melody' | 'rhythm';
+  // 事前レンダリングした小節ごとの波形画像（dataURL）
+  waveformByBar: Record<number, string>;
   setRhythmSegments: (segments: Segment[]) => void;
   setMelodySegments: (segments: Segment[]) => void;
   setLoopMode: (mode: 'rhythm' | 'melody' | 'both') => void;
@@ -26,6 +30,8 @@ type StoreState = {
   updateRhythmSegment: (index: number, newData: Partial<Segment>) => void;
   setContextAudioBuffer: (mode: 'melody' | 'rhythm', buffer: AudioBuffer | null) => void;
   setRecMode: (mode: 'melody' | 'rhythm') => void;
+  setWaveformForBar: (barIndex: number, dataUrl: string) => void;
+  clearWaveforms: () => void;
 };
 
 export const useSegmentStore = create<StoreState>((set) => ({
@@ -35,6 +41,7 @@ export const useSegmentStore = create<StoreState>((set) => ({
   melodyBuffer: null,
   rhythmBuffer: null,
   recMode: 'melody',
+  waveformByBar: {},
   setRhythmSegments: (segments) => set({ rhythmSegments: segments }),
   setMelodySegments: (segments) => set({ melodySegments: segments }),
   setLoopMode: (mode) => set({ loopMode: mode }),
@@ -53,6 +60,8 @@ export const useSegmentStore = create<StoreState>((set) => ({
     rhythmBuffer: mode === 'rhythm' ? buffer : s.rhythmBuffer,
   })),
   setRecMode: (mode) => set({ recMode: mode }),
+  setWaveformForBar: (barIndex, dataUrl) => set((s) => ({ waveformByBar: { ...s.waveformByBar, [barIndex]: dataUrl } })),
+  clearWaveforms: () => set({ waveformByBar: {} }),
 }));
 
 // 互換の Provider（保持のために残すが、Zustand でグローバル保持するため実態はただのパススルー）
@@ -82,5 +91,8 @@ export const useSegment = () => {
     currentBuffer,
     recMode: state.recMode,
     setRecMode: state.setRecMode,
+    waveformByBar: state.waveformByBar,
+    setWaveformForBar: state.setWaveformForBar,
+    clearWaveforms: state.clearWaveforms,
   } as const;
 };

@@ -1,24 +1,30 @@
+// [UI] features/ui - RecButton.tsx
+// 役割: 表示・入力のUIコンポーネント
 // 録音開始・停止を制御する丸型ボタンコンポーネント
 // 録音状態に応じてスタイルと動作を変更する
 
 import styled from '@emotion/styled';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 import { useRecording } from '@entities/audio/model/RecordingContext';
 import { useRecordingUI } from '@entities/audio/model/RecordingUIContext';
 import { useBarCount } from '@entities/bar-count/model/BarCountContext';
 import { useCountBarsAndBeats } from '@entities/count-bars-and-beats/model/CountBarsAndBeatsContext';
 import { useTempo } from '@entities/tempo/model/TempoContext';
-import { StyledButton } from '@shared/ui/RectButton';
+import { RectButtonBase } from '@shared/ui/RectButton';
+
+import { scalePx } from '@/shared/lib/scale';
+
 
 // 録音状態に応じて色・影・押し込み表現が変わるスタイル付き丸型ボタン
-const CircularButton = styled(StyledButton)<{ recording: boolean }>`
+const CircularButton = styled(RectButtonBase) <{ recording: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50px;
-  padding: 0 16px;
-  height: 48px;
-  font-size: 18px;
+  border-radius: ${scalePx(50)};
+  padding: 0 ${scalePx(16)};
+  height: ${scalePx(48)};
+  font-size: ${scalePx(18)};
   flex-grow: 0;
   flex-shrink: 0;
   flex-basis: auto;
@@ -101,13 +107,12 @@ export const RecButton = ({ onClick }: { onClick: () => void }) => {
           fontFamily: 'brandon-grotesque, sans-serif',
           fontWeight: 500,
           fontStyle: 'normal',
-          fontSize: '20px',
+          fontSize: '24px',
           color: 'rgba(5, 4, 69, 0.8)'
         }}
       >
-        REC ●
+        REC <FiberManualRecordIcon sx={{ fontSize: 20, position: 'relative', top: '-3px' }} />
       </span>
     </CircularButton>
   );
 };
-

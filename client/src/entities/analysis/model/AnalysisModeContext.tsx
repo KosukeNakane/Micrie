@@ -1,3 +1,5 @@
+// [State] entities/model - AnalysisModeContext.tsx
+// 役割: グローバル/ローカル状態の保持・提供
 // WhisperまたはTeachableの解析モードを管理するコンテキスト
 
 import React, { createContext, useContext, useState } from 'react';

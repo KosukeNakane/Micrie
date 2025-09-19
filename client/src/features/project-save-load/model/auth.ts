@@ -1,3 +1,5 @@
+// [Model] features/model - auth.ts
+// 役割: ビジネスロジック/状態操作
 import { getFirebaseAuth } from "@/shared/api/firebase";
 
 export async function ensureAuth(): Promise<string> {

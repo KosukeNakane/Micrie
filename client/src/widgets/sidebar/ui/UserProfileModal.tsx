@@ -1,9 +1,12 @@
+// [UI] widgets/ui - UserProfileModal.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { Box, Button, Input, Text } from "@chakra-ui/react";
-import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
+
+
 import { useAuthStore } from "@/entities/user";
 import { updateDisplayName, linkCurrentUserWithProvider, linkCurrentUserWithPassword, unlinkCurrentUserProvider } from "@/features/auth";
-import { SmallModal } from "@/shared/ui";
+import { GlassModal } from "@shared/ui";
 
 type Props = {
   isOpen: boolean;
@@ -103,45 +106,48 @@ export const UserProfileModal = ({ isOpen, onClose }: Props) => {
     }
   };
 
-  return createPortal(
-    <Box position="fixed" inset={0} zIndex={1000}>
-      <Box position="absolute" inset={0} bg="blackAlpha.600" onClick={onClose} />
-      <Box
-        position="absolute"
-        left="50%"
-        top="50%"
-        transform="translate(-50%, -50%)"
-        bg="white"
-        borderRadius="md"
-        boxShadow="xl"
-        width="min(92vw, 540px)"
-        p={5}
-      >
-        <Text fontSize="lg" fontWeight="bold" mb={4}>Account</Text>
+  return (
+    <>
+      <GlassModal isOpen={isOpen} onClose={onClose} title="Account" widthPx={540}>
 
         <Box mb={4}>
-          <Text fontSize="sm" color="gray.600">Email</Text>
-          <Text>{user.email ?? '-'}</Text>
+          <Text fontSize="sm" color="rgba(255, 255, 255, 0.7)">Email</Text>
+          <Text color="white">{user.email ?? '-'}</Text>
         </Box>
 
         <Box mb={4}>
-          <Text fontSize="sm" color="gray.600" mb={1}>Username</Text>
+          <Text fontSize="sm" color="rgba(255, 255, 255, 0.7)" mb={1}>Username</Text>
           <Box display="flex" gap={2}>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="your name" />
-            <Button onClick={handleSaveName} disabled={saving}>Save</Button>
+            <Input 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              placeholder="your name"
+              bg="rgba(255, 255, 255, 0.1)"
+              borderColor="rgba(255, 255, 255, 0.3)"
+              color="white"
+              _placeholder={{ color: 'rgba(255, 255, 255, 0.5)' }}
+            />
+            <Button 
+              onClick={handleSaveName} 
+              disabled={saving}
+              bg="transparent"
+              color="white"
+              _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+              borderColor="rgba(255, 255, 255, 0.3)"
+            >Save</Button>
           </Box>
         </Box>
 
         <Box mb={2}>
-          <Text fontSize="sm" color="gray.600">Linked methods</Text>
+          <Text fontSize="sm" color="rgba(255, 255, 255, 0.7)">Linked methods</Text>
           <Box display="flex" gap={2} mt={1}>
-            <Box as="span" px={2} py={0.5} borderRadius="md" bg={hasGoogle ? 'green.100' : 'blackAlpha.200'} color={hasGoogle ? 'green.800' : 'gray.700'}>
+            <Box as="span" px={2} py={0.5} borderRadius="md" bg={hasGoogle ? 'green.500' : 'rgba(255,255,255,0.1)'} color={hasGoogle ? 'white' : 'rgba(255, 255, 255, 0.7)'}>
               Google
             </Box>
-            <Box as="span" px={2} py={0.5} borderRadius="md" bg={hasGithub ? 'green.100' : 'blackAlpha.200'} color={hasGithub ? 'green.800' : 'gray.700'}>
+            <Box as="span" px={2} py={0.5} borderRadius="md" bg={hasGithub ? 'green.500' : 'rgba(255,255,255,0.1)'} color={hasGithub ? 'white' : 'rgba(255, 255, 255, 0.7)'}>
               GitHub
             </Box>
-            <Box as="span" px={2} py={0.5} borderRadius="md" bg={hasPassword ? 'green.100' : 'blackAlpha.200'} color={hasPassword ? 'green.800' : 'gray.700'}>
+            <Box as="span" px={2} py={0.5} borderRadius="md" bg={hasPassword ? 'green.500' : 'rgba(255,255,255,0.1)'} color={hasPassword ? 'white' : 'rgba(255, 255, 255, 0.7)'}>
               Password
             </Box>
           </Box>
@@ -149,69 +155,112 @@ export const UserProfileModal = ({ isOpen, onClose }: Props) => {
 
         <Box display="flex" gap={2} flexWrap="wrap" mb={3}>
           {!hasGoogle ? (
-            <Button onClick={() => handleLinkProvider('google')}>Link Google</Button>
+            <Button 
+              onClick={() => handleLinkProvider('google')}
+              bg="linear-gradient(135deg,rgba(49, 130, 206, 0.9),rgba(94, 153, 208, 0.9))"
+              color="white"
+              _hover={{ bg: 'linear-gradient(135deg,rgba(41, 109, 173, 0.9),rgba(71, 123, 172, 0.9))' }}
+            >Link Google</Button>
           ) : (
-            <Button variant="outline" onClick={() => setConfirm({ open: true, provider: 'google' })} disabled={methodCount === 1}>Unlink Google</Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setConfirm({ open: true, provider: 'google' })} 
+              disabled={methodCount === 1}
+              color="white"
+              borderColor="rgba(255, 255, 255, 0.3)"
+              _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+            >Unlink Google</Button>
           )}
           {!hasGithub ? (
-            <Button onClick={() => handleLinkProvider('github')}>Link GitHub</Button>
+            <Button 
+              onClick={() => handleLinkProvider('github')}
+              bg="linear-gradient(135deg,rgba(56, 161, 105, 0.8),rgba(71, 184, 124, 0.8))"
+              color="white"
+              _hover={{ bg: 'linear-gradient(135deg,rgba(44, 136, 87, 0.8),rgba(58, 161, 106, 0.8))' }}
+            >Link GitHub</Button>
           ) : (
-            <Button variant="outline" onClick={() => setConfirm({ open: true, provider: 'github' })} disabled={methodCount === 1}>Unlink GitHub</Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setConfirm({ open: true, provider: 'github' })} 
+              disabled={methodCount === 1}
+              color="white"
+              borderColor="rgba(255, 255, 255, 0.3)"
+              _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+            >Unlink GitHub</Button>
           )}
           {hasPassword && (
-            <Button variant="outline" onClick={() => setConfirm({ open: true, provider: 'password' })} disabled={methodCount === 1}>Remove password</Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setConfirm({ open: true, provider: 'password' })} 
+              disabled={methodCount === 1}
+              color="white"
+              borderColor="rgba(255, 255, 255, 0.3)"
+              _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+            >Remove password</Button>
           )}
         </Box>
 
         {!hasPassword ? (
           <Box mt={2}>
-            <Text fontSize="sm" color="gray.600" mb={1}>Add password</Text>
+            <Text fontSize="sm" color="rgba(255, 255, 255, 0.7)" mb={1}>Add password</Text>
             <Box display="flex" flexDir="column" gap={2}>
-              <Input type="password" placeholder="New password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-              <Input type="password" placeholder="Confirm password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+              <Input 
+                type="password" 
+                placeholder="New password" 
+                value={newPassword} 
+                onChange={(e) => setNewPassword(e.target.value)}
+                bg="rgba(255, 255, 255, 0.1)"
+                borderColor="rgba(255, 255, 255, 0.3)"
+                color="white"
+                _placeholder={{ color: 'rgba(255, 255, 255, 0.5)' }}
+              />
+              <Input 
+                type="password" 
+                placeholder="Confirm password" 
+                value={confirmPassword} 
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                bg="rgba(255, 255, 255, 0.1)"
+                borderColor="rgba(255, 255, 255, 0.3)"
+                color="white"
+                _placeholder={{ color: 'rgba(255, 255, 255, 0.5)' }}
+              />
               <Box display="flex" justifyContent="flex-end">
-                <Button onClick={handleAddPassword}>Add password</Button>
+                <Button 
+                  onClick={handleAddPassword}
+                  bg="transparent"
+                  color="white"
+                  _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+                  borderColor="rgba(255, 255, 255, 0.3)"
+                >Add password</Button>
               </Box>
             </Box>
           </Box>
         ) : null}
 
-        {error && <Text color="red.500" fontSize="sm" mt={3}>{error}</Text>}
+        {error && <Text color="red.300" fontSize="sm" mt={3}>{error}</Text>}
 
         <Box display="flex" justifyContent="flex-end" mt={5}>
-          <Button variant="ghost" onClick={onClose}>Close</Button>
+          <Button 
+            variant="ghost" 
+            onClick={onClose}
+            color="white"
+            _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+          >Close</Button>
         </Box>
-      </Box>
-      <SmallModal isOpen={okOpen.open} message={okOpen.message} onClose={() => setOkOpen({ open: false, message: '' })} />
-
-      {confirm.open && (
-        <Box position="fixed" inset={0} zIndex={1100}>
-          <Box position="absolute" inset={0} bg="blackAlpha.600" onClick={() => setConfirm({ open: false, provider: null })} />
-          <Box
-            position="absolute"
-            left="50%"
-            top="50%"
-            transform="translate(-50%, -50%)"
-            bg="white"
-            borderRadius="md"
-            boxShadow="xl"
-            width="min(92vw, 420px)"
-            p={5}
-          >
-            <Text fontSize="md" fontWeight="bold" mb={3}>リンクを解除しますか？</Text>
-            <Text fontSize="sm" color="gray.700" mb={4}>この操作はいつでも再度リンクできます。</Text>
-            <Box display="flex" justifyContent="flex-end" gap={2}>
-              <Button variant="ghost" onClick={() => setConfirm({ open: false, provider: null })}>キャンセル</Button>
-              <Button colorPalette="red" onClick={async () => {
-                const p = confirm.provider!;
-                setConfirm({ open: false, provider: null });
-                await handleUnlinkProvider(p);
-              }}>解除する</Button>
-            </Box>
-          </Box>
+      </GlassModal>
+      <GlassModal isOpen={okOpen.open} onClose={() => setOkOpen({ open: false, message: '' })} title="Info" widthPx={390}>
+        <Text color="white">{okOpen.message}</Text>
+        <Box display="flex" justifyContent="flex-end" mt={3}>
+          <Button onClick={() => setOkOpen({ open: false, message: '' })} bg="transparent" color="white" _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }} borderColor="rgba(255, 255, 255, 0.3)">OK</Button>
         </Box>
-      )}
-    </Box>,
-    document.body
+      </GlassModal>
+      <GlassModal isOpen={confirm.open} onClose={() => setConfirm({ open: false, provider: null })} title="リンクを解除しますか？" widthPx={420}>
+        <Text fontSize="sm" color="rgba(255, 255, 255, 0.7)" mb={4}>この操作はいつでも再度リンクできます。</Text>
+        <Box display="flex" justifyContent="flex-end" gap={2}>
+          <Button variant="ghost" onClick={() => setConfirm({ open: false, provider: null })} color="white" _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}>キャンセル</Button>
+          <Button bg="linear-gradient(135deg, rgba(226, 86, 86, 0.9), rgba(235, 116, 116, 0.9))" color="white" _hover={{ bg: 'linear-gradient(135deg, rgba(206, 76, 76, 0.9), rgba(215, 96, 96, 0.9))' }} onClick={async () => { const p = confirm.provider!; setConfirm({ open: false, provider: null }); await handleUnlinkProvider(p); }}>解除する</Button>
+        </Box>
+      </GlassModal>
+    </>
   );
 };

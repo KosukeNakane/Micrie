@@ -1,8 +1,5 @@
-export { useChordsLoopScheduler } from './model/useChordsLoopScheduler';
-export { useChordsPlayer } from './model/useChordsPlayer';
+// [Model] features - index.ts
+// 役割: ビジネスロジック/状態操作
 export { usePlaybackController } from './model/usePlaybackController';
-export { useMelodyLoopScheduler } from './model/useMelodyLoopScheduler';
-export { useMelodyPlayer } from './model/useMelodyPlayer';
-export { useDrumPlayer } from './model/useDrumPlayer';
-export { useDrumLoopScheduler } from './model/useDrumLoopScheduler';
-
+// 旧 Scheduler ロジックは Binder へ移行済み
+export { PlaybackBinder } from './model/PlaybackBinder';

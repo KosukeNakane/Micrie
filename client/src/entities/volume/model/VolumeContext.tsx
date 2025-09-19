@@ -1,3 +1,5 @@
+// [State] entities/model - VolumeContext.tsx
+// 役割: グローバル/ローカル状態の保持・提供
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 export const VOLUME_MIN = 0;

@@ -1,3 +1,5 @@
+// [Model] features/model - useMelodyFileProcessing.ts
+// 役割: ビジネスロジック/状態操作
 import { useEffect, useState } from "react";
 
 import { useAudioBuffer } from "@entities/audio/model/useAudioBuffer";
@@ -12,7 +14,7 @@ const trimMemo = new WeakMap<Blob, TrimMemo>();
 const processedDuration = new WeakMap<Blob, number>();
 
 export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: number, enableTrimming: boolean = false) => {
-  const { setMelodySegments, setContextAudioBuffer } = useSegment();
+  const { setMelodySegments, setContextAudioBuffer, setLoopMode } = useSegment();
   const { barCount } = useBarCount();
   const { tempo } = useTempo();
   const [trimmedBlob, setTrimmedBlob] = useState<Blob | null>(null);
@@ -64,14 +66,25 @@ export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: num
       const formData = new FormData(); formData.append("file", adjustedBlob); formData.append("tempo", tempo.toString()); formData.append("bar_count", barCount.toString());
       apiFetch("pitch", { method: "POST", body: formData, signal })
         .then((data: any) => {
-          const totalDuration = (60 / tempo) * 4 * barCount; const chunkDuration = totalDuration / data.pitch_series.length;
-          const segments = data.pitch_series.map((seg: any, index: number) => {
-            const start = chunkDuration * index; const end = chunkDuration * (index + 1);
-            const note = seg.note ?? (seg.label === 'rest' ? 'rest' : 'error');
-            const label = seg.label ?? (note === 'rest' ? '—' : 'error');
-            return { label, note, hz: seg.hz, start, end, confidence: seg.confidence, rms: seg.rms, confidence_rms: seg.confidence_rms };
-          });
-          setMelodySegments(segments);
+          try {
+            const series: any[] = Array.isArray(data?.pitch_series) ? data.pitch_series : [];
+            const totalDuration = (60 / tempo) * 4 * barCount;
+            const count = Math.max(1, series.length || (16 * barCount));
+            const chunkDuration = totalDuration / count;
+            const segments = series.length > 0
+              ? series.map((seg: any, index: number) => {
+                  const start = chunkDuration * index; const end = chunkDuration * (index + 1);
+                  const labelRaw = seg.label ?? seg.note ?? 'rest';
+                  const note = labelRaw === 'rest' ? 'rest' : String(labelRaw);
+                  const label = note;
+                  return { label, note, hz: seg.hz ?? 0, start, end, confidence: seg.confidence ?? 0, rms: seg.rms ?? 0, confidence_rms: seg.confidence_rms ?? 0 };
+                })
+              : Array.from({ length: 16 * barCount }, (_, i) => ({ label: 'rest', note: 'rest', start: i * chunkDuration, end: (i + 1) * chunkDuration }));
+            setMelodySegments(segments as any);
+            try { setLoopMode('melody'); } catch { }
+          } catch (e) {
+            if (DEBUG) console.error('pitch parse failed', e);
+          }
         })
         .catch((err) => { if (DEBUG) console.error("Pitch解析エラー:", err); });
     };

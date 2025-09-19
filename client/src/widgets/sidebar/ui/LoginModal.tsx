@@ -1,11 +1,14 @@
+// [UI] widgets/ui - LoginModal.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { Box, Button, Input, Text } from "@chakra-ui/react";
 import { useState } from "react";
-import { createPortal } from "react-dom";
+
 import {
   startOAuthSignInWithLinking,
   linkAccountsWithPassword,
   linkAccountsWithProviders,
 } from '@/features/auth';
+import { GlassModal } from "@shared/ui";
 
 type Props = {
   isOpen: boolean;
@@ -32,7 +35,7 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
   // signup時の未入力ハイライト制御
   const [showValidation, setShowValidation] = useState(false);
 
-  const isValidEmail = (v: string) => /^(?:[a-zA-Z0-9_'^&\/+-])+(?:\.(?:[a-zA-Z0-9_'^&\/+-])+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(v);
+  const isValidEmail = (v: string) => /^(?:[a-zA-Z0-9_\'\'^&\/+-])+(?:\.(?:[a-zA-Z0-9_\'\'^&\/+-])+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(v);
   const isStrongPassword = (v: string) => /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(v);
 
   const parseAuthError = (e: unknown): string => {
@@ -90,92 +93,131 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
 
   if (!isOpen) return null;
 
-  return createPortal(
-    <Box position="fixed" inset={0} zIndex={1000}>
-      {/* Overlay */}
-      <Box position="absolute" inset={0} bg="blackAlpha.600" onClick={onClose} />
-      {/* Content */}
-      <Box
-        position="absolute"
-        left="50%"
-        top="50%"
-        transform="translate(-50%, -50%)"
-        bg="white"
-        borderRadius="md"
-        boxShadow="xl"
-        width="min(92vw, 420px)"
-        p={5}
-      >
-        <Text fontSize="lg" fontWeight="bold" mb={4}>
-          {mode === 'login' ? 'Login' : 'Create account'}
-        </Text>
+  const inputStyles = {
+    bg: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(255, 255, 255, 0.3)",
+    color: "white",
+    _placeholder: { color: 'rgba(255, 255, 255, 0.5)' },
+  };
+
+  return (
+    <GlassModal isOpen={isOpen} onClose={onClose} title={mode === 'login' ? 'Login' : 'Create account'} widthPx={420}>
         <Box display="flex" flexDir="column" gap={3}>
           {mode === 'signup' && (
             <Box>
-              <Text fontSize="sm" mb={1}>Username</Text>
-              <Input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="your name"
-                borderColor={showValidation && !username.trim() ? 'red.500' : undefined}
-              />
+              <Text fontSize="sm" mb={1} color="white">Username</Text>
+              {(() => {
+                const borderColor = showValidation && !username.trim() ? 'red.500' : inputStyles.borderColor;
+                return (
+                  <Input
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="your name"
+                    {...inputStyles}
+                    borderColor={borderColor}
+                  />
+                );
+              })()}
             </Box>
           )}
           <Box>
-            <Text fontSize="sm" mb={1}>
+            <Text fontSize="sm" mb={1} color="white">
               Email
             </Text>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              borderColor={mode==='signup' && showValidation && (!email.trim() || !isValidEmail(email)) ? 'red.500' : undefined}
-            />
+            {(() => {
+              const borderColor = (mode==='signup' && showValidation && (!email.trim() || !isValidEmail(email))) ? 'red.500' : inputStyles.borderColor;
+              return (
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  {...inputStyles}
+                  borderColor={borderColor}
+                />
+              );
+            })()}
           </Box>
           <Box>
-            <Text fontSize="sm" mb={1}>
+            <Text fontSize="sm" mb={1} color="white">
               Password
             </Text>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              borderColor={mode==='signup' && showValidation && (!password.trim() || !isStrongPassword(password)) ? 'red.500' : undefined}
-            />
+            {(() => {
+              const borderColor = (mode==='signup' && showValidation && (!password.trim() || !isStrongPassword(password))) ? 'red.500' : inputStyles.borderColor;
+              return (
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  {...inputStyles}
+                  borderColor={borderColor}
+                />
+              );
+            })()}
           </Box>
           {mode === 'signup' && (
             <Box>
-              <Text fontSize="sm" mb={1}>Confirm Password</Text>
-              <Input
-                type="password"
-                value={passwordConfirm}
-                onChange={(e) => setPasswordConfirm(e.target.value)}
-                placeholder="••••••••"
-                borderColor={showValidation && (!passwordConfirm.trim() || passwordConfirm !== password) ? 'red.500' : undefined}
-              />
+              <Text fontSize="sm" mb={1} color="white">Confirm Password</Text>
+              {(() => {
+                const borderColor = (showValidation && (!passwordConfirm.trim() || passwordConfirm !== password)) ? 'red.500' : inputStyles.borderColor;
+                return (
+                  <Input
+                    type="password"
+                    value={passwordConfirm}
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                    placeholder="••••••••"
+                    {...inputStyles}
+                    borderColor={borderColor}
+                  />
+                );
+              })()}
             </Box>
           )}
         </Box>
         {error && (
-          <Text color="red.500" fontSize="sm" mt={2}>{error}</Text>
+          <Text color="red.300" fontSize="sm" mt={2}>{error}</Text>
         )}
         <Box display="flex" justifyContent="space-between" alignItems="center" mt={4}>
           {mode === 'login' ? (
-            <Button variant="plain" colorPalette="blue" onClick={() => email && onForgotPassword?.(email)}>
+            <Button
+              variant="ghost"
+              bg="transparent"
+              px={0}
+              color="rgba(255, 255, 255, 0.7)"
+              _hover={{ bg: 'transparent', textDecoration: 'underline' }}
+              onClick={() => email && onForgotPassword?.(email)}
+            >
               Forgot password?
             </Button>
           ) : (
-            <Button variant="plain" colorPalette="blue" onClick={() => setMode('login')}>
+            <Button
+              variant="ghost"
+              bg="transparent"
+              px={0}
+              color="rgba(255, 255, 255, 0.7)"
+              _hover={{ bg: 'transparent', textDecoration: 'underline' }}
+              onClick={() => setMode('login')}
+            > 
               Have an account? Log in
             </Button>
           )}
           <Box display="flex" gap={2}>
-            <Button variant="ghost" onClick={onClose}>
+            <Button
+              variant="ghost"
+              onClick={onClose}
+              color="white"
+              _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+            >
               Cancel
             </Button>
-            <Button colorPalette="blue" onClick={handleSubmit}>
+            <Button
+              bg="transparent"
+              color="white"
+              _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+              borderColor="rgba(255, 255, 255, 0.3)"
+              onClick={handleSubmit}
+            >
               {mode === 'login' ? 'Login' : 'Sign up'}
             </Button>
           </Box>
@@ -183,7 +225,14 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
 
         {mode === 'login' && (
           <Box mt={2}>
-            <Button variant="plain" colorPalette="blue" onClick={() => setMode('signup')}>
+            <Button
+              variant="ghost"
+              bg="transparent"
+              px={0}
+              color="rgba(255, 255, 255, 0.7)"
+              _hover={{ bg: 'transparent', textDecoration: 'underline' }}
+              onClick={() => setMode('signup')}
+            > 
               Create an account
             </Button>
           </Box>
@@ -191,7 +240,7 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
 
         {/* OAuth */}
         <Box mt={4} display="flex" flexDir="column" gap={2}>
-          <Text fontSize="sm" color="gray.600">Or continue with</Text>
+          <Text fontSize="sm" color="rgba(255, 255, 255, 0.6)">Or continue with</Text>
           <Box display="flex" flexWrap="wrap" gap={2}>
             {onOAuth?.google && (
               <Button onClick={async () => {
@@ -202,7 +251,13 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
                 setLinkInfo(link);
                 if (link.email) setEmail(link.email);
                 setError('すでにアカウントが存在しています。ログインしてリンクできます。');
-              }}>Google</Button>
+              }}
+              bg={'linear-gradient(135deg,rgba(49, 130, 206, 0.9),rgba(94, 153, 208, 0.9))'}
+              color={'white'}
+              _hover={{
+                bg: 'linear-gradient(135deg,rgba(41, 109, 173, 0.9),rgba(71, 123, 172, 0.9))',
+              }}
+              >Google</Button>
             )}
             {onOAuth?.github && (
               <Button onClick={async () => {
@@ -213,7 +268,13 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
                 setLinkInfo(link);
                 if (link.email) setEmail(link.email);
                 setError('すでにアカウントが存在しています。ログインしてリンクできます。');
-              }}>GitHub</Button>
+              }}
+              bg={'linear-gradient(135deg,rgba(56, 161, 105, 0.8),rgba(71, 184, 124, 0.8))'}
+              color={'white'}
+              _hover={{
+                bg: 'linear-gradient(135deg,rgba(44, 136, 87, 0.8),rgba(58, 161, 106, 0.8))',
+              }}
+              >GitHub</Button>
             )}
           </Box>
         </Box>
@@ -221,9 +282,9 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
         {/* サインアップ時の既存メールのリンク誘導 UI は削除（仕様変更） */}
 
         {linkInfo && (
-          <Box mt={4} p={3} borderWidth="1px" borderRadius="md" bg="whiteAlpha.700">
-            <Text fontSize="sm" fontWeight="bold" mb={2}>アカウントのリンク</Text>
-            <Text fontSize="sm" mb={2}>同じメールの既存アカウントが見つかりました。次のいずれかでリンクできます。</Text>
+          <Box mt={4} p={3} borderWidth="1px" borderRadius="md" bg="rgba(0,0,0,0.1)">
+            <Text fontSize="sm" fontWeight="bold" mb={2} color="white">アカウントのリンク</Text>
+            <Text fontSize="sm" mb={2} color="white">同じメールの既存アカウントが見つかりました。次のいずれかでリンクできます。</Text>
             {linkInfo.methods.includes('password') && (
               <Box display="flex" alignItems="center" gap={2} mt={2}>
                 <Input
@@ -231,6 +292,7 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
                   placeholder="既存アカウントのパスワード"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  {...inputStyles}
                 />
                 <Button onClick={async () => {
                   setError(null);
@@ -240,35 +302,50 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
                   } catch (e) {
                     setError('リンクに失敗しました。パスワードを確認してください。');
                   }
-                }}>パスワードでリンク</Button>
+                }}
+                  bg="transparent"
+                  color="white"
+                  _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+                  borderColor="rgba(255, 255, 255, 0.3)"
+                >パスワードでリンク</Button>
               </Box>
             )}
             <Box display="flex" gap={2} mt={3} flexWrap="wrap">
               {linkInfo.methods.includes('google.com') && linkInfo.attempted !== 'google' && (
                 <Button onClick={async () => {
                   setError(null);
-                  try { await linkAccountsWithProviders('google', linkInfo.attempted); onClose(); }
+                  try { await linkAccountsWithProviders('google', linkInfo.attempted); onClose(); } 
                   catch (e: any) {
                     if (e?.message === 'emails_mismatch') setError('Googleのメールアドレスが一致しないためリンクできません');
                     else setError('Googleアカウントとのリンクに失敗しました');
                   }
-                }}>Googleでリンク</Button>
+                }}
+                bg={'linear-gradient(135deg,rgba(49, 130, 206, 0.9),rgba(94, 153, 208, 0.9))'}
+                color={'white'}
+                _hover={{
+                  bg: 'linear-gradient(135deg,rgba(41, 109, 173, 0.9),rgba(71, 123, 172, 0.9))',
+                }}
+                >Googleでリンク</Button>
               )}
               {linkInfo.methods.includes('github.com') && linkInfo.attempted !== 'github' && (
                 <Button onClick={async () => {
                   setError(null);
-                  try { await linkAccountsWithProviders('github', linkInfo.attempted); onClose(); }
+                  try { await linkAccountsWithProviders('github', linkInfo.attempted); onClose(); } 
                   catch (e: any) {
                     if (e?.message === 'emails_mismatch') setError('GitHubのメールアドレスが一致しないためリンクできません');
                     else setError('GitHubアカウントとのリンクに失敗しました');
                   }
-                }}>GitHubでリンク</Button>
+                }}
+                bg={'linear-gradient(135deg,rgba(56, 161, 105, 0.8),rgba(71, 184, 124, 0.8))'}
+                color={'white'}
+                _hover={{
+                  bg: 'linear-gradient(135deg,rgba(44, 136, 87, 0.8),rgba(58, 161, 106, 0.8))',
+                }}
+                >GitHubでリンク</Button>
               )}
             </Box>
           </Box>
         )}
-      </Box>
-    </Box>,
-    document.body
+    </GlassModal>
   );
 };

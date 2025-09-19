@@ -1,3 +1,5 @@
+// [Config] shared - index.ts
+// 役割: 設定/ビルド関連
 export interface FirebaseEnvConfig {
   apiKey: string;
   authDomain: string;

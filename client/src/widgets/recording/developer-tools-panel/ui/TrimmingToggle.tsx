@@ -1,0 +1,16 @@
+// [UI] widgets/ui - TrimmingToggle.tsx
+// 役割: 表示・入力のUIコンポーネント
+interface Props {
+  enabled: boolean;
+  onChange: (enabled: boolean) => void;
+}
+
+export const TrimmingToggle = ({ enabled, onChange }: Props) => {
+  return (
+    <label style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+      <input type="checkbox" checked={enabled} onChange={(e) => onChange(e.target.checked)} />
+      Trimming
+    </label>
+  );
+};
+

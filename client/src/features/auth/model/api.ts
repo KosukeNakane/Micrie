@@ -1,3 +1,5 @@
+// [Model] features/model - api.ts
+// 役割: ビジネスロジック/状態操作
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -15,8 +17,9 @@ import {
   EmailAuthProvider,
   unlink,
 } from 'firebase/auth';
-import { getFirebaseAuth, providers } from '@/shared/api/firebase';
+
 import { useAuthStore } from '@/entities/user';
+import { getFirebaseAuth, providers } from '@/shared/api/firebase';
 
 export const signInWithEmailPassword = async (email: string, password: string) => {
   const auth = await getFirebaseAuth();

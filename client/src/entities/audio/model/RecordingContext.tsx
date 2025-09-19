@@ -1,3 +1,5 @@
+// [State] entities/model - RecordingContext.tsx
+// 役割: グローバル/ローカル状態の保持・提供
 import React, { createContext, useContext, useState } from 'react';
 
 const RecordingContext = createContext<{ isRecording: boolean; setIsRecording: (val: boolean) => void } | null>(null);

@@ -1,4 +1,7 @@
+// [Binder] features/model - VolumeEngineBinder.tsx
+// 役割: エンジン/Transportとアプリ状態の接続（副作用）
 import { useEffect } from 'react';
+
 import { useGlobalAudio } from '@entities/audio/model/GlobalAudioContext';
 import { useVolume } from '@entities/volume/model/VolumeContext';
 

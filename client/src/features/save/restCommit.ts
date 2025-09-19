@@ -1,3 +1,5 @@
+// [Model] features - restCommit.ts
+// 役割: ビジネスロジック/状態操作
 import { getAuth } from 'firebase/auth';
 
 type Write = {

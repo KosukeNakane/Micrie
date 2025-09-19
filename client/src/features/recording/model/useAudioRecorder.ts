@@ -1,3 +1,5 @@
+// [Model] features/model - useAudioRecorder.ts
+// 役割: ビジネスロジック/状態操作
 // メトロノーム付きの録音機能を提供するカスタムフック。
 // モード（rhythm / melody）と解析方法（Whisper / teachable）に応じて録音データをFlaskサーバーに送信し、解析結果を SegmentContext に保存する。
 
@@ -14,6 +16,7 @@ import { useMode } from '@entities/mode/model/ModeContext';
 import { useSegment } from '@entities/segment/model/SegmentContext';
 import { useTeachableModel } from '@features/analysis/model/useTeachableModel';
 import { apiFetch } from '@shared/api/apiClient';
+import { useAudioStore } from '@/entities/audio';
 
 // 音声Blobの末尾に無音を追加して、期待される録音時間に調整する
 const appendSilenceToBlob = async (originalBlob: Blob, sampleRate: number, durationSec: number): Promise<Blob> => {
@@ -54,8 +57,9 @@ export type Segment = {
 export const useAudioRecorder = () => {
 
     const { isRecording, setIsRecording } = useRecording();
-    const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-    const { setRhythmSegments, setMelodySegments } = useSegment();
+    const setSharedAudioBlob = useAudioStore((s) => s.setAudioBlob);
+    const [, setAudioBlob] = useState<Blob | null>(null);
+    const { setRhythmSegments, setMelodySegments, setContextAudioBuffer } = useSegment();
     const realtimeLabel = useTeachableModel();
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
@@ -88,6 +92,21 @@ export const useAudioRecorder = () => {
                 const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
                 if (blob.size > 1000) {
                     setAudioBlob(blob);
+                    // 共有ストアにも録音由来として反映
+                    try { setSharedAudioBlob(blob, 'recorded'); } catch {}
+                    // 録音した音声をデコードして、Zustandの audioBuffers に保持
+                    (async () => {
+                        try {
+                            const ctx = new AudioContext();
+                            const ab = await blob.arrayBuffer();
+                            const buf = await ctx.decodeAudioData(ab);
+                            const target: 'melody' | 'rhythm' = (mode === 'melody') ? 'melody' : 'rhythm';
+                            setContextAudioBuffer(target, buf);
+                            ctx.close().catch(() => { });
+                        } catch (e) {
+                            console.warn('Failed to decode recorded audio for waveform:', e);
+                        }
+                    })();
                     if (mode === 'rhythm') {
                         if (Amode === 'whisper') {
                             const formData = new FormData();
@@ -214,6 +233,8 @@ export const useAudioRecorder = () => {
                     ? await appendSilenceToBlob(blob, 44100, remaining)
                     : blob;
                 setAudioBlob(finalBlob);
+                // 共有ストアにも録音由来として反映
+                try { setSharedAudioBlob(finalBlob, 'recorded'); } catch {}
             }
             setIsRecording(false);
         };
@@ -231,7 +252,6 @@ export const useAudioRecorder = () => {
 
     return {
         isRecording,
-        audioBlob,
         startRecording,
         stopRecording,
         toggleRecording,

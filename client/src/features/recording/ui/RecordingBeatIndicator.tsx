@@ -1,9 +1,15 @@
+// [UI] features/ui - RecordingBeatIndicator.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { StyledArea } from '@shared/ui/StyledArea';
 
-type Props = { currentBar: number; currentBeat: number };
+type Props = { currentBar: number; currentBeat: number; size?: 'sm' | 'md' };
 
-export const RecordingBeatIndicator = ({ currentBar, currentBeat }: Props) => (
-  <StyledArea style={{ fontSize: '20px' }}>
-    Bar: {currentBar} / Beat: {currentBeat}
-  </StyledArea>
-);
+export const RecordingBeatIndicator = ({ currentBar, currentBeat, size = 'md' }: Props) => {
+  const fontSize = size === 'sm' ? 20 : 24;
+  const padding = size === 'sm' ? '3px 6px' : '7.5px 9px';
+  return (
+    <StyledArea style={{ fontSize: `${fontSize}px`, padding }}>
+      Bar: {currentBar} / Beat: {currentBeat}
+    </StyledArea>
+  );
+};

@@ -1,3 +1,5 @@
+// [UI] shared/ui - BarSelectDropdown.tsx
+// 役割: 表示・入力のUIコンポーネント
 // 録音する小節(bar)数を選択するドロップダウン形式のセレクター。
 // グローバル状態 barCount を変更する機能を持つ。
 
@@ -5,6 +7,8 @@ import styled from '@emotion/styled';
 import { useState } from 'react';
 
 import { useBarCount } from '@entities/bar-count/model/BarCountContext';
+
+import { scalePx, scaleShadow } from '@/shared/lib/scale';
 
 import { RectButton } from './RectButton';
 
@@ -23,24 +27,24 @@ const DropdownMenu = styled.div`
   font-weight: 500;
   font-style: normal;
   background: rgba(255, 255, 255, 1);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  backdrop-filter: blur(19px);
-  -webkit-backdrop-filter: blur(19px);
-  border-radius: 10px;
+  box-shadow: ${scaleShadow(0, 8, 32, 0)} rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(${scalePx(19)});
+  -webkit-backdrop-filter: blur(${scalePx(19)});
+  border-radius: ${scalePx(10)};
   border: 1px solid rgba(255, 255, 255, 0.18);
-  padding: 4px 6px;
+  padding: ${scalePx(4)} ${scalePx(6)};
   z-index: 9999;
 `;
 
 // 各バー数選択肢のスタイルとホバー時の挙動
 const DropdownItem = styled.div`
-  padding: 8px 12px;
+  padding: ${scalePx(8)} ${scalePx(12)};
   cursor: pointer;
   white-space: nowrap;
 
   &:hover {
     background-color: rgba(200, 200, 255, 0.2);
-    border-radius: 6px;
+    border-radius: ${scalePx(6)};
   }
 `;
 
@@ -80,4 +84,3 @@ export const BarSelectDropdown = () => {
     </DropdownContainer>
   );
 };
-

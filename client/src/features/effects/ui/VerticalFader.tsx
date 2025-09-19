@@ -1,3 +1,5 @@
+// [UI] features/ui - VerticalFader.tsx
+// 役割: 表示・入力のUIコンポーネント
 import { Box, chakra } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 

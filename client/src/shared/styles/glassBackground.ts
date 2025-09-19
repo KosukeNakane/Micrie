@@ -1,3 +1,5 @@
+// [Model] shared - glassBackground.ts
+// 役割: ビジネスロジック/状態操作
 import { css } from "@emotion/react";
 
 export const glassBackground = css`

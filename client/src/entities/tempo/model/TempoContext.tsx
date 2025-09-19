@@ -1,3 +1,5 @@
+// [State] entities/model - TempoContext.tsx
+// 役割: グローバル/ローカル状態の保持・提供
 import React, { createContext, useContext, useState } from 'react';
 
 export const TEMPO_MIN = 20;

@@ -1,39 +1,47 @@
-import { useEffect, useMemo, useCallback } from 'react';
+// [Model] features/model - useChordsPlayer.ts
+// 役割: ビジネスロジック/状態操作
+import * as Tone from 'tone';
 
-import { usePianoSampler } from '@entities/audio/model/usePianoSampler';
-import { useChordPattern } from '@entities/pattern/model/ChordPatternContext';
+import { usePianoSampler } from '@/entities/audio';
 
-type Chord = string[];
-
+// Chords の発音ロジックをカプセル化
+// - chordToNotes: ルート・クオリティ・テンションからノート配列へ展開
+// - playChordAt: 指定ノート群を所定の time/duration で発音
 export const useChordsPlayer = () => {
-  const { chordPattern } = useChordPattern();
-  const pianoSamplerRef = usePianoSampler('chord');
+  const samplerRef = usePianoSampler('chord');
 
-  const patterns: { [key: string]: Chord[] } = useMemo(() => ({
-    pattern1: [ ['F4'], ['F4','A4','C5','E5'], ['F4'], ['F4','A4','C5','E5'], ['E4'], ['E4','G#4','B4','D5'], ['E4'], ['E4','G#4','B4','D5'], ['A3'], ['A3','C4','E4','G4'], ['A3'], ['A3','C4','E4','G4'], ['G3'], ['G3','A#3','D4','F4'], ['C4'], ['C4','E4','G4','A#4'] ],
-    pattern2: [ ['C4'], ['C4','E4','G4'], ['C4'], ['C4','E4','G4'], ['G3'], ['G3','B3','D4'], ['G3'], ['G3','B3','D4'], ['A3'], ['A3','C4','E4'], ['A3'], ['A3','C4','E4'], ['F3'], ['F3','A3','C4'], ['F3'], ['F3','A3','C4'] ],
-    pattern3: [ ['F4'], ['F4','A4','C5'], ['F4'], ['F4','A4','C5'], ['G4'], ['G4','B4','D5'], ['G4'], ['G4','B4','D5'], ['A4'], ['A4','C5','E5'], ['A4'], ['A4','C5','E5'], ['A4'], ['A4','C5','E5'], ['A4'], ['A4','C5','E5'] ],
-    pattern4: [ ['F4'], ['F4','A4','C5'], ['F4'], ['F4','A4','C5'], ['G4'], ['G4','B4','D5'], ['G4'], ['G4','B4','D5'], ['E4'], ['E4','G4','B4'], ['E4'], ['E4','G4','B4'], ['A4'], ['A4','C5','E5'], ['A4'], ['A4','C5','E5'] ],
-    pattern5: [ ['A4'], ['A4','C5','E5'], ['A4'], ['A4','C5','E5'], ['F4'], ['F4','A4','C5'], ['F4'], ['F4','A4','C5'], ['G4'], ['G4','B4','D5'], ['G4'], ['G4','B4','D5'], ['C5'], ['C5','E5','G5'], ['C5'], ['C5','E5','G5'] ],
-    pattern6: [ ['A4'], ['A4','C5','E5'], ['F4'], ['F4','A4','C5'], ['C5'], ['C5','E5','G5'], ['G4'], ['G4','B4','D5'], ['A4'], ['A4','C5','E5'], ['F4'], ['F4','A4','C5'], ['C5'], ['C5','E5','G5'], ['G4'], ['G4','B4','D5'] ],
-    pattern7: [ ['C4'], ['C4','E4','G4'], ['G3'], ['G3','B3','D4'], ['A3'], ['A3','C4','E4'], ['E3'], ['E3','B3','G4'], ['F3'], ['F3','A3','C4'], ['E3'], ['E3','C4','G4'], ['F3'], ['F3','A3','C4'], ['G3'], ['G3','B3','D4'] ],
-  }), []);
+  const NOTES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'] as const;
 
-  const chords = patterns[chordPattern] || patterns['pattern1'];
-
-  useEffect(() => { if (pianoSamplerRef.current) pianoSamplerRef.current.volume.value = -6; }, [pianoSamplerRef]);
-
-  const playChords = (startTime: number, duration: number) => {
-    chords.forEach((chord, i) => {
-      const time = startTime + i * duration;
-      chord.forEach(note => pianoSamplerRef.current?.triggerAttackRelease(note, duration, time));
-    });
+  const chordToNotes = (
+    rootIndex: number,
+    quality: 'maj' | 'min' | 'dim' | 'aug',
+    tension: '' | 'maj7' | '7' | '6' | '9' | '11' | '13'
+  ): string[] => {
+    const rootName = `${NOTES[rootIndex]}3`;
+    let rootMidi = 60;
+    try { rootMidi = Tone.Frequency(rootName).toMidi(); } catch { }
+    const intervals = quality === 'min' ? [0, 3, 7]
+      : quality === 'dim' ? [0, 3, 6]
+        : quality === 'aug' ? [0, 4, 8]
+          : [0, 4, 7];
+    const ext = tension === 'maj7' ? 11
+      : tension === '7' ? 10
+        : tension === '6' ? 9
+          : tension === '9' ? 14
+            : tension === '11' ? 17
+              : tension === '13' ? 21
+                : null;
+    const mids = intervals.map((iv) => rootMidi + iv);
+    if (ext !== null) mids.push(rootMidi + ext);
+    return mids.map((m) => (m > 84 ? Tone.Frequency(m - 12, 'midi').toNote() : Tone.Frequency(m, 'midi').toNote()));
   };
 
-  // 単一コードを所定時間に鳴らす（Part用）
-  const playChordAt = useCallback((notes: string[], time: number, duration: number) => {
-    notes.forEach(note => pianoSamplerRef.current?.triggerAttackRelease(note, duration, time));
-  }, [pianoSamplerRef]);
+  const playChordAt = (notes: string[], time: number, duration: number) => {
+    try {
+      notes.forEach((n) => samplerRef.current?.triggerAttackRelease(n, duration, time));
+    } catch { }
+  };
 
-  return { playChords, playChordAt, chords };
+  return { chordToNotes, playChordAt } as const;
 };
+

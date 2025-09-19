@@ -1,7 +1,10 @@
+// [Model] features/model - io.ts
+// 役割: ビジネスロジック/状態操作
 import { doc, setDoc, serverTimestamp, getDoc, collection, addDoc, Timestamp, getDocs, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getDb, getStorageBucket } from "@/shared/api/firebase";
+
 import type { ProjectData, ProjectDocument } from "@/entities/project";
+import { getDb, getStorageBucket } from "@/shared/api/firebase";
 import { restCreateOrUpdateProject, restListUserProjects, restGetUserProject, restUpsertDoc, restDeleteUserProject } from "@/shared/api/firestoreRest";
 
 export async function uploadAudio(uid: string, projectId: string, audio: Blob): Promise<string> {

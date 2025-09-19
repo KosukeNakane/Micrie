@@ -1,3 +1,5 @@
+// [State] entities/model - EffectsContext.tsx
+// 役割: グローバル/ローカル状態の保持・提供
 import React, { createContext, useCallback, useContext, useMemo, useReducer } from "react";
 
 export type EffectKey = "CRUSH" | "COMB" | "HICUT" | "LOWCUT" | "REVERB" | "DIRTY";

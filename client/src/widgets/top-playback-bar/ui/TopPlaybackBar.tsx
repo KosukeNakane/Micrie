@@ -1,30 +1,35 @@
+// [UI] widgets/ui - TopPlaybackBar.tsx
+// 役割: 表示・入力のUIコンポーネント
 import styled from '@emotion/styled';
+import PauseIcon from '@mui/icons-material/Pause';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StopIcon from '@mui/icons-material/Stop';
 import { useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
-import { RectButton } from '@shared/ui/RectButton';
-import { usePlaybackController } from '@features/playback/model/usePlaybackController';
+
+// import { RectButton } from '@shared/ui/RectButton';
+import { usePlaybackController } from '@features/playback';
 import { TempoControl } from '@features/tempo';
 import { VolumeControl } from '@features/volume';
+import { StyledArea } from '@shared/ui';
 
-const BarWrapper = styled.div`
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  display: flex;
+
+import { scalePx } from '@/shared/lib/scale';
+
+const BarWrapper = styled(StyledArea)`
+  box-sizing: border-box;
   flex-direction: column;
+  justify-content: flex-start;
   align-items: stretch;
-  gap: 12px;
-  margin: 10px auto;
-  padding: 10px 12px;
-  max-width: 600px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.35), rgba(140, 194, 209, 0.843));
-  box-shadow: 0 8px 16px 0 rgba(31, 38, 135, 0.37);
+  gap: ${scalePx(8)}; /* 間隔を少し詰めて全体を上に */
+  width: 600px;
+  height: 130px;
+  margin-top: 20px;
 `;
 
 const ProgressWrap = styled.div`
   position: relative;
-  height: 4px;
+  height: ${scalePx(4)};
   flex: 1;
   border-radius: 999px;
   background:linear-gradient(90deg, rgb(255, 135, 22), rgb(255, 17, 195));
@@ -39,22 +44,43 @@ const ProgressDot = styled.div<{ x: number }>`
   left: ${({ x }) => `${x * 100}%`};
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 14px;
-  height: 14px;
+  width: ${scalePx(14)};
+  height: ${scalePx(14)};
   border-radius: 50%;
   background: #ff2a2a;
-  box-shadow: 0 0 0 2px rgba(255, 42, 42, 0.25);
+  box-shadow: 0 0 0 ${scalePx(2)} rgba(255, 42, 42, 0.25);
 `;
 
 const ControlsRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: ${scalePx(12)};
 `;
 
 const TempoRow = styled.div`
   display: flex;
   justify-content: flex-end;
+  margin-top: -6px; /* わずかに上方向へオフセット */
+`;
+
+// すりガラス風の円形アイコンボタン（StyledAreaベース）
+const IconButton = styled(StyledArea)`
+  box-sizing: border-box;
+  width: ${scalePx(40)};
+  height: ${scalePx(40)};
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  cursor: pointer;
+  background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(115, 175, 224, 0.45));
+  transition: background-color 0.2s ease, transform 0.05s ease;
+  box-shadow: none;
+  &:hover { background-color: rgba(154, 154, 154, 0.663); }
+  &:active { transform: translateY(1px); }
+  & > svg { font-size: ${scalePx(20)}; color: rgba(5, 4, 69, 0.9); }
 `;
 
 export const TopPlaybackBar = () => {
@@ -155,8 +181,12 @@ export const TopPlaybackBar = () => {
   return (
     <BarWrapper>
       <ControlsRow>
-        <RectButton onClick={onToggle} label={isLoopPlaying ? '⏸ Pause' : '▶︎ Play'} widthPx={70} />
-        <RectButton onClick={onStop} label={'■ Stop'} widthPx={70} />
+        <IconButton as="button" aria-label={isLoopPlaying ? 'Pause' : 'Play'} onClick={onToggle}>
+          {isLoopPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+        </IconButton>
+        <IconButton as="button" aria-label={'Stop'} onClick={onStop}>
+          <StopIcon />
+        </IconButton>
         <ProgressWrap
           ref={progressRef}
           aria-label="loop progress"
@@ -170,10 +200,10 @@ export const TopPlaybackBar = () => {
         </ProgressWrap>
       </ControlsRow>
       <TempoRow>
-        <div style={{ width: 140 }}>
+        <div style={{ width: 180 }}>
           <TempoControl />
         </div>
-        <div style={{ width: 120 }}>
+        <div style={{ width: 160 }}>
           <VolumeControl />
         </div>
       </TempoRow>
