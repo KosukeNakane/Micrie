@@ -43,10 +43,9 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
-        '/analyze': {
-          target: apiBase,
-          changeOrigin: true,
-        },
+        '/analyze': { target: apiBase, changeOrigin: true },
+        '/pitch': { target: apiBase, changeOrigin: true },
+        '/predict': { target: apiBase, changeOrigin: true },
       },
     },
   };

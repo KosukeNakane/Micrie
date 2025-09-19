@@ -53,7 +53,7 @@ export const BarWaveformSection = () => {
         <BarWaveformCard>
           {/* セグメントラベルのオーバーレイ表示は無効化（MelodySegmentEditor由来に見える重複ラベル防止） */}
           {/* 波形背景表示は削除 */}
-          <div style={{ position: 'absolute', zIndex: 5, top: 0, left: 0, right: 0, display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', paddingTop: '8px', boxSizing: 'border-box', pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', zIndex: 20, top: 0, left: 0, right: 0, display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', paddingTop: '8px', boxSizing: 'border-box', pointerEvents: 'auto' }}>
             {(loopMode === 'rhythm' || loopMode === 'both') && (<RhythmSegmentEditor barIndex={0} width={canvasWidth} />)}
             {(loopMode === 'melody' || loopMode === 'both') && (
               <MelodyEditor barIndex={0} width={canvasWidth} />

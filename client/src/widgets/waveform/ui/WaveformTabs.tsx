@@ -3,14 +3,16 @@
 import { Tabs } from "@chakra-ui/react";
 import React from "react";
 
+type Tab = "melody" | "chords" | "drums";
 type Props = {
   melody?: React.ReactNode;
   chords?: React.ReactNode;
   drums?: React.ReactNode;
-  defaultTab?: "melody" | "chords" | "drums";
+  defaultTab?: Tab;
+  onTabChange?: (tab: Tab) => void;
 };
 
-export const WaveformTabs: React.FC<Props> = ({ melody, chords, drums, defaultTab = "melody" }) => {
+export const WaveformTabs: React.FC<Props> = ({ melody, chords, drums, defaultTab = "melody", onTabChange }) => {
   return (
     <Tabs.Root defaultValue={defaultTab}>
       <Tabs.List display="flex" justifyContent="center">
@@ -20,6 +22,7 @@ export const WaveformTabs: React.FC<Props> = ({ melody, chords, drums, defaultTa
           height="60px"
           fontWeight="700"
           borderRadius="8px 0 0 8px"
+          onClick={() => onTabChange?.("melody")}
         >
           MELODY
         </Tabs.Trigger>
@@ -28,6 +31,7 @@ export const WaveformTabs: React.FC<Props> = ({ melody, chords, drums, defaultTa
           width="350px"
           height="60px"
           fontWeight="700"
+          onClick={() => onTabChange?.("chords")}
         >
           CHORDS
         </Tabs.Trigger>
@@ -37,6 +41,7 @@ export const WaveformTabs: React.FC<Props> = ({ melody, chords, drums, defaultTa
           height="60px"
           fontWeight="700"
           borderRadius="0 8px 8px 0"
+          onClick={() => onTabChange?.("drums")}
         >
           DRUMS
         </Tabs.Trigger>

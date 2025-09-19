@@ -12,9 +12,10 @@ type Props = {
   chords?: React.ReactNode;
   drums?: React.ReactNode;
   defaultTab?: "melody" | "chords" | "drums";
+  onTabChange?: (tab: "melody" | "chords" | "drums") => void;
 };
 
-export const BarWaveformContainer: React.FC<Props> = ({ children, melody, chords, drums, defaultTab = "melody" }) => {
+export const BarWaveformContainer: React.FC<Props> = ({ children, melody, chords, drums, defaultTab = "melody", onTabChange }) => {
   const melodyContent = useMemo(() => melody ?? null, [melody]);
   const chordsContent = useMemo(() => chords ?? null, [chords]);
   const drumsContent = useMemo(() => drums ?? null, [drums]);
@@ -39,6 +40,7 @@ export const BarWaveformContainer: React.FC<Props> = ({ children, melody, chords
         chords={chordsContent}
         drums={drumsContent}
         defaultTab={defaultTab}
+        onTabChange={onTabChange}
       />
     </StyledArea>
   );

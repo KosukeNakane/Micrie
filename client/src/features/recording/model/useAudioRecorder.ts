@@ -16,6 +16,7 @@ import { useMode } from '@entities/mode/model/ModeContext';
 import { useSegment } from '@entities/segment/model/SegmentContext';
 import { useTeachableModel } from '@features/analysis/model/useTeachableModel';
 import { apiFetch } from '@shared/api/apiClient';
+import { useAudioStore } from '@/entities/audio';
 
 // 音声Blobの末尾に無音を追加して、期待される録音時間に調整する
 const appendSilenceToBlob = async (originalBlob: Blob, sampleRate: number, durationSec: number): Promise<Blob> => {
@@ -56,6 +57,7 @@ export type Segment = {
 export const useAudioRecorder = () => {
 
     const { isRecording, setIsRecording } = useRecording();
+    const setSharedAudioBlob = useAudioStore((s) => s.setAudioBlob);
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
     const { setRhythmSegments, setMelodySegments, setContextAudioBuffer } = useSegment();
     const realtimeLabel = useTeachableModel();
@@ -90,6 +92,8 @@ export const useAudioRecorder = () => {
                 const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
                 if (blob.size > 1000) {
                     setAudioBlob(blob);
+                    // 共有ストアにも録音由来として反映
+                    try { setSharedAudioBlob(blob, 'recorded'); } catch {}
                     // 録音した音声をデコードして、Zustandの audioBuffers に保持
                     (async () => {
                         try {
@@ -98,7 +102,7 @@ export const useAudioRecorder = () => {
                             const buf = await ctx.decodeAudioData(ab);
                             const target: 'melody' | 'rhythm' = (mode === 'melody') ? 'melody' : 'rhythm';
                             setContextAudioBuffer(target, buf);
-                            ctx.close().catch(() => {});
+                            ctx.close().catch(() => { });
                         } catch (e) {
                             console.warn('Failed to decode recorded audio for waveform:', e);
                         }
@@ -229,6 +233,8 @@ export const useAudioRecorder = () => {
                     ? await appendSilenceToBlob(blob, 44100, remaining)
                     : blob;
                 setAudioBlob(finalBlob);
+                // 共有ストアにも録音由来として反映
+                try { setSharedAudioBlob(finalBlob, 'recorded'); } catch {}
             }
             setIsRecording(false);
         };
@@ -246,7 +252,6 @@ export const useAudioRecorder = () => {
 
     return {
         isRecording,
-        audioBlob,
         startRecording,
         stopRecording,
         toggleRecording,

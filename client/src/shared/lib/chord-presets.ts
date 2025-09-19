@@ -11,7 +11,7 @@ export type ChordPresetSlot = {
 };
 
 export const PRESETS: Record<string, ChordPresetSlot[]> = {
-  pattern1: [
+  pattern1: [ // Cool City
     { chord: { rootIndex: 5, quality: 'maj', tension: 'maj7' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 5, quality: 'maj', tension: 'maj7' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 4, quality: 'maj', tension: '7' }, plays: ['root', 'chord'] },
@@ -21,7 +21,7 @@ export const PRESETS: Record<string, ChordPresetSlot[]> = {
     { chord: { rootIndex: 7, quality: 'min', tension: '7' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 0, quality: 'maj', tension: '7' }, plays: ['root', 'chord'] },
   ],
-  pattern2: [
+  pattern2: [ // Happy Pop
     { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
@@ -31,17 +31,17 @@ export const PRESETS: Record<string, ChordPresetSlot[]> = {
     { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
   ],
-  pattern3: [
+  pattern3: [ // Calm Tune
     { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
+    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
+    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
+    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
+    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
   ],
-  pattern4: [
+  pattern4: [ // Soft Sad
     { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
@@ -51,9 +51,9 @@ export const PRESETS: Record<string, ChordPresetSlot[]> = {
     { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
   ],
-  pattern5: [
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
+  pattern5: [ // Cry Chorus
+    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
+    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
@@ -61,17 +61,17 @@ export const PRESETS: Record<string, ChordPresetSlot[]> = {
     { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
   ],
-  pattern6: [
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
+  pattern6: [ // Trendy Emo
+    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
+    { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
+    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
+    { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 9, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 5, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
-    { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
   ],
-  pattern7: [
+  pattern7: [ // Emo Canon
     { chord: { rootIndex: 0, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 7, quality: 'maj', tension: '' }, plays: ['root', 'chord'] },
     { chord: { rootIndex: 9, quality: 'min', tension: '' }, plays: ['root', 'chord'] },

@@ -81,7 +81,6 @@ export const Sidebar = ({
   // Developer Tools state (moved from RecordingPage)
   const [devOpen, setDevOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [devAudioBlob, setDevAudioBlob] = useState<Blob | null>(null);
   const [trimmingEnabled, setTrimmingEnabled] = useState(false);
 
   // タッチ: 左端からのスワイプで開き、サイドバー内からの左スワイプで閉じる
@@ -341,8 +340,6 @@ export const Sidebar = ({
                 <DeveloperToolsPanel
                   isPlaying={isPlaying}
                   setIsPlaying={setIsPlaying}
-                  devAudioBlob={devAudioBlob}
-                  setDevAudioBlob={setDevAudioBlob}
                   trimmingEnabled={trimmingEnabled}
                   setTrimmingEnabled={setTrimmingEnabled}
                 />

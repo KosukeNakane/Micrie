@@ -14,6 +14,7 @@ import { RealtimeLabel, useAudioRecorder } from "@features/recording";
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
 import { WaveformDisplay } from "@widgets/waveform";
 
+import { useAudioStore } from "@/entities/audio";
 export const RecordingPage = () => {
 
   const engine = useGlobalAudio();
@@ -21,9 +22,9 @@ export const RecordingPage = () => {
   // 録音状態・音声データ・リアルタイムラベルを管理するカスタムフック
   const {
     toggleRecording,
-    audioBlob,
     realtimeLabel,
   } = useAudioRecorder();
+  const { audioBlob, audioBlobSource } = useAudioStore();
 
   // テンポ（BPM）を取得するカスタムフック
   const { tempo } = useTempo();
@@ -35,11 +36,12 @@ export const RecordingPage = () => {
   useEffect(() => {
     if (hasNavigatedRef.current) return;
     const hasResults = (rhythmSegments?.length ?? 0) > 0 || (melodySegments?.length ?? 0) > 0;
-    if (audioBlob && hasResults) {
+    // 録音完了時のみ自動遷移（Editのアップロード由来では発火しない）
+    if (audioBlob && audioBlobSource === 'recorded' && hasResults) {
       hasNavigatedRef.current = true;
       navigate('/edit');
     }
-  }, [audioBlob, rhythmSegments?.length, melodySegments?.length, navigate]);
+  }, [audioBlob, audioBlobSource, rhythmSegments?.length, melodySegments?.length, navigate]);
 
 
   // Developer Tools 関連状態は Sidebar に移行
