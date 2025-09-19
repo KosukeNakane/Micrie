@@ -1,12 +1,15 @@
 // [UI] features/ui - DrumsEditor.tsx
 // 役割: 表示・入力のUIコンポーネント（3行×16マス、右端にラベル）
 import styled from '@emotion/styled';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import * as Tone from 'tone';
 
 import { StyledArea } from '@/shared/ui';
 import { useSegment } from '@/entities/segment';
 import { useTransportStore } from '@/entities/transport';
+import { useDrumPattern } from '@/entities/pattern';
+
+import { getDrumEvents } from '@/features/drums-playback/model/drumEvents';
 
 const STEPS = 16;
 const ROWS = [
@@ -71,25 +74,51 @@ const LabelCell = styled(StyledArea)`
 const colorMap: Record<typeof ROWS[number]['key'], string> = {
   kick: '#ff4d4f',
   snare: '#ffd166',
-  hihat: '#5ab4ff',
+  hihat: '#5aff8e',
 };
 
 export const DrumsEditor: React.FC = () => {
   const { rhythmSegments, setRhythmSegments, updateRhythmSegment } = useSegment();
+  const { drumPattern } = useDrumPattern();
   const [playingIndex, setPlayingIndex] = React.useState<number | null>(null);
+  const seededRef = useRef(false);
 
-  // Ensure 16-step structure exists
+  useEffect(() => { seededRef.current = false; }, [drumPattern]);
+
   useEffect(() => {
-    if ((rhythmSegments?.length ?? 0) === STEPS) return;
     const stepDur = 0.5; // 8th note
-    const next = Array.from({ length: STEPS }, (_, i) => ({
-      label: rhythmSegments[i]?.label ?? '',
-      start: i * stepDur,
-      end: (i + 1) * stepDur,
-    }));
-    setRhythmSegments(next as any);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    let modified = (rhythmSegments?.length ?? 0) !== STEPS;
+
+    const next = Array.from({ length: STEPS }, (_, i) => {
+      const curr = rhythmSegments[i];
+      const start = curr?.start ?? i * stepDur;
+      const end = curr?.end ?? (i + 1) * stepDur;
+      const label = typeof curr?.label === 'string' ? curr.label : '';
+      if (!curr || curr.start !== start || curr.end !== end || curr.label !== label) {
+        modified = true;
+      }
+      return { label, start, end };
+    });
+
+    const hasAssigned = next.some((seg) => seg.label === 'kick' || seg.label === 'snare' || seg.label === 'hihat');
+    if (hasAssigned) {
+      seededRef.current = true;
+    } else if (!seededRef.current) {
+      const events = getDrumEvents(drumPattern);
+      events.forEach(({ time, type }) => {
+        const idx = Math.round(time / stepDur);
+        if (idx >= 0 && idx < STEPS && next[idx].label !== type) {
+          next[idx] = { ...next[idx], label: type };
+          modified = true;
+        }
+      });
+      seededRef.current = true;
+    }
+
+    if (modified) {
+      setRhythmSegments(next as any);
+    }
+  }, [drumPattern, rhythmSegments, setRhythmSegments]);
 
   // Track Transport position continuously to ensure step highlight updates reliably
   const isLoopPlaying = useTransportStore((s) => s.isLoopPlaying);

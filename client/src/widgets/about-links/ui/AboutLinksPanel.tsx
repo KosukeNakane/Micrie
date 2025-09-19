@@ -74,7 +74,7 @@ export const AboutLinksPanel = () => {
         right={0}
         py={3}
       >
-        <Text fontSize="md" color={'white'}>Version 0.1.0-alpha.2</Text>
+        <Text fontSize="md" color={'white'}>Version 0.1.0-beta.1</Text>
       </Box>
     </Box>
   );

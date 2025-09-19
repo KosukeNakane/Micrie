@@ -5,14 +5,14 @@
 /** @jsxImportSource @emotion/react */
 import { createSystem, defineConfig, defaultConfig, ChakraProvider } from "@chakra-ui/react";
 import { css } from '@emotion/react';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Providers } from '@app/providers/Providers';
 import { AppRouter } from '@app/routes/AppRouter';
 import { Sidebar } from '@widgets/sidebar';
 
 import { Scaler, useScaler } from '@/app/providers/Scaler';
-import { useChannelsStore } from "@/entities/audio";
+import { GlobalAudioEngine, useChannelsStore } from "@/entities/audio";
 import { useBarCount } from "@/entities/bar-count";
 import { useChords } from "@/entities/chords";
 import { useEffects } from "@/entities/effects";
@@ -21,9 +21,9 @@ import { useScaleMode } from "@/entities/scale-mode";
 import { useSegment } from "@/entities/segment";
 import { useTempo } from "@/entities/tempo";
 import { useVolume } from "@/entities/volume";
-import { AudioUnlockGate } from "@/features/audio-unlock";
 import { openLoginModal } from "@/features/auth";
 import { useEffectsUiStore } from "@/features/effects";
+import { usePlaybackController } from "@/features/playback";
 import { SaveProjectModal, useSaveProject } from "@/features/project-save-load";
 import { OpenProjectModal, ensureAuth, listProjects, loadProject, downloadLocalProject, useAssembleProjectData, useProjectState, getInitialProjectData } from "@/features/project-save-load";
 
@@ -48,6 +48,33 @@ const config = defineConfig({
 const system = createSystem(defaultConfig, config);
 
 export const App = () => {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const engine = GlobalAudioEngine.instance;
+    const warmup = async (_event?: Event) => {
+      try {
+        await engine.unlock();
+      } catch (error) {
+        if (import.meta.env.DEV) console.warn('Audio warmup failed', error);
+      }
+    };
+
+    // 可能であれば初回マウント時点でウォームアップを試みる
+    warmup();
+
+    const options: AddEventListenerOptions = { once: true };
+    window.addEventListener('pointerdown', warmup, options);
+    window.addEventListener('keydown', warmup, options);
+    window.addEventListener('touchend', warmup, options);
+
+    return () => {
+      window.removeEventListener('pointerdown', warmup);
+      window.removeEventListener('keydown', warmup);
+      window.removeEventListener('touchend', warmup);
+    };
+  }, []);
+
   const AppInner = () => {
     const { save, saveAs } = useSaveProject();
     const [saveModalOpen, setSaveModalOpen] = useState<null | { mode: 'new' | 'as' }>(null);
@@ -57,6 +84,7 @@ export const App = () => {
     const [newAfterSave, setNewAfterSave] = useState(false);
     const [confirmForNew, setConfirmForNew] = useState(false);
     const [loginRequiredOpen, setLoginRequiredOpen] = useState(false);
+    const { loopPlay, stop, isLoopPlaying } = usePlaybackController();
     const { setTempo } = useTempo();
     const { setMany: setEffects, reset: resetEffects } = useEffects();
     const setHold = useEffectsUiStore((s) => s.setHold);
@@ -71,6 +99,30 @@ export const App = () => {
     const { setChordPattern } = useChordPattern();
     const { setBars: setChordBars, setChordAt, setSlotPlayType } = useChords();
     const { setDrumPattern } = useDrumPattern();
+
+    useEffect(() => {
+      const handleSpace = (event: KeyboardEvent) => {
+        if (event.code !== 'Space' && event.key !== ' ') return;
+
+        const target = event.target as HTMLElement | null;
+        if (target) {
+          const tag = target.tagName;
+          if (tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable) {
+            return;
+          }
+        }
+
+        event.preventDefault();
+        if (isLoopPlaying) {
+          stop();
+        } else {
+          void loopPlay();
+        }
+      };
+
+      window.addEventListener('keydown', handleSpace);
+      return () => window.removeEventListener('keydown', handleSpace);
+    }, [isLoopPlaying, loopPlay, stop]);
 
     const handleSaveProject = async () => {
       try {
@@ -503,7 +555,6 @@ export const App = () => {
           <Scaler>
             <div css={contentStyle}>
               {/* ルーティング等のメインコンテンツ */}
-              <AudioUnlockGate />
               <AppRouter />
               {/* 画面最下部のNavBar（スケール追従の下余白） */}
               <div
