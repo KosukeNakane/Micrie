@@ -1,6 +1,6 @@
 // [UI] widgets/ui - AboutLinksPanel.tsx
 // 役割: 表示・入力のUIコンポーネント
-import { Box, Link, Text, Button } from '@chakra-ui/react';
+import { Box, Link, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
