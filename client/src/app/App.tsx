@@ -5,7 +5,7 @@
 /** @jsxImportSource @emotion/react */
 import { createSystem, defineConfig, defaultConfig, ChakraProvider } from "@chakra-ui/react";
 import { css } from '@emotion/react';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { Providers } from '@app/providers/Providers';
 import { AppRouter } from '@app/routes/AppRouter';
@@ -487,12 +487,7 @@ export const App = () => {
 
   // NavBar の下余白をスケール追従 + レターボックス補正で算出
   const { scale } = useScaler();
-  const [vh, setVh] = useState<number>(typeof window !== 'undefined' ? window.innerHeight : 1024);
-  useEffect(() => {
-    const onResize = () => setVh(window.innerHeight);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
+  void scale;
 
   return (
     <div css={appStyle}>

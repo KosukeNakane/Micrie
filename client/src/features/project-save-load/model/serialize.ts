@@ -35,7 +35,7 @@ export function useAssembleProjectData(): () => ProjectData {
     chordsProgression: {
       bars: chordBars,
       chordsPerBar,
-      slots: slots.map(s => ({ chord: s.chord, plays: ['root', 'chord'].plays })) as any,
+      slots: slots.map((slot) => ({ chord: slot.chord, plays: slot.plays })),
     },
     drumPattern,
     volume: { master: volume },

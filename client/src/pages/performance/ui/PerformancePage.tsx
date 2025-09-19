@@ -63,8 +63,6 @@ export const PerformancePage = () => {
   const melodyMuted = useChannelsStore((s) => s.melodyMuted);
   const drumMuted = useChannelsStore((s) => s.drumMuted);
   const chordMuted = useChannelsStore((s) => s.chordMuted);
-  const toggleMuted = useChannelsStore((s) => s.toggleMuted);
-
   const resetAll = () => {
     LABELS.forEach((label) => setEffect(label, 0));
   };

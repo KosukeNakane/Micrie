@@ -50,6 +50,7 @@ type Props = { barIndex: number; width?: number };
 
 export const RhythmSegmentEditor = ({ barIndex, width = 600 }: Props) => {
   const { currentSegments, updateRhythmSegment } = useSegment();
+  void width;
   const engine = useGlobalAudio();
   const synths = React.useMemo(() => ({
     kick: new Tone.MembraneSynth(),

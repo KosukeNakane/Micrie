@@ -24,6 +24,9 @@ export const useTeachableModel = () => {
       await recognizer.ensureModelLoaded();
       if (cancelled) return;
       recognizer.listen((result: speechCommands.SpeechCommandRecognizerResult) => {
+        if (!recognizer) {
+          return Promise.resolve();
+        }
         const scores = Array.from(result.scores as Float32Array);
         const labels = recognizer.wordLabels();
         const topIdx = scores.indexOf(Math.max(...scores));

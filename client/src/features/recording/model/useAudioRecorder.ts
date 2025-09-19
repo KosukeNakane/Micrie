@@ -58,7 +58,7 @@ export const useAudioRecorder = () => {
 
     const { isRecording, setIsRecording } = useRecording();
     const setSharedAudioBlob = useAudioStore((s) => s.setAudioBlob);
-    const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+    const [, setAudioBlob] = useState<Blob | null>(null);
     const { setRhythmSegments, setMelodySegments, setContextAudioBuffer } = useSegment();
     const realtimeLabel = useTeachableModel();
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);

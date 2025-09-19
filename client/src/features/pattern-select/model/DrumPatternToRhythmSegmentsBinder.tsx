@@ -10,7 +10,7 @@ const STEP_BEAT = 0.5; // 8th notes in beats
 
 export const DrumPatternToRhythmSegmentsBinder: React.FC = () => {
   const { drumPattern } = useDrumPattern();
-  const { rhythmSegments, setRhythmSegments } = useSegment();
+  const { setRhythmSegments } = useSegment();
 
   React.useEffect(() => {
     // パターン変更時に必ず rhythmSegments を上書きして同期

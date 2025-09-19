@@ -101,8 +101,8 @@ export function SaveProjectModal({ isOpen, initialName, onClose, onSubmit }: Pro
             color="white"
             _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
             borderColor="rgba(255, 255, 255, 0.3)"
-            isLoading={loading}
-            onClick={handleSubmit}
+            loading={loading}
+            onClick={() => { void handleSubmit(); }}
           >
             Save
           </Button>

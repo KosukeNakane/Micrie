@@ -1,6 +1,6 @@
 // [App] app - AppRouter.tsx
 // 役割: アプリ全体のセットアップ/プロバイダ
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, type Variants } from 'framer-motion';
 import { useEffect, useMemo, useRef } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
@@ -30,11 +30,17 @@ export const AppRouter = () => {
     prevIndexRef.current = currentIndex;
   }, [currentIndex]);
 
-  const variants = {
-    enter: (dir: number) => ({ x: dir >= 0 ? '100%' : '-100%', opacity: 0, position: 'absolute', top: 0, left: 0, right: 0 }),
-    center: { x: 0, opacity: 1, position: 'relative', width: '100%' },
-    exit: (dir: number) => ({ x: dir >= 0 ? '-100%' : '100%', opacity: 0, position: 'absolute', top: 0, left: 0, right: 0 }),
-  } as const;
+  const variants: Variants = {
+    enter: (dir: number) => {
+      const offset = typeof window !== 'undefined' ? window.innerWidth : 1000;
+      return { x: dir >= 0 ? offset : -offset, opacity: 0 };
+    },
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => {
+      const offset = typeof window !== 'undefined' ? window.innerWidth : 1000;
+      return { x: dir >= 0 ? -offset : offset, opacity: 0 };
+    },
+  };
 
   return (
     <div style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', width: '100%' }}>

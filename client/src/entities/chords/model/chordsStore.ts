@@ -36,7 +36,9 @@ function makeInitialSlots(bars: number, chordsPerBar: number): ChordSlot[] {
   return Array.from({ length: total }, () => ({ chord: { ...DEFAULT_CHORD }, plays: ['chord', 'rest'] }));
 }
 
-export const useChordsStore = create<State>((set, get) => ({
+export const useChordsStore = create<State>((set, _get) => {
+  void _get;
+  return {
   bars: 2,
   chordsPerBar: 4,
   slots: makeInitialSlots(2, 4),
@@ -80,7 +82,8 @@ export const useChordsStore = create<State>((set, get) => ({
     }
     return { slots: next };
   }),
-}));
+  };
+});
 
 // Derived helpers for selectors
 export const useChords = () => {

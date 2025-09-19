@@ -42,6 +42,7 @@ export const BarWaveformContainer: React.FC<Props> = ({ children, melody, chords
         defaultTab={defaultTab}
         onTabChange={onTabChange}
       />
+      {children}
     </StyledArea>
   );
 };
