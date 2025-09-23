@@ -24,7 +24,10 @@ export const RecordingPage = () => {
     toggleRecording,
     realtimeLabel,
   } = useAudioRecorder();
-  const { audioBlob, audioBlobSource } = useAudioStore();
+  const audioBlob = useAudioStore((state) => state.audioBlob);
+  const audioBlobSource = useAudioStore((state) => state.audioBlobSource);
+  const shouldNavigateToEdit = useAudioStore((state) => state.shouldNavigateToEdit);
+  const markNavigateToEditHandled = useAudioStore((state) => state.markNavigateToEditHandled);
 
   // テンポ（BPM）を取得するカスタムフック
   const { tempo } = useTempo();
@@ -37,11 +40,12 @@ export const RecordingPage = () => {
     if (hasNavigatedRef.current) return;
     const hasResults = (rhythmSegments?.length ?? 0) > 0 || (melodySegments?.length ?? 0) > 0;
     // 録音完了時のみ自動遷移（Editのアップロード由来では発火しない）
-    if (audioBlob && audioBlobSource === 'recorded' && hasResults) {
+    if (audioBlob && audioBlobSource === 'recorded' && hasResults && shouldNavigateToEdit) {
       hasNavigatedRef.current = true;
+      markNavigateToEditHandled();
       navigate('/edit');
     }
-  }, [audioBlob, audioBlobSource, rhythmSegments?.length, melodySegments?.length, navigate]);
+  }, [audioBlob, audioBlobSource, rhythmSegments?.length, melodySegments?.length, navigate, shouldNavigateToEdit, markNavigateToEditHandled]);
 
 
   // Developer Tools 関連状態は Sidebar に移行

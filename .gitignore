@@ -71,3 +71,4 @@ node_modules/
 storybook-static
 
 client/src/__archive__
+.vercel
