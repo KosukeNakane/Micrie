@@ -7,8 +7,10 @@ Micrieは、歌うだけで、あなたの思い描いた音楽を形作る、�
 音声データから特徴量を抽出し、リズム・メロディを解析・分類します。
 フロントエンドは React、バックエンドは Google Cloud Run (Python/Flask)、認証は Firebase を使用しています。
 
+[アプリはこちら](https://micrie.vercel.app/)
+
 🎥 **Micrieの使い方はこちらからご覧いただけます。**
-準備中
+[Micrie 公式サイトへ](https://micrie-site.vercel.app/)
 
 ---
 
@@ -16,7 +18,7 @@ Micrieは、歌うだけで、あなたの思い描いた音楽を形作る、�
 
 Micrieは以下のURLからアクセスできます。
 
-- **フロントエンド (Vercel):** [https://micrie.vercel.app/](https://micrie.vercel.app/)
+- **フロントエンド (Vercel):** https://micrie.vercel.app/
 - **バックエンド (Google Cloud Run):** APIエンドポイントとして利用
 - **認証 (Firebase Authentication):** ユーザー認証機能
 

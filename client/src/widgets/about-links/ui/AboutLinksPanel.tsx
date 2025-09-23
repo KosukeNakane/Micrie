@@ -49,7 +49,7 @@ export const AboutLinksPanel = () => {
           <Text fontSize="md" fontWeight="semibold" color={'white'}>GitHub Repository</Text>
         </Link>
         <Link
-          href="https://docs.example.com/how-to-use"
+          href="https://micrie-site.vercel.app/"
           target="_blank"
           rel="noopener noreferrer"
           display="flex"
