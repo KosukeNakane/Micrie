@@ -12,6 +12,8 @@ Micrieは、歌うだけで、あなたの思い描いた音楽を形作る、�
 🎥 **Micrieの使い方はこちらからご覧いただけます。**
 [Micrie 公式サイトへ](https://micrie-site.vercel.app/)
 
+[紹介スライド](https://www.canva.com/design/DAG1LjPnuXA/KuhbC2rP-KljYbf_SpWLVw/edit?utm_content=DAG1LjPnuXA&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton/)
+
 ---
 
 ## 🚀 デプロイ先
