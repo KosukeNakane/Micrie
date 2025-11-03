@@ -17,8 +17,8 @@ import {
 	type SamplerPad,
 } from '@entities/audio';
 
-const RE_RECORD_LONG_PRESS_MS = 320;
-const SIMPLE_TOGGLE_MODE = true;
+const SIMPLE_TOGGLE_MODE = false;
+const SHORT_PRESS_MS = 200;
 
 const PREFERRED_MIME_TYPES = [
 	'audio/webm;codecs=opus',
@@ -47,41 +47,28 @@ export const useSamplerRecorder = () => {
 	const activeRecorderPadRef = useRef<number | null>(null);
 	const samplerRecordingRef = useRef(false);
 	const skipFinalizeRef = useRef(false);
-	const pressTimeoutsRef = useRef<number[]>(Array.from({ length: SAMPLER_PAD_COUNT }, () => 0));
 	const suppressClickRef = useRef<boolean[]>(
 		Array.from({ length: SAMPLER_PAD_COUNT }, () => false)
 	);
 	const padsRef = useRef(pads);
+	const recordingStartRef = useRef<number | null>(null);
+	const shortPlaybackIndexRef = useRef<number | null>(null);
 	useEffect(() => {
 		padsRef.current = pads;
 	}, [pads]);
 
 	useEffect(() => {
-		if (pressTimeoutsRef.current.length !== pads.length) {
-			pressTimeoutsRef.current = Array.from(
-				{ length: pads.length },
-				(_, index) => pressTimeoutsRef.current[index] ?? 0
-			);
-		}
-		if (suppressClickRef.current.length !== pads.length) {
-			suppressClickRef.current = Array.from(
-				{ length: pads.length },
-				(_, index) => suppressClickRef.current[index] ?? false
-			);
-		}
+	if (suppressClickRef.current.length !== pads.length) {
+		suppressClickRef.current = Array.from(
+			{ length: pads.length },
+			(_, index) => suppressClickRef.current[index] ?? false
+		);
+	}
 	}, [pads.length]);
 
 	const setActiveRecorderPad = useCallback((index: number | null) => {
 		activeRecorderPadRef.current = index;
 		setRecordingPadIndex(index);
-	}, []);
-
-	const clearPressTimeout = useCallback((index: number) => {
-		const timeoutId = pressTimeoutsRef.current[index];
-		if (timeoutId) {
-			window.clearTimeout(timeoutId);
-			pressTimeoutsRef.current[index] = 0;
-		}
 	}, []);
 
 	const cleanupRecorder = useCallback(() => {
@@ -92,13 +79,15 @@ export const useSamplerRecorder = () => {
 				/* no-op */
 			}
 		});
-		recorderStreamRef.current = null;
-		recorderRef.current = null;
-		recorderChunksRef.current = [];
-		samplerRecordingRef.current = false;
-		skipFinalizeRef.current = false;
-		setIsSamplerRecording(false);
-		setActiveRecorderPad(null);
+	recorderStreamRef.current = null;
+	recorderRef.current = null;
+	recorderChunksRef.current = [];
+	samplerRecordingRef.current = false;
+	skipFinalizeRef.current = false;
+	recordingStartRef.current = null;
+	shortPlaybackIndexRef.current = null;
+	setIsSamplerRecording(false);
+	setActiveRecorderPad(null);
 	}, [setActiveRecorderPad]);
 
 	const finalizePadRecording = useCallback(
@@ -194,6 +183,21 @@ export const useSamplerRecorder = () => {
 		[engine, pads, setSamplerPad]
 	);
 
+	const handlePotentialShortPress = useCallback((index: number) => {
+		const startedAt = recordingStartRef.current;
+		if (startedAt == null) {
+			return;
+		}
+		const duration = performance.now() - startedAt;
+		if (duration < SHORT_PRESS_MS) {
+			skipFinalizeRef.current = true;
+			const pad = padsRef.current[index];
+			if (pad?.buffer) {
+				shortPlaybackIndexRef.current = index;
+			}
+		}
+	}, []);
+
 	const startPadRecording = useCallback(
 		async (index: number) => {
 			if (samplerRecordingRef.current) return;
@@ -220,22 +224,24 @@ export const useSamplerRecorder = () => {
 						? PREFERRED_MIME_TYPES.find((type) => MediaRecorder.isTypeSupported(type))
 						: undefined;
 
-				const recorder = selectedType
-					? new MediaRecorder(stream, { mimeType: selectedType })
-					: new MediaRecorder(stream);
+		const recorder = selectedType
+			? new MediaRecorder(stream, { mimeType: selectedType })
+			: new MediaRecorder(stream);
 
-				recorderRef.current = recorder;
-				setActiveRecorderPad(index);
-				setSamplerPad(index, (prev) => ({
-					...prev,
-					status: 'recording',
-					error: undefined,
-				}));
+		recorderRef.current = recorder;
+		setActiveRecorderPad(index);
+		setSamplerPad(index, (prev) => ({
+			...prev,
+			status: 'recording',
+			error: undefined,
+		}));
+		recordingStartRef.current = performance.now();
+		shortPlaybackIndexRef.current = null;
 
-				recorder.ondataavailable = (event) => {
-					if (event.data && event.data.size > 0) {
-						recorderChunksRef.current.push(event.data);
-					}
+		recorder.ondataavailable = (event) => {
+			if (event.data && event.data.size > 0) {
+				recorderChunksRef.current.push(event.data);
+			}
 				};
 
 				recorder.onerror = (event) => {
@@ -266,6 +272,15 @@ export const useSamplerRecorder = () => {
 					if (skipFinalizeRef.current) {
 						skipFinalizeRef.current = false;
 						cleanupRecorder();
+						setSamplerPad(index, (prev) => ({
+							...prev,
+							status: prev.buffer ? 'ready' : 'empty',
+						}));
+						const playbackIndex = shortPlaybackIndexRef.current;
+						shortPlaybackIndexRef.current = null;
+						if (typeof playbackIndex === 'number') {
+							void playPad(playbackIndex);
+						}
 						return;
 					}
 
@@ -306,41 +321,34 @@ export const useSamplerRecorder = () => {
 	const handlePadPointerDown = useCallback(
 		(index: number) => (event: ReactPointerEvent<HTMLButtonElement>) => {
 			event.preventDefault();
-			try {
-				event.currentTarget.setPointerCapture(event.pointerId);
-			} catch {
-				/* pointer capture may fail */
-			}
-
-			suppressClickRef.current[index] = false;
-
 			if (SIMPLE_TOGGLE_MODE || samplerRecordingRef.current) {
 				return;
 			}
 
-			const pad = pads[index];
-
-			if (pad.status === 'ready') {
-				clearPressTimeout(index);
-				pressTimeoutsRef.current[index] = window.setTimeout(() => {
-					pressTimeoutsRef.current[index] = 0;
-					if (samplerRecordingRef.current) return;
-					suppressClickRef.current[index] = true;
-					void startPadRecording(index);
-				}, RE_RECORD_LONG_PRESS_MS);
-			} else if (pad.status !== 'recording') {
+			const pad = padsRef.current[index];
+			if (pad?.status !== 'ready') {
 				suppressClickRef.current[index] = true;
+				recordingStartRef.current = performance.now();
+				shortPlaybackIndexRef.current = null;
 				void startPadRecording(index);
 			}
 		},
-		[clearPressTimeout, pads, startPadRecording]
+		[startPadRecording]
 	);
 
 	const handlePadPointerUp = useCallback(
 		(index: number) => (event: ReactPointerEvent<HTMLButtonElement>) => {
 			event.preventDefault();
-			clearPressTimeout(index);
 			if (!SIMPLE_TOGGLE_MODE && activeRecorderPadRef.current === index) {
+				const startedAt = recordingStartRef.current;
+				if (startedAt == null) {
+					const pad = padsRef.current[index];
+					if (pad?.status === 'ready' && pad.buffer) {
+						void playPad(index);
+					}
+					return;
+				}
+				handlePotentialShortPress(index);
 				stopPadRecording();
 			}
 			try {
@@ -349,12 +357,11 @@ export const useSamplerRecorder = () => {
 				/* ignore */
 			}
 		},
-		[clearPressTimeout, stopPadRecording]
+		[handlePotentialShortPress, stopPadRecording]
 	);
 
 	const handlePadPointerLeave = useCallback(
 		(index: number) => (event: ReactPointerEvent<HTMLButtonElement>) => {
-			clearPressTimeout(index);
 
 			const element = event.currentTarget as HTMLButtonElement;
 			const hasCapture =
@@ -363,16 +370,22 @@ export const useSamplerRecorder = () => {
 			if (!hasCapture) return;
 
 			if (!SIMPLE_TOGGLE_MODE && activeRecorderPadRef.current === index) {
+				handlePotentialShortPress(index);
 				stopPadRecording();
 			}
+			try {
+				element.releasePointerCapture(event.pointerId);
+			} catch {
+				/* ignore */
+			}
 		},
-		[clearPressTimeout, stopPadRecording]
+		[handlePotentialShortPress, stopPadRecording]
 	);
 
 	const handlePadPointerCancel = useCallback(
 		(index: number) => (event: ReactPointerEvent<HTMLButtonElement>) => {
-			clearPressTimeout(index);
 			if (!SIMPLE_TOGGLE_MODE && activeRecorderPadRef.current === index) {
+				handlePotentialShortPress(index);
 				stopPadRecording();
 			}
 			try {
@@ -381,7 +394,7 @@ export const useSamplerRecorder = () => {
 				/* ignore */
 			}
 		},
-		[clearPressTimeout, stopPadRecording]
+		[handlePotentialShortPress, stopPadRecording]
 	);
 
 	const handlePadClick = useCallback(
@@ -403,25 +416,18 @@ export const useSamplerRecorder = () => {
 				return;
 			}
 
-			if (suppressClickRef.current[index]) {
-				suppressClickRef.current[index] = false;
-				return;
-			}
 			if (samplerRecordingRef.current) return;
-			const pad = pads[index];
-			if (pad.status !== 'ready' || !pad.buffer) return;
+			const pad = padsRef.current[index];
+			if (pad?.status !== 'ready' || !pad.buffer) return;
 			void playPad(index);
 		},
-		[pads, playPad, setSamplerPad, startPadRecording, stopPadRecording]
+		[playPad, startPadRecording, stopPadRecording]
 	);
 
 	// クリーンアップ: コンポーネントアンマウント時に録音を停止・リソース解放
 	useEffect(() => {
-		return () => {
-			pressTimeoutsRef.current.forEach((timeoutId) => {
-				if (timeoutId) window.clearTimeout(timeoutId);
-			});
-			suppressClickRef.current.fill(false);
+	return () => {
+		suppressClickRef.current.fill(false);
 			const activeIndex = activeRecorderPadRef.current;
 			const padBeforeCleanup =
 				typeof activeIndex === 'number' ? padsRef.current[activeIndex] : undefined;
@@ -452,15 +458,15 @@ export const useSamplerRecorder = () => {
 
 	const getPadHint = useCallback((pad: SamplerPad): string => {
 		if (pad.status === 'recording') {
-			return SIMPLE_TOGGLE_MODE ? 'Tap to stop' : 'Recording…';
+			return SIMPLE_TOGGLE_MODE ? 'Tap to stop' : 'Holdして録音中…';
 		}
 		if (pad.status === 'ready') {
-			return SIMPLE_TOGGLE_MODE ? 'Tap to play' : 'Tap to play / hold to re-record';
+			return SIMPLE_TOGGLE_MODE ? 'Tap to play' : 'タップで再生 / 長押しで再録音';
 		}
 		if (pad.status === 'error') {
-			return SIMPLE_TOGGLE_MODE ? 'Tap to retry' : 'Tap & hold to retry';
+			return SIMPLE_TOGGLE_MODE ? 'Tap to retry' : '長押しで再録音';
 		}
-		return SIMPLE_TOGGLE_MODE ? 'Tap to record' : 'Hold to record';
+		return SIMPLE_TOGGLE_MODE ? 'Tap to record' : '長押しで録音';
 	}, []);
 
 	const getPadMeta = useCallback(

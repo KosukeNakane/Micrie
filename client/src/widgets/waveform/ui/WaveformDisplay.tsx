@@ -2,10 +2,7 @@
 // 役割: 表示・入力のUIコンポーネント
 // 波形表示・再生・ループ・セグメントラベル描画を担うメインUIコンポーネント
 import styled from '@emotion/styled';
-
-// 旧SchedulerはBinderへ移行。ここでは使用しない。
 import { StyledArea } from '@shared/ui';
-
 import { useRecording } from '@entities/audio';
 import { ModeSelectArea } from './ModeSelectArea';
 import { RecordingControlArea } from './RecordingControlArea';
@@ -24,8 +21,7 @@ export const CenteredArea = styled(StyledArea)`
 type Props = { audioBlob: Blob | null; onToggleRecording?: () => void };
 
 export const WaveformDisplay = ({ audioBlob: _audioBlob, onToggleRecording }: Props) => {
-	// const { currentSegments, loopMode, rhythmSegments, melodySegments, setContextAudioBuffer } = useSegment();
-const {
+	const {
 		pads,
 		recordingPadIndex,
 		handlePadPointerDown,
