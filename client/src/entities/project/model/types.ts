@@ -29,6 +29,7 @@ export interface ProjectData {
     melody?: number;
     chord?: number;
     drum?: number;
+    sampler?: number;
   };
   scale?: {
     root: string;
@@ -36,7 +37,7 @@ export interface ProjectData {
   };
   effects: Record<EffectKey, number>;
   effectsHold: { holdAll: boolean; holdByKey: Partial<Record<EffectKey, boolean>> };
-  channelsMuted: { melody: boolean; chord: boolean; drum: boolean };
+  channelsMuted: { melody: boolean; chord: boolean; drum: boolean; sampler: boolean };
   audio?: { audioUrl: string | null; waveform?: number[] | null };
   melodyPitch?: MelodyPitchItem[]; // メロディーピッチ（各グリッドの音名のみ保存）。初期値は休符。
 }

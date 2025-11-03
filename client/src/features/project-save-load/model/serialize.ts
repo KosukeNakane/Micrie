@@ -21,6 +21,11 @@ export function useAssembleProjectData(): () => ProjectData {
   const melodyMuted = useChannelsStore((s) => s.melodyMuted);
   const chordMuted = useChannelsStore((s) => s.chordMuted);
   const drumMuted = useChannelsStore((s) => s.drumMuted);
+  const samplerMuted = useChannelsStore((s) => s.samplerMuted);
+  const samplerVolume = useChannelsStore((s) => s.samplerVolume);
+  const melodyVolume = useChannelsStore((s) => s.melodyVolume);
+  const chordVolume = useChannelsStore((s) => s.chordVolume);
+  const drumVolume = useChannelsStore((s) => s.drumVolume);
   const { volume } = useVolume();
   const { scaleMode } = useScaleMode();
   const { chordPattern } = useChordPattern();
@@ -38,11 +43,17 @@ export function useAssembleProjectData(): () => ProjectData {
       slots: slots.map((slot) => ({ chord: slot.chord, plays: slot.plays })),
     },
     drumPattern,
-    volume: { master: volume },
+    volume: {
+      master: volume,
+      melody: melodyVolume,
+      chord: chordVolume,
+      drum: drumVolume,
+      sampler: samplerVolume,
+    },
     scale: { root: 'C', mode: scaleMode },
     effects,
     effectsHold: { holdAll: !!holdAll, holdByKey },
-    channelsMuted: { melody: !!melodyMuted, chord: !!chordMuted, drum: !!drumMuted },
+    channelsMuted: { melody: !!melodyMuted, chord: !!chordMuted, drum: !!drumMuted, sampler: !!samplerMuted },
     // メロディーピッチ: 解析結果がある場合は note のみ保存、無ければ全休符で初期化
     melodyPitch: ((): MelodyPitchItem[] => {
       if (Array.isArray(melodySegments) && melodySegments.length > 0) {

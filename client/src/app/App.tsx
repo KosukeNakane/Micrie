@@ -90,6 +90,7 @@ export const App = () => {
     const setHold = useEffectsUiStore((s) => s.setHold);
     const setHoldFor = useEffectsUiStore((s) => s.setHoldFor);
     const setMuted = useChannelsStore((s) => s.setMuted);
+    const setChannelVolume = useChannelsStore((s) => s.setVolume);
     const { setContextAudioBuffer, setMelodySegments } = useSegment();
     const { barCount } = useBarCount();
     const assemble = useAssembleProjectData();
@@ -191,7 +192,13 @@ export const App = () => {
       try { setChordPattern('pattern1' as any); } catch { }
       try { setDrumPattern('basic' as any); } catch { }
       try { setHold(false); } catch { }
-      try { setMuted('melody', false); setMuted('chord', false); setMuted('drum', false); } catch { }
+      try { setMuted('melody', false); setMuted('chord', false); setMuted('drum', false); setMuted('sampler', false); } catch { }
+      try {
+        setChannelVolume('melody', 100);
+        setChannelVolume('chord', 100);
+        setChannelVolume('drum', 100);
+        setChannelVolume('sampler', 100);
+      } catch { }
     };
 
     const handleNewProject = () => {
@@ -295,6 +302,24 @@ export const App = () => {
           setMuted('melody', !!d.channelsMuted.melody);
           setMuted('chord', !!d.channelsMuted.chord);
           setMuted('drum', !!d.channelsMuted.drum);
+          setMuted('sampler', !!d.channelsMuted.sampler);
+        }
+        if (d.volume) {
+          if (typeof d.volume.master === 'number') {
+            try { setVolume(d.volume.master); } catch {}
+          }
+          if (typeof d.volume.melody === 'number') {
+            try { setChannelVolume('melody', d.volume.melody); } catch {}
+          }
+          if (typeof d.volume.chord === 'number') {
+            try { setChannelVolume('chord', d.volume.chord); } catch {}
+          }
+          if (typeof d.volume.drum === 'number') {
+            try { setChannelVolume('drum', d.volume.drum); } catch {}
+          }
+          if (typeof d.volume.sampler === 'number') {
+            try { setChannelVolume('sampler', d.volume.sampler); } catch {}
+          }
         }
         // 保存形式1: StorageのURL（既存実装）
         if (d.audio?.audioUrl) {
@@ -433,6 +458,24 @@ export const App = () => {
               setMuted('melody', !!d.channelsMuted.melody);
               setMuted('chord', !!d.channelsMuted.chord);
               setMuted('drum', !!d.channelsMuted.drum);
+              setMuted('sampler', !!d.channelsMuted.sampler);
+            }
+            if (d.volume) {
+              if (typeof d.volume.master === 'number') {
+                try { setVolume(d.volume.master); } catch {}
+              }
+              if (typeof d.volume.melody === 'number') {
+                try { setChannelVolume('melody', d.volume.melody); } catch {}
+              }
+              if (typeof d.volume.chord === 'number') {
+                try { setChannelVolume('chord', d.volume.chord); } catch {}
+              }
+              if (typeof d.volume.drum === 'number') {
+                try { setChannelVolume('drum', d.volume.drum); } catch {}
+              }
+              if (typeof d.volume.sampler === 'number') {
+                try { setChannelVolume('sampler', d.volume.sampler); } catch {}
+              }
             }
             // Melody segments from saved pitch data (local)
             try {

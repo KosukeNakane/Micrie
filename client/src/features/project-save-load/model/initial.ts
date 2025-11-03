@@ -12,7 +12,7 @@ export function getInitialProjectData(): ProjectData {
     scale: { root: 'C', mode: 'major' },
     effects: { CRUSH: 0, COMB: 0, HICUT: 0, LOWCUT: 0, REVERB: 0, DIRTY: 0 },
     effectsHold: { holdAll: false, holdByKey: {} },
-    channelsMuted: { melody: false, chord: false, drum: false },
+    channelsMuted: { melody: false, chord: false, drum: false, sampler: false },
     // 初期値はすべて休符（2小節 x 4拍 = 8）: note のみ保持
     melodyPitch: Array.from({ length: 8 }, (): MelodyPitchItem => ({ note: 'rest' })),
   } as ProjectData;
