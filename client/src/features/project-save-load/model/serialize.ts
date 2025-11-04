@@ -6,7 +6,8 @@ import { useChords } from "@/entities/chords";
 import { useEffects } from "@/entities/effects";
 import { useChordPattern } from "@/entities/pattern";
 import { useDrumPattern } from "@/entities/pattern";
-import type { ProjectData, MelodyPitchItem } from "@/entities/project";
+import { useArrangementSlotsStore } from "@/entities/arrangement";
+import type { ProjectData, MelodyPitchItem, ProjectArrangementSlot } from "@/entities/project";
 import { useScaleMode } from "@/entities/scale-mode";
 import { useSegment } from "@/entities/segment";
 import { useTempo } from "@/entities/tempo";
@@ -31,8 +32,36 @@ export function useAssembleProjectData(): () => ProjectData {
   const { chordPattern } = useChordPattern();
   const { bars: chordBars, chordsPerBar, slots } = useChords();
   const { drumPattern } = useDrumPattern();
+  const arrangementSlots = useArrangementSlotsStore((state) => state.slots);
   const { melodySegments } = useSegment();
   const { barCount } = useBarCount();
+
+  const serializeArrangements = (): Array<ProjectArrangementSlot | null> =>
+    arrangementSlots.map((slot) => {
+      if (!slot) return null;
+      return {
+        id: slot.id,
+        name: slot.name,
+        savedAt: slot.savedAt,
+        snapshot: {
+          chordPattern: slot.snapshot.chordPattern,
+          drumPattern: slot.snapshot.drumPattern,
+          chords: {
+            bars: slot.snapshot.chords.bars,
+            chordsPerBar: slot.snapshot.chords.chordsPerBar,
+            slots: slot.snapshot.chords.slots.map((s) => ({
+              chord: { ...s.chord },
+              plays: [...s.plays] as ['chord' | 'root' | 'rest', 'chord' | 'root' | 'rest'],
+            })),
+          },
+          melody: {
+            barCount: slot.snapshot.melody.barCount,
+            segments: slot.snapshot.melody.segments.map((seg) => ({ ...seg })),
+          },
+          rhythmSegments: slot.snapshot.rhythmSegments.map((seg) => ({ ...seg })),
+        },
+      } satisfies ProjectArrangementSlot;
+    });
 
   return () => ({
     tempo: tempo ?? 120,
@@ -64,5 +93,6 @@ export function useAssembleProjectData(): () => ProjectData {
       const length = Math.max(1, (barCount ?? 2) * 4); // デフォルト2小節 x 4拍
       return Array.from({ length }, (): MelodyPitchItem => ({ note: 'rest' }));
     })(),
+    arrangements: serializeArrangements(),
   });
 }

@@ -27,6 +27,7 @@ type State = {
   setSlotPlayType: (index: number, pos: 0 | 1, type: PlayType) => void;
   // Apply preset: can accept chords only or chord+plays per slot
   applyPreset: (preset: Array<Chord | { chord: Chord; plays?: [PlayType, PlayType] }>) => void;
+  setProgression: (payload: { bars: number; chordsPerBar: number; slots: ChordSlot[] }) => void;
 };
 
 const DEFAULT_CHORD: Chord = { rootIndex: 0, quality: 'maj', tension: '' };
@@ -82,6 +83,14 @@ export const useChordsStore = create<State>((set, _get) => {
     }
     return { slots: next };
   }),
+  setProgression: (payload) => set(() => ({
+    bars: payload.bars,
+    chordsPerBar: payload.chordsPerBar,
+    slots: payload.slots.map((slot) => ({
+      chord: { ...slot.chord },
+      plays: [...slot.plays] as [PlayType, PlayType],
+    })),
+  })),
   };
 });
 
@@ -94,5 +103,6 @@ export const useChords = () => {
   const setChordAt = useChordsStore((s) => s.setChordAt);
   const setSlotPlayType = useChordsStore((s) => s.setSlotPlayType);
   const applyPreset = useChordsStore((s) => s.applyPreset);
-  return { bars, chordsPerBar, slots, setBars, setChordAt, setSlotPlayType, applyPreset } as const;
+  const setProgression = useChordsStore((s) => s.setProgression);
+  return { bars, chordsPerBar, slots, setBars, setChordAt, setSlotPlayType, applyPreset, setProgression } as const;
 };

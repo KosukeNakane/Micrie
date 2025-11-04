@@ -4,6 +4,7 @@
 // 録音、再生、リアルタイムラベル表示、解析結果表示などの要素を統合
 
 /** @jsxImportSource @emotion/react */
+import styled from "@emotion/styled";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -13,8 +14,26 @@ import { useTempo } from "@entities/tempo/model/TempoContext";
 import { RealtimeLabel, useAudioRecorder } from "@features/recording";
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
 import { WaveformDisplay } from "@widgets/waveform";
+import { ArrangementSlotsSidebar } from "@widgets/arrangement-slots";
 
 import { useAudioStore } from "@/entities/audio";
+const PageBody = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 32px;
+  padding: 0 32px 32px;
+  box-sizing: border-box;
+`;
+
+const MainColumn = styled.div`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+`;
 export const RecordingPage = () => {
 
   const engine = useGlobalAudio();
@@ -69,9 +88,14 @@ export const RecordingPage = () => {
   return (
     // <div css={[glassBackground, css`& > *:last-child { margin-bottom: 0 !important; }`]}>
     <div>
-      <RealtimeLabel label={realtimeLabel} />
       <TopPlaybackBar />
-      <WaveformDisplay audioBlob={audioBlob} onToggleRecording={handleToggleRecording} />
+      <PageBody>
+        <MainColumn>
+          <RealtimeLabel label={realtimeLabel} />
+          <WaveformDisplay audioBlob={audioBlob} onToggleRecording={handleToggleRecording} />
+        </MainColumn>
+        <ArrangementSlotsSidebar />
+      </PageBody>
     </div>
   );
 };

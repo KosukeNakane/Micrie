@@ -14,6 +14,7 @@ import { Sidebar } from '@widgets/sidebar';
 import { Scaler, useScaler } from '@/app/providers/Scaler';
 import { GlobalAudioEngine, useChannelsStore } from "@/entities/audio";
 import { useBarCount } from "@/entities/bar-count";
+import { useArrangementSlotsStore } from "@/entities/arrangement";
 import { useChords } from "@/entities/chords";
 import { useEffects } from "@/entities/effects";
 import { useChordPattern, useDrumPattern } from "@/entities/pattern";
@@ -91,7 +92,9 @@ export const App = () => {
     const setHoldFor = useEffectsUiStore((s) => s.setHoldFor);
     const setMuted = useChannelsStore((s) => s.setMuted);
     const setChannelVolume = useChannelsStore((s) => s.setVolume);
-    const { setContextAudioBuffer, setMelodySegments } = useSegment();
+  const { setContextAudioBuffer, setMelodySegments } = useSegment();
+  const setArrangementSlots = useArrangementSlotsStore((s) => s.setSlots);
+  const resetArrangementSlots = useArrangementSlotsStore((s) => s.resetSlots);
     const { barCount } = useBarCount();
     const assemble = useAssembleProjectData();
     const project = useProjectState();
@@ -191,6 +194,7 @@ export const App = () => {
       try { setScaleMode('major' as any); } catch { }
       try { setChordPattern('pattern1' as any); } catch { }
       try { setDrumPattern('basic' as any); } catch { }
+      try { resetArrangementSlots(); } catch { }
       try { setHold(false); } catch { }
       try { setMuted('melody', false); setMuted('chord', false); setMuted('drum', false); setMuted('sampler', false); } catch { }
       try {
@@ -275,6 +279,11 @@ export const App = () => {
           } catch {}
         }
         if (d.drumPattern) setDrumPattern(d.drumPattern as any);
+        if (Array.isArray(d.arrangements)) {
+          try { setArrangementSlots(d.arrangements as any); } catch { }
+        } else {
+          try { resetArrangementSlots(); } catch { }
+        }
         if (d.effects) setEffects(d.effects as any);
         if (d.effectsHold) {
           setHold(!!d.effectsHold.holdAll);

@@ -12,6 +12,43 @@ export interface ProjectMeta {
 
 export type EffectKey = "CRUSH" | "COMB" | "HICUT" | "LOWCUT" | "REVERB" | "DIRTY";
 
+export interface ProjectSegment {
+  label?: string;
+  start: number;
+  end: number;
+  hz?: number;
+  note?: string;
+  confidence?: number;
+  rms?: number;
+  confidence_rms?: number;
+  [key: string]: unknown;
+}
+
+export interface ProjectArrangementSnapshot {
+  chordPattern: string;
+  drumPattern: string;
+  chords: {
+    bars: number;
+    chordsPerBar: number;
+    slots: Array<{
+      chord: { rootIndex: number; quality: 'maj' | 'min' | 'dim' | 'aug'; tension: '' | 'maj7' | '7' | '6' | '9' | '11' | '13' };
+      plays: ['chord' | 'root' | 'rest', 'chord' | 'root' | 'rest'];
+    }>;
+  };
+  melody: {
+    barCount: number;
+    segments: ProjectSegment[];
+  };
+  rhythmSegments: ProjectSegment[];
+}
+
+export interface ProjectArrangementSlot {
+  id: string;
+  name: string;
+  savedAt: number;
+  snapshot: ProjectArrangementSnapshot;
+}
+
 export interface ProjectData {
   tempo: number;
   chordPattern?: string;
@@ -40,6 +77,7 @@ export interface ProjectData {
   channelsMuted: { melody: boolean; chord: boolean; drum: boolean; sampler: boolean };
   audio?: { audioUrl: string | null; waveform?: number[] | null };
   melodyPitch?: MelodyPitchItem[]; // メロディーピッチ（各グリッドの音名のみ保存）。初期値は休符。
+  arrangements?: Array<ProjectArrangementSlot | null>;
 }
 
 export interface ProjectDocument {
