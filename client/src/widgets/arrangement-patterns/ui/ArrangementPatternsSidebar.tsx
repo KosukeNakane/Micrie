@@ -1,11 +1,11 @@
-// [UI] widgets/ui - ArrangementSlotsSidebar.tsx
-// 役割: アレンジメントスロットへのアクセス用の縦型サイドバーを表示
+// [UI] widgets/ui - ArrangementPatternsSidebar.tsx
+// 役割: アレンジメントパターンへのアクセス用の縦型サイドバーを表示
 import styled from '@emotion/styled';
 import { Box, Button, Icon, Text } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { PiMusicNotesPlusDuotone } from 'react-icons/pi';
 
-import { useArrangementSlots } from '@/features/arrangement-manage';
+import { useArrangementPatterns } from '@/features/arrangement-manage';
 import { StyledArea } from '@/shared/ui';
 
 const SidebarRoot = styled.div`
@@ -24,7 +24,7 @@ const SidebarTitle = styled(Text)`
 	color: rgba(5, 4, 69, 0.75);
 `;
 
-const SlotList = styled.div`
+const PatternList = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
@@ -33,7 +33,7 @@ const SlotList = styled.div`
 	padding-right: 4px;
 `;
 
-const SlotCard = styled(StyledArea)`
+const PatternCard = styled(StyledArea)`
 	width: 100%;
 	margin: 0;
 	padding: 14px 16px;
@@ -45,19 +45,19 @@ const SlotCard = styled(StyledArea)`
 	border: 1px solid rgba(255, 255, 255, 0.42);
 `;
 
-const SlotHeader = styled.div`
+const PatternHeader = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
 `;
 
-const SlotName = styled.span`
+const PatternName = styled.span`
 	font-size: 15px;
 	font-weight: 700;
 `;
 
-const SlotStatus = styled.span`
+const PatternStatus = styled.span`
 	font-size: 12px;
 	color: rgba(5, 4, 69, 0.55);
 `;
@@ -82,15 +82,15 @@ const formatTimestamp = (value: number | null) => {
 	}
 };
 
-export const ArrangementSlotsSidebar = () => {
-	const { slots, saveSlot, loadSlot, clearSlot } = useArrangementSlots();
+export const ArrangementPatternsSidebar = () => {
+	const { patterns, savePattern, loadPattern, clearPattern } = useArrangementPatterns();
 	const statusList = useMemo(
 		() =>
-			slots.map((slot) => ({
-				...slot,
-				statusText: formatTimestamp(slot.savedAt),
+			patterns.map((pattern) => ({
+				...pattern,
+				statusText: formatTimestamp(pattern.savedAt),
 			})),
-		[slots]
+		[patterns]
 	);
 
 	return (
@@ -110,24 +110,24 @@ export const ArrangementSlotsSidebar = () => {
 		>
 			<SidebarRoot>
 				<SidebarTitle>Arrangements</SidebarTitle>
-				<SlotList>
-					{statusList.map((slot) => (
-						<SlotCard key={slot.index}>
-							<SlotHeader>
-								<SlotName>{slot.name}</SlotName>
+				<PatternList>
+					{statusList.map((pattern) => (
+						<PatternCard key={pattern.index}>
+							<PatternHeader>
+								<PatternName>{pattern.name}</PatternName>
 								<Icon
 									as={PiMusicNotesPlusDuotone}
 									boxSize={5}
-									color={slot.hasData ? 'rgba(76, 106, 255, 0.75)' : 'rgba(5, 4, 69, 0.4)'}
+									color={pattern.hasData ? 'rgba(76, 106, 255, 0.75)' : 'rgba(5, 4, 69, 0.4)'}
 								/>
-							</SlotHeader>
-							<SlotStatus>{slot.statusText}</SlotStatus>
+							</PatternHeader>
+							<PatternStatus>{pattern.statusText}</PatternStatus>
 							<ButtonGroup>
 								<Button
 									size="sm"
 									variant="solid"
 									colorScheme="blue"
-									onClick={() => saveSlot(slot.index)}
+									onClick={() => savePattern(pattern.index)}
 								>
 									保存
 								</Button>
@@ -135,8 +135,8 @@ export const ArrangementSlotsSidebar = () => {
 									size="sm"
 									variant="outline"
 									colorScheme="blue"
-									disabled={!slot.hasData}
-									onClick={() => loadSlot(slot.index)}
+									disabled={!pattern.hasData}
+									onClick={() => loadPattern(pattern.index)}
 								>
 									読み込み
 								</Button>
@@ -144,15 +144,15 @@ export const ArrangementSlotsSidebar = () => {
 									size="sm"
 									variant="ghost"
 									colorScheme="blue"
-									disabled={!slot.hasData}
-									onClick={() => clearSlot(slot.index)}
+									disabled={!pattern.hasData}
+									onClick={() => clearPattern(pattern.index)}
 								>
 									クリア
 								</Button>
 							</ButtonGroup>
-						</SlotCard>
+						</PatternCard>
 					))}
-				</SlotList>
+				</PatternList>
 			</SidebarRoot>
 		</Box>
 	);

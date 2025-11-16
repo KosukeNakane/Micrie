@@ -15,6 +15,7 @@ import { StyledArea } from '@shared/ui';
 
 
 import { scalePx } from '@/shared/lib/scale';
+import { useArrangementPerformer } from '@/features/arrangement-performance';
 
 const BarWrapper = styled(StyledArea)`
   box-sizing: border-box;
@@ -85,6 +86,12 @@ const IconButton = styled(StyledArea)`
 
 export const TopPlaybackBar = () => {
   const { loopPlay, stop, reset, isLoopPlaying } = usePlaybackController();
+  const {
+    playbackMode,
+    status: arrangementStatus,
+    playQueue,
+    stopQueue,
+  } = useArrangementPerformer();
   const [ratio, setRatio] = useState(0);
   const rafRef = useRef<number | null>(null);
 
@@ -172,17 +179,40 @@ export const TopPlaybackBar = () => {
     window.removeEventListener('pointerup', onPointerUp);
   }
 
+  const isQueueMode = playbackMode === 'queue';
+  const isQueuePlaying = isQueueMode && arrangementStatus === 'playing';
+
   const onToggle = async () => {
-    if (isLoopPlaying) stop();
-    else await loopPlay();
+    if (isQueueMode) {
+      if (isQueuePlaying) {
+        stopQueue();
+      } else {
+        await playQueue();
+      }
+    } else if (isLoopPlaying) {
+      stop();
+    } else {
+      await loopPlay();
+    }
   };
-  const onStop = () => { reset(); setRatio(0); };
+  const onStop = () => {
+    if (isQueueMode) {
+      stopQueue();
+    } else {
+      reset();
+      setRatio(0);
+    }
+  };
 
   return (
     <BarWrapper>
       <ControlsRow>
-        <IconButton as="button" aria-label={isLoopPlaying ? 'Pause' : 'Play'} onClick={onToggle}>
-          {isLoopPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+        <IconButton
+          as="button"
+          aria-label={isQueueMode ? (isQueuePlaying ? 'Pause Queue' : 'Play Queue') : (isLoopPlaying ? 'Pause' : 'Play')}
+          onClick={onToggle}
+        >
+          {(isQueueMode ? isQueuePlaying : isLoopPlaying) ? <PauseIcon /> : <PlayArrowIcon />}
         </IconButton>
         <IconButton as="button" aria-label={'Stop'} onClick={onStop}>
           <StopIcon />

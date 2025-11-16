@@ -1,5 +1,5 @@
 // [Model] entities/model - types.ts
-// 役割: アレンジメントスナップショットおよびスロットの型定義
+// 役割: アレンジメントスナップショットおよびパターンの型定義
 import type { ChordSlot } from '@/entities/chords';
 import type { Segment } from '@/entities/segment';
 import type { ChordPattern, DrumPattern } from '@/entities/pattern';
@@ -21,11 +21,11 @@ export interface ArrangementSnapshot {
   rhythmSegments: Segment[];
 }
 
-export interface ArrangementSlot {
+export interface ArrangementPattern {
   id: string;
   name: string;
   savedAt: number;
   snapshot: ArrangementSnapshot;
 }
 
-export const ARRANGEMENT_SLOT_COUNT = 6;
+export const ARRANGEMENT_PATTERN_COUNT = 6;

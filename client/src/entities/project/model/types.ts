@@ -42,7 +42,7 @@ export interface ProjectArrangementSnapshot {
   rhythmSegments: ProjectSegment[];
 }
 
-export interface ProjectArrangementSlot {
+export interface ProjectArrangementPattern {
   id: string;
   name: string;
   savedAt: number;
@@ -77,7 +77,7 @@ export interface ProjectData {
   channelsMuted: { melody: boolean; chord: boolean; drum: boolean; sampler: boolean };
   audio?: { audioUrl: string | null; waveform?: number[] | null };
   melodyPitch?: MelodyPitchItem[]; // メロディーピッチ（各グリッドの音名のみ保存）。初期値は休符。
-  arrangements?: Array<ProjectArrangementSlot | null>;
+  arrangements?: Array<ProjectArrangementPattern | null>;
 }
 
 export interface ProjectDocument {

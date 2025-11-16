@@ -23,6 +23,7 @@ export class GlobalAudioEngine {
   private drumGain: GainNode | null = null;
   private chordGain: GainNode | null = null;
   private samplerGain: GainNode | null = null;
+  private arrangementGain: GainNode | null = null;
   // preview channels (editor preview sounds)
   private melodyPreviewGain: GainNode | null = null;
   private drumPreviewGain: GainNode | null = null;
@@ -31,6 +32,7 @@ export class GlobalAudioEngine {
   private drumMuted = false;
   private chordMuted = false;
   private samplerMuted = false;
+  private arrangementMuted = false;
 
   private wafPlayer: any | null = null;
   private wafLoaded = false;
@@ -104,10 +106,13 @@ export class GlobalAudioEngine {
       this.chordGain.gain.value = 1;
       this.samplerGain = this.ctx.createGain();
       this.samplerGain.gain.value = 1;
+      this.arrangementGain = this.ctx.createGain();
+      this.arrangementGain.gain.value = 1;
       this.melodyGain.connect(this.masterGain);
       this.drumGain.connect(this.masterGain);
       this.chordGain.connect(this.masterGain);
       this.samplerGain.connect(this.masterGain);
+      this.arrangementGain.connect(this.masterGain);
 
       // preview channels -> master
       this.melodyPreviewGain = this.ctx.createGain();
@@ -232,6 +237,40 @@ export class GlobalAudioEngine {
     if (kind === 'drum-preview') return this.drumPreviewGain ?? this.masterGain;
     if (kind === 'chord-preview') return this.chordPreviewGain ?? this.masterGain;
     return this.masterGain;
+  }
+
+  getArrangementPerformanceInput(): AudioNode | null {
+    return this.arrangementGain ?? this.masterGain;
+  }
+
+  async setArrangementPerformanceVolume(volume: number) {
+    await this.ensureStarted();
+    if (!this.arrangementGain || !this.ctx) return;
+    const clamped = Math.max(0, Math.min(1, volume));
+    const now = this.ctx.currentTime;
+    try {
+      this.arrangementGain.gain.cancelScheduledValues(now);
+      this.arrangementGain.gain.setTargetAtTime(clamped, now, 0.02);
+    } catch {
+      this.arrangementGain.gain.value = clamped;
+    }
+  }
+
+  async setArrangementPerformanceMuted(muted: boolean) {
+    await this.ensureStarted();
+    if (!this.arrangementGain || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    try {
+      this.arrangementGain.gain.cancelScheduledValues(now);
+      this.arrangementGain.gain.setTargetAtTime(muted ? 0 : 1, now, 0.02);
+    } catch {
+      this.arrangementGain.gain.value = muted ? 0 : 1;
+    }
+    this.arrangementMuted = muted;
+  }
+
+  get arrangementPerformanceMuted() {
+    return this.arrangementMuted;
   }
 
   // Per-source mute controls

@@ -6,8 +6,8 @@ import { useChords } from "@/entities/chords";
 import { useEffects } from "@/entities/effects";
 import { useChordPattern } from "@/entities/pattern";
 import { useDrumPattern } from "@/entities/pattern";
-import { useArrangementSlotsStore } from "@/entities/arrangement";
-import type { ProjectData, MelodyPitchItem, ProjectArrangementSlot } from "@/entities/project";
+import { useArrangementPatternsStore } from "@/entities/arrangement";
+import type { ProjectData, MelodyPitchItem, ProjectArrangementPattern } from "@/entities/project";
 import { useScaleMode } from "@/entities/scale-mode";
 import { useSegment } from "@/entities/segment";
 import { useTempo } from "@/entities/tempo";
@@ -32,35 +32,35 @@ export function useAssembleProjectData(): () => ProjectData {
   const { chordPattern } = useChordPattern();
   const { bars: chordBars, chordsPerBar, slots } = useChords();
   const { drumPattern } = useDrumPattern();
-  const arrangementSlots = useArrangementSlotsStore((state) => state.slots);
+  const arrangementPatterns = useArrangementPatternsStore((state) => state.patterns);
   const { melodySegments } = useSegment();
   const { barCount } = useBarCount();
 
-  const serializeArrangements = (): Array<ProjectArrangementSlot | null> =>
-    arrangementSlots.map((slot) => {
-      if (!slot) return null;
+  const serializeArrangements = (): Array<ProjectArrangementPattern | null> =>
+    arrangementPatterns.map((pattern) => {
+      if (!pattern) return null;
       return {
-        id: slot.id,
-        name: slot.name,
-        savedAt: slot.savedAt,
+        id: pattern.id,
+        name: pattern.name,
+        savedAt: pattern.savedAt,
         snapshot: {
-          chordPattern: slot.snapshot.chordPattern,
-          drumPattern: slot.snapshot.drumPattern,
+          chordPattern: pattern.snapshot.chordPattern,
+          drumPattern: pattern.snapshot.drumPattern,
           chords: {
-            bars: slot.snapshot.chords.bars,
-            chordsPerBar: slot.snapshot.chords.chordsPerBar,
-            slots: slot.snapshot.chords.slots.map((s) => ({
+            bars: pattern.snapshot.chords.bars,
+            chordsPerBar: pattern.snapshot.chords.chordsPerBar,
+            slots: pattern.snapshot.chords.slots.map((s) => ({
               chord: { ...s.chord },
               plays: [...s.plays] as ['chord' | 'root' | 'rest', 'chord' | 'root' | 'rest'],
             })),
           },
           melody: {
-            barCount: slot.snapshot.melody.barCount,
-            segments: slot.snapshot.melody.segments.map((seg) => ({ ...seg })),
+            barCount: pattern.snapshot.melody.barCount,
+            segments: pattern.snapshot.melody.segments.map((seg) => ({ ...seg })),
           },
-          rhythmSegments: slot.snapshot.rhythmSegments.map((seg) => ({ ...seg })),
+          rhythmSegments: pattern.snapshot.rhythmSegments.map((seg) => ({ ...seg })),
         },
-      } satisfies ProjectArrangementSlot;
+      } satisfies ProjectArrangementPattern;
     });
 
   return () => ({

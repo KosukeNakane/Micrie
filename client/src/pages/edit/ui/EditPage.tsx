@@ -12,7 +12,7 @@ import { ChordPatternSelect, DrumPatternSelect } from "@/features/pattern-select
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
 import { BarWaveformSection, BarWaveformContainer } from "@widgets/waveform";
 import { MelodyCards, ChordsCards, DrumsCards } from "@widgets/waveform";
-import { ArrangementSlotsSidebar } from "@widgets/arrangement-slots";
+import { ArrangementPatternsSidebar } from "@widgets/arrangement-patterns";
 import { AudioFileUploader, MelodyReanalysisPanel } from "@/widgets/recording/audio-analysis-tools";
 
 const PageBody = styled.div`
@@ -92,7 +92,7 @@ export const EditPage = () => {
             </div>
           )}
         </MainColumn>
-        <ArrangementSlotsSidebar />
+        <ArrangementPatternsSidebar />
       </PageBody>
     </div>
   );
