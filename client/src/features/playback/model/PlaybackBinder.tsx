@@ -4,11 +4,11 @@ import React from 'react';
 import * as Tone from 'tone';
 
 import { useGlobalAudio, useChannelsStore } from '@/entities/audio';
-import { useChords } from '@/entities/chords';
 import { useScaleMode } from '@/entities/scale-mode';
 import { useSegment } from '@/entities/segment';
 import { useTempo } from '@/entities/tempo';
 import { useTransportStore } from '@/entities/transport';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { extractQuantizedNotes } from '@/shared/lib/noteSegmentation';
 import { majorPentatonicMap, minorPentatonicMap } from '@/shared/lib/pitchMaps';
 
@@ -89,7 +89,7 @@ export const PlaybackBinder: React.FC = () => {
   }, [quantizedMelody, getDrumEvents, playDrumHit, playMelody]);
 
   // chords のスケジューリング（ChordsPlaybackBinder のロジックを移植）
-  const { slots, bars } = useChords();
+  const { chordSlots, bars } = usePatternEditor();
   const chordMuted = useChannelsStore((s) => s.chordMuted);
   const { chordToNotes, playChordAt } = useChordsPlayer();
   const eventIdRef = React.useRef<number | null>(null);
@@ -119,7 +119,7 @@ export const PlaybackBinder: React.FC = () => {
       const chordIndexInBar = Math.floor(stepInBar / 2); // 0..3
       const trigPos: 0 | 1 = (stepInBar % 2) as 0 | 1; // 0 or 1
       const slotIndex = barIndex * 4 + chordIndexInBar;
-      const slot = slots[slotIndex];
+      const slot = chordSlots[slotIndex];
       if (slot) {
         const type = slot.plays[trigPos];
         if (type !== 'rest') {
@@ -136,7 +136,7 @@ export const PlaybackBinder: React.FC = () => {
     return () => {
       if (eventIdRef.current != null) { try { Tone.getTransport().clear(eventIdRef.current as any); } catch {} eventIdRef.current = null; }
     };
-  }, [slots, bars, engine, isLoopPlaying, chordMuted]);
+  }, [chordSlots, bars, engine, isLoopPlaying, chordMuted]);
 
   return null;
 };

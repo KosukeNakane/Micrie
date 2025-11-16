@@ -6,6 +6,7 @@ import { TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
 import * as Tone from "tone";
 
 import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
+import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";
 import { useSegment } from "@entities/segment/model/SegmentContext";
 
 const GlassButtonUp = styled.button`
@@ -49,7 +50,8 @@ const drumOrder = ["kick", "snare", "hihat"] as const;
 type Props = { barIndex: number; width?: number };
 
 export const RhythmSegmentEditor = ({ barIndex, width = 600 }: Props) => {
-  const { currentSegments, updateRhythmSegment } = useSegment();
+  const { currentSegments } = useSegment();
+  const { updateRhythmSegment } = usePatternEditor();
   void width;
   const engine = useGlobalAudio();
   const synths = React.useMemo(() => ({

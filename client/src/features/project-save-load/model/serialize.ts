@@ -2,14 +2,13 @@
 // 役割: ビジネスロジック/状態操作
 import { useChannelsStore } from "@/entities/audio";
 import { useBarCount } from "@/entities/bar-count";
-import { useChords } from "@/entities/chords";
 import { useEffects } from "@/entities/effects";
 import { useChordPattern } from "@/entities/pattern";
 import { useDrumPattern } from "@/entities/pattern";
+import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";
 import { useArrangementPatternsStore } from "@/entities/arrangement";
 import type { ProjectData, MelodyPitchItem, ProjectArrangementPattern } from "@/entities/project";
 import { useScaleMode } from "@/entities/scale-mode";
-import { useSegment } from "@/entities/segment";
 import { useTempo } from "@/entities/tempo";
 import { useVolume } from "@/entities/volume";
 import { useEffectsUiStore } from "@/features/effects";
@@ -30,10 +29,9 @@ export function useAssembleProjectData(): () => ProjectData {
   const { volume } = useVolume();
   const { scaleMode } = useScaleMode();
   const { chordPattern } = useChordPattern();
-  const { bars: chordBars, chordsPerBar, slots } = useChords();
+  const { bars: chordBars, chordsPerBar, chordSlots, melodySegments } = usePatternEditor();
   const { drumPattern } = useDrumPattern();
   const arrangementPatterns = useArrangementPatternsStore((state) => state.patterns);
-  const { melodySegments } = useSegment();
   const { barCount } = useBarCount();
 
   const serializeArrangements = (): Array<ProjectArrangementPattern | null> =>
@@ -69,7 +67,7 @@ export function useAssembleProjectData(): () => ProjectData {
     chordsProgression: {
       bars: chordBars,
       chordsPerBar,
-      slots: slots.map((slot) => ({ chord: slot.chord, plays: slot.plays })),
+      slots: chordSlots.map((slot) => ({ chord: slot.chord, plays: slot.plays })),
     },
     drumPattern,
     volume: {

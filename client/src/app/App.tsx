@@ -15,7 +15,7 @@ import { Scaler, useScaler } from '@/app/providers/Scaler';
 import { GlobalAudioEngine, useChannelsStore } from "@/entities/audio";
 import { useBarCount } from "@/entities/bar-count";
 import { useArrangementPatternsStore } from "@/entities/arrangement";
-import { useChords } from "@/entities/chords";
+import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";
 import { useEffects } from "@/entities/effects";
 import { useChordPattern, useDrumPattern } from "@/entities/pattern";
 import { useScaleMode } from "@/entities/scale-mode";
@@ -92,7 +92,8 @@ export const App = () => {
     const setHoldFor = useEffectsUiStore((s) => s.setHoldFor);
     const setMuted = useChannelsStore((s) => s.setMuted);
     const setChannelVolume = useChannelsStore((s) => s.setVolume);
-  const { setContextAudioBuffer, setMelodySegments } = useSegment();
+  const { setContextAudioBuffer } = useSegment();
+  const { setMelodySegments, setBars: setChordBars, setChordAt, setSlotPlayType } = usePatternEditor();
   const setArrangementPatterns = useArrangementPatternsStore((s) => s.setPatterns);
   const resetArrangementPatterns = useArrangementPatternsStore((s) => s.resetPatterns);
     const { barCount } = useBarCount();
@@ -101,7 +102,6 @@ export const App = () => {
     const { setVolume } = useVolume();
     const { setScaleMode } = useScaleMode();
     const { setChordPattern } = useChordPattern();
-    const { setBars: setChordBars, setChordAt, setSlotPlayType } = useChords();
     const { setDrumPattern } = useDrumPattern();
 
     useEffect(() => {

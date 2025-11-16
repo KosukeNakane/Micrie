@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { useAudioBuffer } from "@entities/audio/model/useAudioBuffer";
 import { useBarCount } from "@entities/bar-count/model/BarCountContext";
+import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";
 import { useSegment } from "@entities/segment/model/SegmentContext";
 import { useTempo } from "@entities/tempo/model/TempoContext";
 import { apiFetch } from "@shared/api/apiClient";
@@ -14,7 +15,8 @@ const trimMemo = new WeakMap<Blob, TrimMemo>();
 const processedDuration = new WeakMap<Blob, number>();
 
 export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: number, enableTrimming: boolean = false) => {
-  const { setMelodySegments, setContextAudioBuffer, setLoopMode } = useSegment();
+  const { setContextAudioBuffer, setLoopMode } = useSegment();
+  const { setMelodySegments } = usePatternEditor();
   const { barCount } = useBarCount();
   const { tempo } = useTempo();
   const [trimmedBlob, setTrimmedBlob] = useState<Blob | null>(null);

@@ -3,14 +3,14 @@
 import React from 'react';
 
 import { useDrumPattern } from '@/entities/pattern';
-import { useSegment } from '@/entities/segment';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { PATTERNS } from '@/features/drums-playback/lib/patterns';
 
 const STEP_BEAT = 0.5; // 8th notes in beats
 
 export const DrumPatternToRhythmSegmentsBinder: React.FC = () => {
   const { drumPattern } = useDrumPattern();
-  const { setRhythmSegments } = useSegment();
+  const { setRhythmSegments } = usePatternEditor();
 
   React.useEffect(() => {
     // パターン変更時に必ず rhythmSegments を上書きして同期

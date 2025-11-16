@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import * as Tone from 'tone';
 
 import { StyledArea } from '@/shared/ui';
-import { useSegment } from '@/entities/segment';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { useTransportStore } from '@/entities/transport';
 import { useDrumPattern } from '@/entities/pattern';
 
@@ -78,7 +78,7 @@ const colorMap: Record<typeof ROWS[number]['key'], string> = {
 };
 
 export const DrumsEditor: React.FC = () => {
-  const { rhythmSegments, setRhythmSegments, updateRhythmSegment } = useSegment();
+  const { rhythmSegments, setRhythmSegments, updateRhythmSegment } = usePatternEditor();
   const { drumPattern } = useDrumPattern();
   const [playingIndex, setPlayingIndex] = React.useState<number | null>(null);
   const seededRef = useRef(false);

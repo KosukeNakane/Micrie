@@ -13,6 +13,7 @@ import { useAnalysisMode } from '@entities/analysis/model/AnalysisModeContext';
 import { useRecording } from '@entities/audio/model/RecordingContext';
 import { useBarCount } from '@entities/bar-count/model/BarCountContext';
 import { useMode } from '@entities/mode/model/ModeContext';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { useSegment } from '@entities/segment/model/SegmentContext';
 import { useTeachableModel } from '@features/analysis/model/useTeachableModel';
 import { apiFetch } from '@shared/api/apiClient';
@@ -59,7 +60,8 @@ export const useAudioRecorder = () => {
     const { isRecording, setIsRecording } = useRecording();
     const setSharedAudioBlob = useAudioStore((s) => s.setAudioBlob);
     const [, setAudioBlob] = useState<Blob | null>(null);
-    const { setRhythmSegments, setMelodySegments, setContextAudioBuffer } = useSegment();
+    const { setContextAudioBuffer } = useSegment();
+    const { setRhythmSegments, setMelodySegments } = usePatternEditor();
     const realtimeLabel = useTeachableModel();
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);

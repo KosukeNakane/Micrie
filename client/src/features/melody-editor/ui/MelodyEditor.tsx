@@ -9,6 +9,7 @@ import { useMemo, useRef } from 'react';
 import * as Tone from 'tone';
 
 import { useGlobalAudio } from '@/entities/audio';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { useSegment } from '@/entities/segment';
 import { StyledArea } from '@/shared/ui';
 
@@ -98,7 +99,8 @@ const CircleRow = styled.div`
 `;
 
 export const MelodyEditor: FC<Props> = () => {
-  const { currentSegments, melodySegments, setMelodySegments, updateMelodySegment } = useSegment();
+  const { currentSegments } = useSegment();
+  const { melodySegments, setMelodySegments, updateMelodySegment } = usePatternEditor();
   const engine = useGlobalAudio();
 
   const previousNotesRef = useRef<string[]>([]);

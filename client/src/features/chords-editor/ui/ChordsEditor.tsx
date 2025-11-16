@@ -10,7 +10,7 @@ import React, { useMemo } from 'react';
 import * as Tone from 'tone';
 
 import { useGlobalAudio } from '@/entities/audio';
-import { useChords } from '@/entities/chords';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { StyledArea } from '@/shared/ui';
 
 type Chord = {
@@ -120,7 +120,7 @@ function formatChord(chord: Chord) {
 
 export const ChordsEditor: React.FC = () => {
   const engine = useGlobalAudio();
-  const { slots, setChordAt, setSlotPlayType, bars } = useChords();
+  const { chordSlots, setChordAt, setSlotPlayType, bars } = usePatternEditor();
   const ICONS = [CircleIcon, AdjustIcon, PanoramaFishEyeIcon] as const;
 
   // MelodySegmentEditor と同等のプレビュー仕様：
@@ -184,7 +184,7 @@ export const ChordsEditor: React.FC = () => {
     } catch { }
   };
 
-  const cards = useMemo(() => slots.map((slot, i) => {
+  const cards = useMemo(() => chordSlots.map((slot, i) => {
     const c = slot.chord;
     // アイコン循環クリックハンドラ
     const cycleIcon = (pos: 0 | 1) => () => {
@@ -241,7 +241,7 @@ export const ChordsEditor: React.FC = () => {
         </CircleRow>
       </Card>
     );
-  }), [slots, setChordAt, setSlotPlayType]);
+  }), [chordSlots, setChordAt, setSlotPlayType]);
 
   return (
     <Container>

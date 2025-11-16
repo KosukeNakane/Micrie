@@ -5,15 +5,15 @@ import React from 'react';
 import { PRESETS, type ChordPresetSlot as PresetSlot } from '@shared/lib/chord-presets';
 
 import { useBarCount } from '@/entities/bar-count';
-import { useChords } from '@/entities/chords';
 import { useChordPattern } from '@/entities/pattern';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 
 // 2bars想定のデフォルト進行（slot数=8）。barsが増えた場合は繰り返しで埋める。
 // PRESETS は shared/lib に分離
 
 export const ChordPatternToChordsBinder: React.FC = () => {
   const { chordPattern } = useChordPattern();
-  const { bars, chordsPerBar, applyPreset, setBars } = useChords();
+  const { bars, chordsPerBar, applyChordPreset, setBars } = usePatternEditor();
   const { barCount } = useBarCount();
 
   // keep bars in sync with global barCount
@@ -27,8 +27,8 @@ export const ChordPatternToChordsBinder: React.FC = () => {
     // extend or trim to bars*4
     const total = Math.max(1, (barCount || bars || 2) * (chordsPerBar || 4));
     const list: PresetSlot[] = Array.from({ length: total }, (_, i) => base[i % base.length]);
-    applyPreset(list as any);
-  }, [chordPattern, bars, chordsPerBar, barCount, applyPreset]);
+    applyChordPreset(list as any);
+  }, [chordPattern, bars, chordsPerBar, barCount, applyChordPreset]);
 
   return null;
 };

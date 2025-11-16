@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import { GlobalAudioProvider } from '@entities/audio/model/GlobalAudioContext';
 import { BarCountProvider, useBarCount } from '@entities/bar-count';
 import { ScaleModeProvider } from '@entities/scale-mode';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { SegmentProvider, useSegment } from '@entities/segment/model/SegmentContext';
 
 import { BarWaveformSection } from './BarWaveformSection';
@@ -15,7 +16,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const SetupState: React.FC<{ bars?: number }> = ({ bars = 1 }) => {
   const { setBarCount } = useBarCount();
-  const { setLoopMode, setMelodySegments, setRhythmSegments } = useSegment();
+  const { setLoopMode } = useSegment();
+  const { setMelodySegments, setRhythmSegments } = usePatternEditor();
   useEffect(() => {
     setBarCount(bars);
     setLoopMode('melody');

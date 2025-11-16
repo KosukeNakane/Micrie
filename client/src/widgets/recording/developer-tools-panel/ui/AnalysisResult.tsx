@@ -4,12 +4,12 @@
 
 import { useState } from 'react';
 
-import { useSegment } from '@entities/segment/model/SegmentContext';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { RectButton } from '@shared/ui/RectButton';
 
 export const AnalysisResult = () => {
     // MelodyおよびRhythmのセグメント配列をコンテキストから取得
-    const { melodySegments, rhythmSegments } = useSegment();
+    const { melodySegments, rhythmSegments } = usePatternEditor();
     // 2つのセグメント配列を結合して1つのリストにまとめる
     const segments = [...melodySegments, ...rhythmSegments];
 
@@ -41,4 +41,3 @@ export const AnalysisResult = () => {
         </div>
     );
 };
-
