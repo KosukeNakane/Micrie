@@ -78,6 +78,19 @@ export interface ProjectData {
   audio?: { audioUrl: string | null; waveform?: number[] | null };
   melodyPitch?: MelodyPitchItem[]; // メロディーピッチ（各グリッドの音名のみ保存）。初期値は休符。
   arrangements?: Array<ProjectArrangementPattern | null>;
+  savedPatterns?: Array<{
+    id: string;
+    name: string;
+    bars: number;
+    chordsPerBar: number;
+    chordSlots: Array<{
+      chord: { rootIndex: number; quality: 'maj' | 'min' | 'dim' | 'aug'; tension: '' | 'maj7' | '7' | '6' | '9' | '11' | '13' };
+      plays: ['chord' | 'root' | 'rest', 'chord' | 'root' | 'rest'];
+    }>;
+    melodySegments: ProjectSegment[];
+    rhythmSegments: ProjectSegment[];
+  } | null>;
+  lastEditingPatternId?: string | null;
 }
 
 export interface ProjectDocument {

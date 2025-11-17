@@ -16,6 +16,9 @@ import { GlobalAudioEngine, useChannelsStore } from "@/entities/audio";
 import { useBarCount } from "@/entities/bar-count";
 import { useArrangementPatternsStore } from "@/entities/arrangement";
 import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";
+import { useEditingPatternStore } from "@/entities/pattern/model/editingPatternStore";
+import { useSavedPatternStore } from "@/entities/pattern/model/savedPatternStore";
+import type { Pattern, Segment, ChordSlot, PlayType } from "@/entities/pattern/model/patternTypes";
 import { useEffects } from "@/entities/effects";
 import { useChordPattern, useDrumPattern } from "@/entities/pattern";
 import { useScaleMode } from "@/entities/scale-mode";
@@ -32,11 +35,14 @@ import { OpenProjectModal, ensureAuth, listProjects, loadProject, downloadLocalP
 
 // useProjectState は上記のバレルから取得
 import { stableStringify } from "@/shared/lib/stableStringify";
+import { PRESETS } from '@/shared/lib/chord-presets';
 import { NavBar } from "@/shared/ui";
 import { ConfirmUnsavedChangesModal } from "@/shared/ui/ConfirmUnsavedChangesModal";
 // getInitialProjectData は上記のバレルから取得
 import { LoginRequiredModal } from "@/shared/ui/LoginRequiredModal";
 import { ToasterHost } from "@/shared/ui/toaster";
+import { PATTERNS as DRUM_PATTERNS } from '@/features/drums-playback/lib/patterns';
+import type { ProjectArrangementPattern, ProjectData, ProjectSegment } from "@/entities/project";
 
 const config = defineConfig({
   globalCss: {
@@ -48,7 +54,177 @@ const config = defineConfig({
 });
 const system = createSystem(defaultConfig, config);
 
+const STEP_BEAT = 0.5;
+
+const cloneSegments = (segments: Array<Segment | ProjectSegment> | undefined | null): Segment[] =>
+	Array.isArray(segments)
+		? segments.map((seg) => ({
+			...(seg as Segment),
+			label: typeof seg.label === 'string' ? seg.label : '',
+		}))
+		: [];
+
+const createChordSlotsFromPreset = (bars: number, chordsPerBar: number, presetId: string): ChordSlot[] => {
+	const preset = PRESETS[presetId] ?? PRESETS.pattern1;
+	const total = Math.max(1, bars * chordsPerBar);
+	return Array.from({ length: total }, (_, index) => {
+		const source = preset[index % preset.length];
+		const plays: [PlayType, PlayType] = [
+			(source.plays?.[0] as PlayType) ?? 'root',
+			(source.plays?.[1] as PlayType) ?? 'chord',
+		];
+		return {
+			chord: { ...source.chord },
+			plays,
+		};
+	});
+};
+
+const createRhythmSegmentsFromPattern = (patternKey: keyof typeof DRUM_PATTERNS): Segment[] => {
+	const pattern = DRUM_PATTERNS[patternKey] ?? DRUM_PATTERNS.basic;
+	const segments: Segment[] = Array.from({ length: 16 }, (_, i) => ({
+		label: '',
+		start: i * STEP_BEAT,
+		end: (i + 1) * STEP_BEAT,
+	}));
+	pattern.forEach((event) => {
+		const index = Math.round(event.time / STEP_BEAT);
+		if (index >= 0 && index < segments.length) {
+			segments[index] = { ...segments[index], label: event.type };
+		}
+	});
+	return segments;
+};
+
+const makeDefaultPattern = (): Pattern => {
+	const bars = 2;
+	const chordsPerBar = 4;
+	return {
+		id: `default-${Date.now()}`,
+		name: 'Default Pattern',
+		bars,
+		chordsPerBar,
+		chordSlots: createChordSlotsFromPreset(bars, chordsPerBar, 'pattern1'),
+		melodySegments: [],
+		rhythmSegments: createRhythmSegmentsFromPattern('basic'),
+	};
+};
+
+const patternFromArrangement = (item: ProjectArrangementPattern, index: number): Pattern => ({
+	id: typeof item.id === 'string' ? item.id : `arr-${index}`,
+	name: item.name ?? `Pattern ${index + 1}`,
+	bars: item.snapshot.chords.bars,
+	chordsPerBar: item.snapshot.chords.chordsPerBar,
+	chordSlots: item.snapshot.chords.slots.map((slot) => ({
+		chord: { ...slot.chord },
+		plays: [...slot.plays] as [PlayType, PlayType],
+	})),
+	melodySegments: cloneSegments(item.snapshot.melody.segments),
+	rhythmSegments: cloneSegments(item.snapshot.rhythmSegments),
+});
+
+const normalizePatternEntry = (entry: any, index: number): Pattern | null => {
+	if (!entry) return null;
+	if (entry.snapshot) {
+		return patternFromArrangement(entry as ProjectArrangementPattern, index);
+	}
+	if (Array.isArray(entry.chordSlots) && typeof entry.bars === 'number' && typeof entry.chordsPerBar === 'number') {
+		return {
+			id: typeof entry.id === 'string' ? entry.id : `saved-${index}`,
+			name: typeof entry.name === 'string' ? entry.name : `Pattern ${index + 1}`,
+			bars: entry.bars,
+			chordsPerBar: entry.chordsPerBar,
+			chordSlots: entry.chordSlots.map((slot: any) => ({
+				chord: { ...slot.chord },
+				plays: [...(slot.plays ?? ['root', 'chord'])] as [PlayType, PlayType],
+			})),
+			melodySegments: cloneSegments(entry.melodySegments),
+			rhythmSegments: cloneSegments(entry.rhythmSegments),
+		};
+	}
+	return null;
+};
+
+const extractPatternsFromArrangements = (data: ProjectData): Pattern[] => {
+	if (!Array.isArray(data.arrangements)) return [];
+	return data.arrangements
+		.map((item, index) => (item ? patternFromArrangement(item, index) : null))
+		.filter((p): p is Pattern => Boolean(p));
+};
+
+type SerializedSavedPattern = NonNullable<ProjectData['savedPatterns']>[number];
+
+const patternFromSavedEntry = (entry: SerializedSavedPattern, index: number): Pattern | null => {
+	if (!entry) return null;
+	if (
+		typeof entry.bars !== 'number'
+		|| typeof entry.chordsPerBar !== 'number'
+		|| !Array.isArray(entry.chordSlots)
+	) {
+		return null;
+	}
+	return {
+		id: typeof entry.id === 'string' ? entry.id : `saved-${index}`,
+		name: typeof entry.name === 'string' ? entry.name : `Pattern ${index + 1}`,
+		bars: entry.bars,
+		chordsPerBar: entry.chordsPerBar,
+		chordSlots: entry.chordSlots.map((slot) => ({
+			chord: { ...slot.chord },
+			plays: [...slot.plays] as [PlayType, PlayType],
+		})),
+		melodySegments: cloneSegments(entry.melodySegments),
+		rhythmSegments: cloneSegments(entry.rhythmSegments),
+	};
+};
+
+const convertSavedPatterns = (data: ProjectData): Array<Pattern | null> | null => {
+	if (!Array.isArray(data.savedPatterns)) return null;
+	const mapped = data.savedPatterns.map((entry, index) =>
+		entry ? patternFromSavedEntry(entry, index) : null
+	);
+	return mapped.some((p) => Boolean(p)) ? mapped : null;
+};
+
+const applyEditingPatternFromProjectData = (data: ProjectData) => {
+	const savedStore = useSavedPatternStore.getState();
+	const editingStore = useEditingPatternStore.getState();
+	const savedList = convertSavedPatterns(data);
+	let availablePatterns: Pattern[] = [];
+	if (savedList) {
+		savedStore.setPatterns(savedList);
+		availablePatterns = savedList.filter((p): p is Pattern => Boolean(p));
+	} else {
+		const arrPatterns = extractPatternsFromArrangements(data);
+		if (arrPatterns.length > 0) {
+			savedStore.setPatterns(arrPatterns as Array<Pattern | null>);
+		} else {
+			savedStore.resetPatterns();
+		}
+		availablePatterns = arrPatterns;
+	}
+	const lastId = typeof data.lastEditingPatternId === 'string' ? data.lastEditingPatternId : null;
+	let targetPattern: Pattern | null = null;
+	if (lastId) {
+		targetPattern = availablePatterns.find((p) => p.id === lastId) ?? null;
+	}
+	if (!targetPattern) {
+		targetPattern = availablePatterns[0] ?? makeDefaultPattern();
+	}
+	editingStore.resetPattern();
+	editingStore.loadPattern(targetPattern);
+};
+
 export const App = () => {
+  useEffect(() => {
+    const saved = useSavedPatternStore.getState().patterns;
+    const hasAnySaved = saved.some((p) => Boolean(p));
+    const editingPattern = useEditingPatternStore.getState().pattern;
+    if (hasAnySaved || editingPattern) return;
+    const pattern = makeDefaultPattern();
+    useSavedPatternStore.getState().setPatterns([pattern, null, null, null, null, null]);
+    useEditingPatternStore.getState().loadPattern(pattern);
+  }, []);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -330,6 +506,7 @@ export const App = () => {
             try { setChannelVolume('sampler', d.volume.sampler); } catch {}
           }
         }
+        try { applyEditingPatternFromProjectData(d as ProjectData); } catch { }
         // 保存形式1: StorageのURL（既存実装）
         if (d.audio?.audioUrl) {
           try {
@@ -486,6 +663,7 @@ export const App = () => {
                 try { setChannelVolume('sampler', d.volume.sampler); } catch {}
               }
             }
+            try { applyEditingPatternFromProjectData(d as ProjectData); } catch { }
             // Melody segments from saved pitch data (local)
             try {
               const mp = Array.isArray((d as any).melodyPitch) ? (d as any).melodyPitch as any[] : [];

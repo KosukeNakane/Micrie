@@ -5,15 +5,16 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import CircleIcon from '@mui/icons-material/Circle';
 import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as Tone from 'tone';
 
 import { useGlobalAudio } from '@/entities/audio';
+import { useEditingPatternStore } from '@/entities/pattern/model/editingPatternStore';
 import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
-import { useSegment } from '@/entities/segment';
 import { StyledArea } from '@/shared/ui';
 
 import type { FC } from 'react';
+import type { Segment } from '@/entities/pattern/model/patternTypes';
 
 type Props = { barIndex: number; width?: number };
 
@@ -98,25 +99,50 @@ const CircleRow = styled.div`
   align-items: center;
 `;
 
+const EmptyState = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 14px;
+`;
+
 export const MelodyEditor: FC<Props> = () => {
-  const { currentSegments } = useSegment();
-  const { melodySegments, setMelodySegments, updateMelodySegment } = usePatternEditor();
+  const { melodySegments, setMelodySegments } = usePatternEditor();
+  const hasPattern = useEditingPatternStore((s) => Boolean(s.pattern));
+  const segmentsFromStore = hasPattern ? melodySegments : undefined;
   const engine = useGlobalAudio();
 
   const previousNotesRef = useRef<string[]>([]);
-  const placeholderSegments = useMemo(() => (
-    Array.from({ length: 32 }, (_, i) => ({ label: 'rest', note: 'rest', start: i / 16, end: (i + 1) / 16 }))
+  const placeholderSegments = useMemo<Segment[]>(() => (
+    Array.from({ length: 32 }, (_, i) => ({
+      label: 'rest',
+      note: 'rest',
+      start: i / 16,
+      end: (i + 1) / 16,
+    }))
   ), []);
-  const displaySegments = (currentSegments.melody.length > 0 ? currentSegments.melody : placeholderSegments) as any[];
-  if (previousNotesRef.current.length !== displaySegments.length) {
-    previousNotesRef.current = displaySegments.map((seg: any) => seg.note !== 'rest' ? (seg.note ?? 'C4') : 'C4');
-  }
 
-  const ensureSegmentsInStore = () => {
-    if (!Array.isArray(melodySegments) || melodySegments.length === 0) {
-      setMelodySegments(placeholderSegments as any);
+  useEffect(() => {
+    if (!segmentsFromStore || segmentsFromStore.length > 0) return;
+    setMelodySegments(placeholderSegments);
+  }, [segmentsFromStore, placeholderSegments, setMelodySegments]);
+
+  const displaySegments = segmentsFromStore
+    ? (segmentsFromStore.length > 0 ? segmentsFromStore : placeholderSegments)
+    : undefined;
+
+  useEffect(() => {
+    if (!displaySegments) {
+      previousNotesRef.current = [];
+      return;
     }
-  };
+    previousNotesRef.current = displaySegments.map((seg) => (
+      seg.note && seg.note !== 'rest' ? seg.note : 'C4'
+    ));
+  }, [displaySegments]);
+
   const triggerPreview = async (note: string) => {
     try { if ((Tone.getContext() as any).state !== 'running') await Tone.start(); } catch { }
     try { await engine.ensureStarted(); } catch { }
@@ -138,66 +164,87 @@ export const MelodyEditor: FC<Props> = () => {
     } catch { }
   };
 
+  const applySegmentPatch = (index: number, patch: Partial<Segment>) => {
+    if (!segmentsFromStore) return;
+    const base = segmentsFromStore.length > 0 ? segmentsFromStore : placeholderSegments;
+    const next = base.map((seg, i) => (i === index ? { ...seg, ...patch } : seg));
+    setMelodySegments(next);
+  };
+
   const changePitch = (index: number, delta: number) => {
-    ensureSegmentsInStore();
-    const seg = (currentSegments.melody.length > 0 ? currentSegments.melody : placeholderSegments as any)[index];
+    if (!displaySegments) return;
+    const seg = displaySegments[index];
     const note = seg?.note;
     if (!note || note === 'rest') return;
     try {
       const midi = Tone.Frequency(note).toMidi();
       const newMidi = Math.max(0, Math.min(127, midi + delta));
       const newNote = Tone.Frequency(newMidi, 'midi').toNote();
-      updateMelodySegment(index, { note: newNote, label: newNote });
+      applySegmentPatch(index, { note: newNote, label: newNote });
       triggerPreview(newNote);
     } catch { }
   };
 
   const toggleMute = (index: number) => {
-    ensureSegmentsInStore();
-    const seg = (currentSegments.melody.length > 0 ? currentSegments.melody : placeholderSegments as any)[index];
+    if (!displaySegments) return;
+    const seg = displaySegments[index];
     if (!seg) return;
     if (seg.note === 'rest') {
       const restored = previousNotesRef.current[index] || 'C4';
-      updateMelodySegment(index, { note: restored, label: restored });
+      applySegmentPatch(index, { note: restored, label: restored });
       triggerPreview(restored);
     } else {
       const cur = typeof seg.note === 'string' ? seg.note : 'C4';
       previousNotesRef.current[index] = cur;
-      updateMelodySegment(index, { note: 'rest', label: 'rest' });
+      applySegmentPatch(index, { note: 'rest', label: 'rest' });
     }
   };
 
-  const uiCards = useMemo(() => (displaySegments as any[]).slice(0, 32).map((seg, i) => {
-    const muted = seg.note === 'rest';
-    const label = muted ? '-' : (seg.note ?? '-');
+  const uiCards = useMemo(() => {
+    if (!displaySegments) return [];
+    return displaySegments.slice(0, 32).map((seg, i) => {
+      const muted = seg.note === 'rest';
+      const label = muted ? '-' : (seg.note ?? '-');
+      return (
+        <Card key={i}>
+          <YellowLabel
+            role="button"
+            title={muted ? '' : 'Click to preview'}
+            style={{ cursor: muted ? 'default' : 'pointer' }}
+            onClick={() => { if (!muted) triggerPreview(label); }}
+          >
+            {label}
+          </YellowLabel>
+          <SmallBox>
+            <ControlButton pos="up" role="button" aria-label="pitch-up" onClick={() => changePitch(i, 1)}>
+              <ArrowDropUpIcon style={{ fontSize: 40 }} />
+            </ControlButton>
+            <ControlButton pos="down" role="button" aria-label="pitch-down" onClick={() => changePitch(i, -1)}>
+              <ArrowDropDownIcon style={{ fontSize: 40 }} />
+            </ControlButton>
+          </SmallBox>
+          <CircleRow>
+            {muted ? (
+              <PanoramaFishEyeIcon fontSize="small" onClick={() => toggleMute(i)} style={{ cursor: 'pointer' }} />
+            ) : (
+              <CircleIcon fontSize="small" onClick={() => toggleMute(i)} style={{ cursor: 'pointer' }} />
+            )}
+          </CircleRow>
+        </Card>
+      );
+    });
+  }, [displaySegments]);
+
+  if (!hasPattern) return null;
+  if (!displaySegments) {
     return (
-      <Card key={i}>
-        <YellowLabel
-          role="button"
-          title={muted ? '' : 'Click to preview'}
-          style={{ cursor: muted ? 'default' : 'pointer' }}
-          onClick={() => { if (!muted) triggerPreview(label); }}
-        >
-          {label}
-        </YellowLabel>
-        <SmallBox>
-          <ControlButton pos="up" role="button" aria-label="pitch-up" onClick={() => changePitch(i, 1)}>
-            <ArrowDropUpIcon style={{ fontSize: 40 }} />
-          </ControlButton>
-          <ControlButton pos="down" role="button" aria-label="pitch-down" onClick={() => changePitch(i, -1)}>
-            <ArrowDropDownIcon style={{ fontSize: 40 }} />
-          </ControlButton>
-        </SmallBox>
-        <CircleRow>
-          {muted ? (
-            <PanoramaFishEyeIcon fontSize="small" onClick={() => toggleMute(i)} style={{ cursor: 'pointer' }} />
-          ) : (
-            <CircleIcon fontSize="small" onClick={() => toggleMute(i)} style={{ cursor: 'pointer' }} />
-          )}
-        </CircleRow>
-      </Card>
+      <Container>
+        <Card>
+          <EmptyState>メロディデータを読み込み中…</EmptyState>
+        </Card>
+      </Container>
     );
-  }), [displaySegments]);
+  }
 
   return (
     <Container>

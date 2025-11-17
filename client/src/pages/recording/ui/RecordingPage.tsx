@@ -14,7 +14,7 @@ import { useTempo } from "@entities/tempo/model/TempoContext";
 import { RealtimeLabel, useAudioRecorder } from "@features/recording";
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
 import { WaveformDisplay } from "@widgets/waveform";
-import { ArrangementPatternsSidebar } from "@widgets/arrangement-patterns";
+import { SavedPatternPanel } from "@/widgets/saved-patterns";
 
 import { useAudioStore } from "@/entities/audio";
 const PageBody = styled.div`
@@ -94,7 +94,7 @@ export const RecordingPage = () => {
           <RealtimeLabel label={realtimeLabel} />
           <WaveformDisplay audioBlob={audioBlob} onToggleRecording={handleToggleRecording} />
         </MainColumn>
-        <ArrangementPatternsSidebar />
+        <SavedPatternPanel />
       </PageBody>
     </div>
   );

@@ -10,6 +10,7 @@ import React, { useMemo } from 'react';
 import * as Tone from 'tone';
 
 import { useGlobalAudio } from '@/entities/audio';
+import { useEditingPatternStore } from '@/entities/pattern/model/editingPatternStore';
 import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { StyledArea } from '@/shared/ui';
 
@@ -121,6 +122,7 @@ function formatChord(chord: Chord) {
 export const ChordsEditor: React.FC = () => {
   const engine = useGlobalAudio();
   const { chordSlots, setChordAt, setSlotPlayType, bars } = usePatternEditor();
+  const hasPattern = useEditingPatternStore((s) => Boolean(s.pattern));
   const ICONS = [CircleIcon, AdjustIcon, PanoramaFishEyeIcon] as const;
 
   // MelodySegmentEditor と同等のプレビュー仕様：
@@ -129,6 +131,7 @@ export const ChordsEditor: React.FC = () => {
   // - 同時発音で三和音＋テンションを鳴らす
   const poly = React.useMemo(() => new Tone.PolySynth(Tone.Synth), []);
   React.useEffect(() => {
+    if (!hasPattern) return;
     (async () => {
       try { if ((Tone.getContext() as any).state !== 'running') await Tone.start(); } catch { }
       try { await engine.ensureStarted(); } catch { }
@@ -141,7 +144,7 @@ export const ChordsEditor: React.FC = () => {
       if (input) { try { (poly as any).connect(input as any); } catch { } }
     })();
     return () => { try { poly.dispose(); } catch { } };
-  }, [engine, poly]);
+  }, [engine, poly, hasPattern]);
 
   const chordToNotes = (c: Chord): string[] => {
     // ルートは 3 オクターブ基準（低すぎ/高すぎ防止）
@@ -243,9 +246,14 @@ export const ChordsEditor: React.FC = () => {
     );
   }), [chordSlots, setChordAt, setSlotPlayType]);
 
+  if (!hasPattern || bars == null) {
+    return null;
+  }
+  const resolvedBars = bars as number;
+
   return (
     <Container>
-      <Grid cols={bars * 4}>
+      <Grid cols={resolvedBars * 4}>
         {cards}
       </Grid>
     </Container>

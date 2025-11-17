@@ -12,7 +12,7 @@ import SplitHoldResetButton from '@features/effects/ui/SplitHoldResetButton';
 import { VerticalFader } from '@features/effects/ui/VerticalFader';
 import { TopPlaybackBar } from '@widgets/top-playback-bar';
 import { VolumeControlPanel } from '@features/volume';
-import { ArrangementPatternsSidebar } from '@widgets/arrangement-patterns';
+import { SavedPatternPanel } from '@/widgets/saved-patterns';
 import { ArrangementPlaybackToggle, ArrangementQueueBoard } from '@features/arrangement-performance';
 
 import { useChannelsStore } from '@/entities/audio';
@@ -156,7 +156,7 @@ export const PerformancePage = () => {
 			</div>
 		</div>
 		<ArrangementQueueBoard />
-		<ArrangementPatternsSidebar />
+		<SavedPatternPanel />
 		</div>
 	);
 };

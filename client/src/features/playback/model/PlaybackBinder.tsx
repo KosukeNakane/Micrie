@@ -5,9 +5,9 @@ import * as Tone from 'tone';
 
 import { useGlobalAudio, useChannelsStore } from '@/entities/audio';
 import { useScaleMode } from '@/entities/scale-mode';
-import { useSegment } from '@/entities/segment';
 import { useTempo } from '@/entities/tempo';
 import { useTransportStore } from '@/entities/transport';
+import { useEditingPatternStore } from '@/entities/pattern/model/editingPatternStore';
 import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { extractQuantizedNotes } from '@/shared/lib/noteSegmentation';
 import { majorPentatonicMap, minorPentatonicMap } from '@/shared/lib/pitchMaps';
@@ -22,16 +22,18 @@ export const PlaybackBinder: React.FC = () => {
   const { tempo } = useTempo();
   const engine = useGlobalAudio();
   const isLoopPlaying = useTransportStore((s) => s.isLoopPlaying);
+  const { melodySegments, chordSlots, bars } = usePatternEditor();
+  const hasPattern = useEditingPatternStore((s) => Boolean(s.pattern));
+  const activeMelodySegments = hasPattern ? melodySegments : undefined;
 
   // Transport BPM 追随
   React.useEffect(() => { try { Tone.getTransport().bpm.value = tempo; } catch {} }, [tempo]);
 
   // melody/drum の Part 構築（usePlaybackController のロジックを移植）
-  const { currentSegments } = useSegment();
   const { scaleMode } = useScaleMode();
-  const rawMelody = React.useMemo(() => currentSegments.melody.map((seg) => (
+  const rawMelody = React.useMemo(() => (activeMelodySegments ?? []).map((seg) => (
     typeof seg.note === 'string' && /^[A-G]#?\d$/.test(seg.note) ? seg.note : 'rest'
-  )), [currentSegments.melody]);
+  )), [activeMelodySegments]);
 
   const quantizedMelody = React.useMemo(() => (
     scaleMode === 'chromatic'
@@ -59,6 +61,12 @@ export const PlaybackBinder: React.FC = () => {
     // 既存破棄
     drumsPartRef.current?.dispose(); drumsPartRef.current = null;
     melodyPartRef.current?.dispose(); melodyPartRef.current = null;
+    if (!activeMelodySegments) {
+      return () => {
+        drumsPartRef.current?.dispose(); drumsPartRef.current = null;
+        melodyPartRef.current?.dispose(); melodyPartRef.current = null;
+      };
+    }
 
     // Drums Part
     try {
@@ -86,10 +94,9 @@ export const PlaybackBinder: React.FC = () => {
       drumsPartRef.current?.dispose(); drumsPartRef.current = null;
       melodyPartRef.current?.dispose(); melodyPartRef.current = null;
     };
-  }, [quantizedMelody, getDrumEvents, playDrumHit, playMelody]);
+  }, [activeMelodySegments, quantizedMelody, getDrumEvents, playDrumHit, playMelody]);
 
   // chords のスケジューリング（ChordsPlaybackBinder のロジックを移植）
-  const { chordSlots, bars } = usePatternEditor();
   const chordMuted = useChannelsStore((s) => s.chordMuted);
   const { chordToNotes, playChordAt } = useChordsPlayer();
   const eventIdRef = React.useRef<number | null>(null);
@@ -101,6 +108,11 @@ export const PlaybackBinder: React.FC = () => {
       if (eventIdRef.current != null) { try { Tone.getTransport().clear(eventIdRef.current as any); } catch {} eventIdRef.current = null; }
       return;
     }
+    if (!hasPattern || bars == null || chordSlots.length === 0) {
+      if (eventIdRef.current != null) { try { Tone.getTransport().clear(eventIdRef.current as any); } catch {} eventIdRef.current = null; }
+      return;
+    }
+    const activeBars = bars as number;
 
     // ensure audio started
     (async () => { try { if ((Tone.getContext() as any).state !== 'running') await Tone.start(); } catch {} try { await engine.ensureStarted(); } catch {} })();
@@ -115,7 +127,7 @@ export const PlaybackBinder: React.FC = () => {
       const beatsPos = Number(beatsStr) || 0;
       const sixPos = Number(sixStr) || 0;
       const stepInBar = beatsPos * 2 + Math.floor(sixPos / 2); // 8n grid 0..7
-      const barIndex = barsPos % Math.max(1, bars);
+      const barIndex = barsPos % Math.max(1, activeBars);
       const chordIndexInBar = Math.floor(stepInBar / 2); // 0..3
       const trigPos: 0 | 1 = (stepInBar % 2) as 0 | 1; // 0 or 1
       const slotIndex = barIndex * 4 + chordIndexInBar;
@@ -136,7 +148,11 @@ export const PlaybackBinder: React.FC = () => {
     return () => {
       if (eventIdRef.current != null) { try { Tone.getTransport().clear(eventIdRef.current as any); } catch {} eventIdRef.current = null; }
     };
-  }, [chordSlots, bars, engine, isLoopPlaying, chordMuted]);
+  }, [chordSlots, bars, engine, isLoopPlaying, chordMuted, hasPattern]);
+
+  if (!activeMelodySegments) {
+    return null;
+  }
 
   return null;
 };
