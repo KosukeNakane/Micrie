@@ -34,10 +34,18 @@ const randomBase36 = (length: number) => {
 
 const generatePatternId = () => `pat-${Date.now()}-${randomBase36(4)}`;
 
-const resolvePatternId = (existing: Pattern | null, baseId: string): string => {
+const resolvePatternId = (
+  existing: Pattern | null,
+  baseId: string,
+  isIdInUse: (id: string) => boolean,
+): string => {
   if (existing?.id) return existing.id;
-  if (baseId && baseId.length > 0) return baseId;
-  return generatePatternId();
+  let candidate = baseId && baseId.length > 0 ? baseId : generatePatternId();
+  if (!isIdInUse(candidate)) return candidate;
+  do {
+    candidate = generatePatternId();
+  } while (isIdInUse(candidate));
+  return candidate;
 };
 
 const createEmptyPatterns = (): Array<Pattern | null> =>
@@ -54,8 +62,10 @@ export const useSavedPatternStore = create(
           throw new Error(`savedPattern index out of range: ${index}`);
         }
         const existing = get().patterns[index];
+        const isIdInUse = (id: string) =>
+          get().patterns.some((item, idx) => idx !== index && item?.id === id);
         const stored = clonePattern(pattern);
-        stored.id = resolvePatternId(existing, stored.id);
+        stored.id = resolvePatternId(existing, stored.id, isIdInUse);
         const cloneForReturn = clonePattern(stored);
         set((state) => {
           const next = state.patterns.slice();

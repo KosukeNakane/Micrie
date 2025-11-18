@@ -7,6 +7,7 @@ import { useGlobalAudio, useChannelsStore } from '@/entities/audio';
 import { useScaleMode } from '@/entities/scale-mode';
 import { useTempo } from '@/entities/tempo';
 import { useTransportStore } from '@/entities/transport';
+import { useArrangementStore } from '@/entities/pattern/model/arrangementStore';
 import { useEditingPatternStore } from '@/entities/pattern/model/editingPatternStore';
 import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { extractQuantizedNotes } from '@/shared/lib/noteSegmentation';
@@ -22,6 +23,7 @@ export const PlaybackBinder: React.FC = () => {
   const { tempo } = useTempo();
   const engine = useGlobalAudio();
   const isLoopPlaying = useTransportStore((s) => s.isLoopPlaying);
+  const playbackMode = useArrangementStore((s) => s.playbackMode);
   const { melodySegments, chordSlots, bars } = usePatternEditor();
   const hasPattern = useEditingPatternStore((s) => Boolean(s.pattern));
   const activeMelodySegments = hasPattern ? melodySegments : undefined;
@@ -61,7 +63,7 @@ export const PlaybackBinder: React.FC = () => {
     // 既存破棄
     drumsPartRef.current?.dispose(); drumsPartRef.current = null;
     melodyPartRef.current?.dispose(); melodyPartRef.current = null;
-    if (!activeMelodySegments) {
+    if (!activeMelodySegments || !isLoopPlaying || playbackMode === 'arrangement') {
       return () => {
         drumsPartRef.current?.dispose(); drumsPartRef.current = null;
         melodyPartRef.current?.dispose(); melodyPartRef.current = null;
@@ -94,7 +96,7 @@ export const PlaybackBinder: React.FC = () => {
       drumsPartRef.current?.dispose(); drumsPartRef.current = null;
       melodyPartRef.current?.dispose(); melodyPartRef.current = null;
     };
-  }, [activeMelodySegments, quantizedMelody, getDrumEvents, playDrumHit, playMelody]);
+  }, [activeMelodySegments, quantizedMelody, getDrumEvents, playDrumHit, playMelody, isLoopPlaying, playbackMode]);
 
   // chords のスケジューリング（ChordsPlaybackBinder のロジックを移植）
   const chordMuted = useChannelsStore((s) => s.chordMuted);
@@ -104,7 +106,7 @@ export const PlaybackBinder: React.FC = () => {
 
   React.useEffect(() => {
     // isLoopPlaying が false ならスケジュール解除
-    if (!isLoopPlaying) {
+    if (!isLoopPlaying || playbackMode === 'arrangement') {
       if (eventIdRef.current != null) { try { Tone.getTransport().clear(eventIdRef.current as any); } catch {} eventIdRef.current = null; }
       return;
     }
@@ -148,7 +150,7 @@ export const PlaybackBinder: React.FC = () => {
     return () => {
       if (eventIdRef.current != null) { try { Tone.getTransport().clear(eventIdRef.current as any); } catch {} eventIdRef.current = null; }
     };
-  }, [chordSlots, bars, engine, isLoopPlaying, chordMuted, hasPattern]);
+  }, [chordSlots, bars, engine, isLoopPlaying, chordMuted, hasPattern, playbackMode]);
 
   if (!activeMelodySegments) {
     return null;

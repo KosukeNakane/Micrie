@@ -8,6 +8,7 @@ import { useSavedPatternStore } from '@/entities/pattern/model/savedPatternStore
 import { useProjectState } from '@/features/project-save-load';
 
 import { useArrangementPerformer } from '../model/useArrangementPerformer';
+import { ArrangementPlaybackToggle } from './ArrangementPlaybackToggle';
 
 export const ArrangementPanel = () => {
   const slots = useArrangementStore((state) => state.slots);
@@ -21,17 +22,7 @@ export const ArrangementPanel = () => {
     [savedPatterns],
   );
 
-  const {
-    arrangementInfo,
-    playbackMode,
-    status,
-    playArrangement,
-    stopArrangement,
-    skipCurrentSlot,
-  } = useArrangementPerformer();
-
-  const isArrangementMode = playbackMode === 'arrangement';
-  const isPlayingArrangement = isArrangementMode && status === 'playing';
+  const { arrangementInfo } = useArrangementPerformer();
 
   return (
     <Box
@@ -42,6 +33,7 @@ export const ArrangementPanel = () => {
       gap={4}
       alignItems="center"
     >
+      <ArrangementPlaybackToggle />
       <Flex
         width="100%"
         maxW="820px"
@@ -100,8 +92,8 @@ export const ArrangementPanel = () => {
                   style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid rgba(5,4,69,0.25)', width: '100%' }}
                 >
                   <option value="">-- None --</option>
-                  {availablePatterns.map((pattern) => (
-                    <option key={pattern.id} value={pattern.id}>
+                  {availablePatterns.map((pattern, idx) => (
+                    <option key={`${pattern.id}-${idx}`} value={pattern.id}>
                       {pattern.name}
                     </option>
                   ))}
@@ -124,25 +116,6 @@ export const ArrangementPanel = () => {
             </Box>
           );
         })}
-      </Flex>
-      <Flex gap={3} alignItems="center" justifyContent="center">
-        <Button
-          variant="solid"
-          size="sm"
-          colorScheme="purple"
-          onClick={() => (isPlayingArrangement ? stopArrangement() : playArrangement())}
-          disabled={!isArrangementMode}
-        >
-          {isPlayingArrangement ? 'Stop Arrangement' : 'Play Arrangement'}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={skipCurrentSlot}
-          disabled={!isPlayingArrangement}
-        >
-          Skip
-        </Button>
       </Flex>
     </Box>
   );

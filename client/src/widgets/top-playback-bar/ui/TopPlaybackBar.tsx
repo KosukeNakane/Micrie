@@ -94,6 +94,8 @@ export const TopPlaybackBar = () => {
   } = useArrangementPerformer();
   const [ratio, setRatio] = useState(0);
   const rafRef = useRef<number | null>(null);
+  const isArrangementMode = playbackMode === 'arrangement';
+  const isArrangementPlaying = isArrangementMode && arrangementStatus === 'playing';
 
   // スクラブ中はrAFからの上書きを止める
   const [isScrubbing, setIsScrubbing] = useState(false);
@@ -148,11 +150,11 @@ export const TopPlaybackBar = () => {
       }
       rafRef.current = requestAnimationFrame(tick);
     };
-    if (isLoopPlaying) {
+    if (isArrangementPlaying || isLoopPlaying) {
       rafRef.current = requestAnimationFrame(tick);
     }
     return () => { if (rafRef.current != null) cancelAnimationFrame(rafRef.current); rafRef.current = null; };
-  }, [isLoopPlaying]);
+  }, [isArrangementPlaying, isLoopPlaying]);
 
   // Pointer handlers for scrubbing
   function onPointerDown(e: any) {
@@ -179,13 +181,11 @@ export const TopPlaybackBar = () => {
     window.removeEventListener('pointerup', onPointerUp);
   }
 
-  const isArrangementMode = playbackMode === 'arrangement';
-  const isArrangementPlaying = isArrangementMode && arrangementStatus === 'playing';
-
   const onToggle = async () => {
     if (isArrangementMode) {
       if (isArrangementPlaying) {
         stopArrangement();
+        setRatio(0);
       } else {
         await playArrangement();
       }
@@ -198,6 +198,7 @@ export const TopPlaybackBar = () => {
   const onStop = () => {
     if (isArrangementMode) {
       stopArrangement();
+      setRatio(0);
     } else {
       reset();
       setRatio(0);

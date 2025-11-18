@@ -13,7 +13,7 @@ import { VerticalFader } from '@features/effects/ui/VerticalFader';
 import { TopPlaybackBar } from '@widgets/top-playback-bar';
 import { VolumeControlPanel } from '@features/volume';
 import { SavedPatternPanel } from '@/widgets/saved-patterns';
-import { ArrangementPlaybackToggle, ArrangementPanel } from '@features/arrangement-performance';
+import { ArrangementPanel } from '@features/arrangement-performance';
 
 import { useChannelsStore } from '@/entities/audio';
 import { useEffectsUiStore } from '@/features/effects';
@@ -105,17 +105,6 @@ export const PerformancePage = () => {
 		<div>
 			{/* 再生バー */}
 			<TopPlaybackBar />
-			<div
-				css={{
-					display: 'flex',
-					justifyContent: 'center',
-					marginTop: 16,
-					marginBottom: 12,
-				}}
-			>
-				<ArrangementPlaybackToggle />
-			</div>
-
 		<div
 			css={{
 				display: 'flex',

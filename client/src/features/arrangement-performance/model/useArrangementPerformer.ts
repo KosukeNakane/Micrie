@@ -1,10 +1,12 @@
 // [Model] features/model - useArrangementPerformer.ts
 // 役割: アレンジメントスロットの再生ロジック
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import * as Tone from 'tone';
 
 import { useArrangementStore } from '@/entities/pattern/model/arrangementStore';
 import { useSavedPatternStore } from '@/entities/pattern/model/savedPatternStore';
 import { useTempo } from '@/entities/tempo';
+import { GlobalAudioEngine } from '@/entities/audio';
 
 import { buildArrangementPlayback } from './arrangementPlaybackBuilder';
 import {
@@ -22,13 +24,17 @@ export const useArrangementPerformer = () => {
   const [status, setStatus] = useState<'stopped' | 'playing'>('stopped');
 
   const { playArrangement: playWithEngine, stopAll } = useArrangementPerformancePlayer();
-  const playbackOrderRef = useRef<Array<{ patternId: string; index: number }>>([]);
+  const baseOrderRef = useRef<Array<{ patternId: string; index: number }>>([]);
+  const shouldLoopRef = useRef(false);
 
   const stopArrangement = useCallback(() => {
     stopAll();
+    shouldLoopRef.current = false;
     setStatus('stopped');
     setCurrentIndex(null);
-    playbackOrderRef.current = [];
+    baseOrderRef.current = [];
+    try { GlobalAudioEngine.instance.setMasterMuted(true); } catch {}
+    try { Tone.getTransport().stop(); Tone.getTransport().position = 0; } catch {}
   }, [setCurrentIndex, setStatus, stopAll]);
 
   const buildPlaybackItems = useCallback(
@@ -46,6 +52,37 @@ export const useArrangementPerformer = () => {
     [tempo, savedPatterns],
   );
 
+  const startPlayback = useCallback(async (order: Array<{ patternId: string; index: number }>) => {
+    if (!order.length) return;
+    const items = buildPlaybackItems(order);
+    if (!items.length) return;
+    shouldLoopRef.current = true;
+    await playWithEngine(items, {
+      onSegmentStart: (slotIndex) => {
+        setCurrentIndex(slotIndex);
+        setStatus('playing');
+      },
+      onSegmentComplete: () => {},
+      onAllComplete: () => {
+        if (!shouldLoopRef.current) {
+          setStatus('stopped');
+          setCurrentIndex(null);
+          try { GlobalAudioEngine.instance.setMasterMuted(true); } catch {}
+          return;
+        }
+        if (!baseOrderRef.current.length) {
+          shouldLoopRef.current = false;
+          setStatus('stopped');
+          setCurrentIndex(null);
+          return;
+        }
+        void startPlayback(baseOrderRef.current);
+      },
+    });
+    setStatus('playing');
+    setCurrentIndex(order[0].index);
+  }, [buildPlaybackItems, playWithEngine, setCurrentIndex, setStatus]);
+
   const playArrangement = useCallback(async () => {
     if (playbackMode !== 'arrangement') return;
     const arrangedOrder = slots
@@ -54,69 +91,9 @@ export const useArrangementPerformer = () => {
       .map(({ slot, index }) => ({ patternId: slot.patternId as string, index }));
 
     if (!arrangedOrder.length) return;
-    playbackOrderRef.current = arrangedOrder;
-
-    const items = buildPlaybackItems(arrangedOrder);
-    if (!items.length) return;
-
-    await playWithEngine(items, {
-      onSegmentStart: (slotIndex) => {
-        setCurrentIndex(slotIndex);
-        setStatus('playing');
-      },
-      onSegmentComplete: (slotIndex, isLast) => {
-        if (isLast) return;
-        playbackOrderRef.current = playbackOrderRef.current.filter((entry) => entry.index !== slotIndex);
-      },
-      onAllComplete: () => {
-        playbackOrderRef.current = [];
-        setStatus('stopped');
-        setCurrentIndex(null);
-      },
-    });
-
-    setStatus('playing');
-    setCurrentIndex(arrangedOrder[0].index);
-  }, [playbackMode, slots, buildPlaybackItems, playWithEngine, setCurrentIndex, setStatus]);
-
-  const skipCurrentSlot = useCallback(async () => {
-    if (status !== 'playing') return;
-    if (!playbackOrderRef.current.length) {
-      stopArrangement();
-      return;
-    }
-    const [, ...rest] = playbackOrderRef.current;
-    playbackOrderRef.current = rest;
-    stopAll();
-    if (!rest.length) {
-      playbackOrderRef.current = [];
-      setStatus('stopped');
-      setCurrentIndex(null);
-      return;
-    }
-    const items = buildPlaybackItems(rest);
-    if (!items.length) {
-      setStatus('stopped');
-      setCurrentIndex(null);
-      return;
-    }
-    await playWithEngine(items, {
-      onSegmentStart: (slotIndex) => {
-        setCurrentIndex(slotIndex);
-      },
-      onSegmentComplete: (slotIndex, isLast) => {
-        if (isLast) return;
-        playbackOrderRef.current = playbackOrderRef.current.filter((entry) => entry.index !== slotIndex);
-      },
-      onAllComplete: () => {
-        playbackOrderRef.current = [];
-        setStatus('stopped');
-        setCurrentIndex(null);
-      },
-    });
-    setStatus('playing');
-    setCurrentIndex(rest[0].index);
-  }, [status, buildPlaybackItems, playWithEngine, stopAll, stopArrangement, setCurrentIndex, setStatus]);
+    baseOrderRef.current = arrangedOrder;
+    await startPlayback(arrangedOrder);
+  }, [playbackMode, slots, startPlayback]);
 
   const arrangementInfo = useMemo(() => {
     return slots.map((entry, index) => {
@@ -157,6 +134,5 @@ export const useArrangementPerformer = () => {
     status,
     playArrangement,
     stopArrangement,
-    skipCurrentSlot,
   } as const;
 };

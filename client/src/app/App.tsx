@@ -18,7 +18,7 @@ import { useArrangementStore } from "@/entities/pattern/model/arrangementStore";
 import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";
 import { useEditingPatternStore } from "@/entities/pattern/model/editingPatternStore";
 import { useSavedPatternStore } from "@/entities/pattern/model/savedPatternStore";
-import type { Pattern, Segment, ChordSlot, PlayType } from "@/entities/pattern/model/patternTypes";
+import type { Pattern, Segment, ChordSlot, PlayType } from "@/types/pattern";
 import { useEffects } from "@/entities/effects";
 import { useChordPattern, useDrumPattern } from "@/entities/pattern";
 import { useScaleMode } from "@/entities/scale-mode";
@@ -43,6 +43,7 @@ import { LoginRequiredModal } from "@/shared/ui/LoginRequiredModal";
 import { ToasterHost } from "@/shared/ui/toaster";
 import { PATTERNS as DRUM_PATTERNS } from '@/features/drums-playback/lib/patterns';
 import type { ProjectArrangementPattern, ProjectData, ProjectSegment } from "@/entities/project";
+import { normalizePlayType, normalizeQuality, normalizeRootIndex, normalizeTension } from '@/utils/normalizers';
 
 const config = defineConfig({
   globalCss: {
@@ -96,6 +97,52 @@ const createRhythmSegmentsFromPattern = (patternKey: keyof typeof DRUM_PATTERNS)
 	return segments;
 };
 
+const createPatternFromLegacyProgression = (data: ProjectData): Pattern | null => {
+	const progression = data.chordsProgression;
+	if (
+		!progression
+		|| typeof progression.bars !== 'number'
+		|| typeof progression.chordsPerBar !== 'number'
+	) {
+		return null;
+	}
+	const bars = Math.max(1, Math.floor(progression.bars));
+	const chordsPerBar = Math.max(1, Math.floor(progression.chordsPerBar));
+	const total = Math.max(1, bars * chordsPerBar);
+	const slots = Array.isArray(progression.slots) ? progression.slots : [];
+	const chordSlots: ChordSlot[] = Array.from({ length: total }, (_, idx) => {
+		const src = slots[idx] ?? {};
+		const chord = src?.chord ?? {};
+		const plays = Array.isArray(src?.plays) ? src.plays : [];
+		return {
+			chord: {
+				rootIndex: normalizeRootIndex(chord.rootIndex),
+				quality: normalizeQuality(chord.quality),
+				tension: normalizeTension(chord.tension),
+			},
+			plays: [
+				normalizePlayType(plays[0], 0),
+				normalizePlayType(plays[1], 1),
+			],
+		};
+	});
+	const legacyId = typeof data.lastEditingPatternId === 'string'
+		? data.lastEditingPatternId
+		: 'chords-progression';
+	const legacyName = typeof (data as any)?.meta?.name === 'string'
+		? `${(data as any).meta.name} Progression`
+		: 'Imported Progression';
+	return {
+		id: legacyId,
+		name: legacyName,
+		bars,
+		chordsPerBar,
+		chordSlots,
+		melodySegments: [],
+		rhythmSegments: [],
+	};
+};
+
 const makeDefaultPattern = (): Pattern => {
 	const bars = 2;
 	const chordsPerBar = 4;
@@ -122,28 +169,6 @@ const patternFromArrangement = (item: ProjectArrangementPattern, index: number):
 	melodySegments: cloneSegments(item.snapshot.melody.segments),
 	rhythmSegments: cloneSegments(item.snapshot.rhythmSegments),
 });
-
-const normalizePatternEntry = (entry: any, index: number): Pattern | null => {
-	if (!entry) return null;
-	if (entry.snapshot) {
-		return patternFromArrangement(entry as ProjectArrangementPattern, index);
-	}
-	if (Array.isArray(entry.chordSlots) && typeof entry.bars === 'number' && typeof entry.chordsPerBar === 'number') {
-		return {
-			id: typeof entry.id === 'string' ? entry.id : `saved-${index}`,
-			name: typeof entry.name === 'string' ? entry.name : `Pattern ${index + 1}`,
-			bars: entry.bars,
-			chordsPerBar: entry.chordsPerBar,
-			chordSlots: entry.chordSlots.map((slot: any) => ({
-				chord: { ...slot.chord },
-				plays: [...(slot.plays ?? ['root', 'chord'])] as [PlayType, PlayType],
-			})),
-			melodySegments: cloneSegments(entry.melodySegments),
-			rhythmSegments: cloneSegments(entry.rhythmSegments),
-		};
-	}
-	return null;
-};
 
 const extractPatternsFromArrangements = (data: ProjectData): Pattern[] => {
 	if (!Array.isArray(data.arrangements)) return [];
@@ -197,10 +222,18 @@ const applyEditingPatternFromProjectData = (data: ProjectData) => {
 		const arrPatterns = extractPatternsFromArrangements(data);
 		if (arrPatterns.length > 0) {
 			savedStore.setPatterns(arrPatterns as Array<Pattern | null>);
+			availablePatterns = arrPatterns;
 		} else {
-			savedStore.resetPatterns();
+			const legacyPattern = createPatternFromLegacyProgression(data);
+			if (legacyPattern) {
+				const capacity = savedStore.patterns.length || 6;
+				const next = Array.from({ length: capacity }, (_, idx) => (idx === 0 ? legacyPattern : null));
+				savedStore.setPatterns(next);
+				availablePatterns = [legacyPattern];
+			} else {
+				savedStore.resetPatterns();
+			}
 		}
-		availablePatterns = arrPatterns;
 	}
 	const lastId = typeof data.lastEditingPatternId === 'string' ? data.lastEditingPatternId : null;
 	let targetPattern: Pattern | null = null;
@@ -269,7 +302,7 @@ export const App = () => {
     const setMuted = useChannelsStore((s) => s.setMuted);
     const setChannelVolume = useChannelsStore((s) => s.setVolume);
   const { setContextAudioBuffer } = useSegment();
-  const { setMelodySegments, setBars: setChordBars, setChordAt, setSlotPlayType } = usePatternEditor();
+  const { setMelodySegments } = usePatternEditor();
   const setArrangementSlot = useArrangementStore((s) => s.setSlot);
   const resetArrangementSlots = useArrangementStore((s) => s.resetArrangement);
     const { barCount } = useBarCount();
@@ -441,19 +474,6 @@ export const App = () => {
         const d = doc.data;
         if (typeof d.tempo === 'number') setTempo(d.tempo);
         if (d.chordPattern) setChordPattern(d.chordPattern as any);
-        if (d.chordsProgression && Array.isArray(d.chordsProgression.slots)) {
-          try {
-            if (typeof d.chordsProgression.bars === 'number') setChordBars(d.chordsProgression.bars);
-            const slots = d.chordsProgression.slots as any[];
-            slots.forEach((s, i) => {
-              if (s?.chord) setChordAt(i, s.chord);
-              if (Array.isArray(s?.plays) && s.plays.length === 2) {
-                setSlotPlayType(i, 0, s.plays[0]);
-                setSlotPlayType(i, 1, s.plays[1]);
-              }
-            });
-          } catch {}
-        }
         if (d.drumPattern) setDrumPattern(d.drumPattern as any);
         if (Array.isArray(d.arrangementSlots)) {
           try {

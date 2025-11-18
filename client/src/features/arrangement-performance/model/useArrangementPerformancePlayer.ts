@@ -55,21 +55,23 @@ export const useArrangementPerformancePlayer = () => {
 
     const engine = GlobalAudioEngine.instance;
     await engine.ensureStarted();
+    await engine.setMasterMuted(false);
     const ctx = engine.audioContext;
     if (!ctx) return;
     await ensureToneContextSync(ctx);
 
     const transport = Tone.getTransport();
-    if (transport.state !== 'started') {
-      transport.start();
-    }
+    transport.loop = false;
+    transport.stop();
+    transport.position = 0;
+    transport.start();
+
     const lookAhead = 0.05;
-    const baseTime = Tone.now() + lookAhead;
     let offset = 0;
 
     const schedule = (secondsFromNow: number, handler: (time: number) => void) => {
-      const normalized = Math.max(secondsFromNow, 0);
-      const id = transport.schedule(handler, `@${baseTime + normalized}`);
+      const normalized = Math.max(secondsFromNow + lookAhead, 0);
+      const id = transport.scheduleOnce(handler, `+${normalized}`);
       scheduledEventIdsRef.current.push(id);
     };
 
@@ -107,6 +109,10 @@ export const useArrangementPerformancePlayer = () => {
 
   const stopAll = useCallback(() => {
     cleanup();
+    try {
+      Tone.getTransport().stop();
+      Tone.getTransport().position = 0;
+    } catch {}
   }, [cleanup]);
 
   return {
