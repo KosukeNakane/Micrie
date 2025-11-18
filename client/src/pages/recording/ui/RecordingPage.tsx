@@ -9,7 +9,7 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
-import { useSegment } from "@entities/segment";
+import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";
 import { useTempo } from "@entities/tempo/model/TempoContext";
 import { RealtimeLabel, useAudioRecorder } from "@features/recording";
 import { TopPlaybackBar } from "@widgets/top-playback-bar";
@@ -50,7 +50,7 @@ export const RecordingPage = () => {
 
   // テンポ（BPM）を取得するカスタムフック
   const { tempo } = useTempo();
-  const { rhythmSegments, melodySegments } = useSegment();
+  const { rhythmSegments, melodySegments } = usePatternEditor();
   const navigate = useNavigate();
   const hasNavigatedRef = useRef(false);
 
