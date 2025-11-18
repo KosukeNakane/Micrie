@@ -78,6 +78,7 @@ export interface ProjectData {
   audio?: { audioUrl: string | null; waveform?: number[] | null };
   melodyPitch?: MelodyPitchItem[]; // メロディーピッチ（各グリッドの音名のみ保存）。初期値は休符。
   arrangements?: Array<ProjectArrangementPattern | null>;
+  arrangementSlots?: Array<string | null>;
   savedPatterns?: Array<{
     id: string;
     name: string;

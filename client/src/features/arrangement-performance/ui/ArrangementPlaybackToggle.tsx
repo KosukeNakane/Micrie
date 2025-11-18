@@ -11,23 +11,23 @@ export const ArrangementPlaybackToggle = () => {
     <div style={{ display: 'flex', gap: '12px' }}>
       <Button
         size="sm"
-        aria-pressed={mode === 'editor'}
-        variant={mode === 'editor' ? 'solid' : 'outline'}
+        aria-pressed={mode === 'off'}
+        variant={mode === 'off' ? 'solid' : 'outline'}
         colorScheme="blue"
-        onClick={() => setMode('editor')}
+        onClick={() => setMode('off')}
         title="編集中のアレンジを再生"
       >
         Editor
       </Button>
       <Button
         size="sm"
-        aria-pressed={mode === 'queue'}
-        variant={mode === 'queue' ? 'solid' : 'outline'}
+        aria-pressed={mode === 'arrangement'}
+        variant={mode === 'arrangement' ? 'solid' : 'outline'}
         colorScheme="purple"
-        onClick={() => setMode('queue')}
-        title="キューに登録したアレンジを順番に再生"
+        onClick={() => setMode('arrangement')}
+        title="アレンジメントスロットを順番に再生"
       >
-        Queue
+        Arrangement
       </Button>
     </div>
   );

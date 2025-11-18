@@ -66,11 +66,10 @@ export const useSavedPatterns = () => {
 		(index: number) => {
 			if (!editingPattern || bars == null) return false;
 			savePatternAt(index, editingPattern);
-			setBarCount(editingPattern.bars);
 			markProjectDirty();
 			return true;
 		},
-		[editingPattern, bars, savePatternAt, setBarCount]
+		[editingPattern, bars, savePatternAt]
 	);
 
 	const loadFromSlot = useCallback(

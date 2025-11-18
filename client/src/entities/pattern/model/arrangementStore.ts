@@ -8,6 +8,8 @@ type PlaybackMode = 'arrangement' | 'off';
 
 const SLOT_COUNT = 4;
 
+export const ARRANGEMENT_SLOT_COUNT = SLOT_COUNT;
+
 const createEmptySlots = (): ArrangementSlot[] =>
 	Array.from({ length: SLOT_COUNT }, () => ({ patternId: null }));
 

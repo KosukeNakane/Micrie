@@ -89,8 +89,8 @@ export const TopPlaybackBar = () => {
   const {
     playbackMode,
     status: arrangementStatus,
-    playQueue,
-    stopQueue,
+    playArrangement,
+    stopArrangement,
   } = useArrangementPerformer();
   const [ratio, setRatio] = useState(0);
   const rafRef = useRef<number | null>(null);
@@ -179,15 +179,15 @@ export const TopPlaybackBar = () => {
     window.removeEventListener('pointerup', onPointerUp);
   }
 
-  const isQueueMode = playbackMode === 'queue';
-  const isQueuePlaying = isQueueMode && arrangementStatus === 'playing';
+  const isArrangementMode = playbackMode === 'arrangement';
+  const isArrangementPlaying = isArrangementMode && arrangementStatus === 'playing';
 
   const onToggle = async () => {
-    if (isQueueMode) {
-      if (isQueuePlaying) {
-        stopQueue();
+    if (isArrangementMode) {
+      if (isArrangementPlaying) {
+        stopArrangement();
       } else {
-        await playQueue();
+        await playArrangement();
       }
     } else if (isLoopPlaying) {
       stop();
@@ -196,8 +196,8 @@ export const TopPlaybackBar = () => {
     }
   };
   const onStop = () => {
-    if (isQueueMode) {
-      stopQueue();
+    if (isArrangementMode) {
+      stopArrangement();
     } else {
       reset();
       setRatio(0);
@@ -209,10 +209,10 @@ export const TopPlaybackBar = () => {
       <ControlsRow>
         <IconButton
           as="button"
-          aria-label={isQueueMode ? (isQueuePlaying ? 'Pause Queue' : 'Play Queue') : (isLoopPlaying ? 'Pause' : 'Play')}
+          aria-label={isArrangementMode ? (isArrangementPlaying ? 'Pause Arrangement' : 'Play Arrangement') : (isLoopPlaying ? 'Pause' : 'Play')}
           onClick={onToggle}
         >
-          {(isQueueMode ? isQueuePlaying : isLoopPlaying) ? <PauseIcon /> : <PlayArrowIcon />}
+          {(isArrangementMode ? isArrangementPlaying : isLoopPlaying) ? <PauseIcon /> : <PlayArrowIcon />}
         </IconButton>
         <IconButton as="button" aria-label={'Stop'} onClick={onStop}>
           <StopIcon />

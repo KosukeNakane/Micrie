@@ -1,5 +1,5 @@
 // [Model] features/model - useArrangementPerformancePlayer.ts
-// 役割: アレンジメントキューの再生を既存プレイヤー経由で制御
+// 役割: アレンジメントスロットの連続再生を既存プレイヤー経由で制御
 import { useCallback, useRef } from 'react';
 import * as Tone from 'tone';
 
@@ -25,14 +25,14 @@ const ensureToneContextSync = async (ctx: AudioContext) => {
   }
 };
 
-export type QueuePlaybackItem = {
-  queueIndex: number;
+export type ArrangementPlaybackItem = {
+  slotIndex: number;
   timeline: ArrangementPlaybackTimeline;
 };
 
 export type ArrangementPerformanceCallbacks = {
-  onSegmentStart?: (queueIndex: number) => void;
-  onSegmentComplete?: (queueIndex: number, isLast: boolean) => void;
+  onSegmentStart?: (slotIndex: number) => void;
+  onSegmentComplete?: (slotIndex: number, isLast: boolean) => void;
   onAllComplete?: () => void;
 };
 
@@ -49,7 +49,7 @@ export const useArrangementPerformancePlayer = () => {
     scheduledEventIdsRef.current = [];
   }, []);
 
-  const playQueue = useCallback(async (items: QueuePlaybackItem[], callbacks: ArrangementPerformanceCallbacks) => {
+  const playArrangement = useCallback(async (items: ArrangementPlaybackItem[], callbacks: ArrangementPerformanceCallbacks) => {
     cleanup();
     if (!items.length) return;
 
@@ -76,7 +76,7 @@ export const useArrangementPerformancePlayer = () => {
     items.forEach((item, idx) => {
       const segmentStartOffset = offset;
       schedule(segmentStartOffset, () => {
-        callbacks.onSegmentStart?.(item.queueIndex);
+        callbacks.onSegmentStart?.(item.slotIndex);
       });
 
       item.timeline.events.forEach((event) => {
@@ -95,7 +95,7 @@ export const useArrangementPerformancePlayer = () => {
       const segmentEndOffset = segmentStartOffset + item.timeline.length + 0.01;
       schedule(segmentEndOffset, (scheduledTime) => {
         const isLast = idx === items.length - 1;
-        callbacks.onSegmentComplete?.(item.queueIndex, isLast);
+        callbacks.onSegmentComplete?.(item.slotIndex, isLast);
         if (isLast) {
           callbacks.onAllComplete?.();
         }
@@ -110,7 +110,7 @@ export const useArrangementPerformancePlayer = () => {
   }, [cleanup]);
 
   return {
-    playQueue,
+    playArrangement,
     stopAll,
   } as const;
 };

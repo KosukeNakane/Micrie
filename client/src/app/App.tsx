@@ -14,7 +14,7 @@ import { Sidebar } from '@widgets/sidebar';
 import { Scaler, useScaler } from '@/app/providers/Scaler';
 import { GlobalAudioEngine, useChannelsStore } from "@/entities/audio";
 import { useBarCount } from "@/entities/bar-count";
-import { useArrangementPatternsStore } from "@/entities/arrangement";
+import { useArrangementStore } from "@/entities/pattern/model/arrangementStore";
 import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";
 import { useEditingPatternStore } from "@/entities/pattern/model/editingPatternStore";
 import { useSavedPatternStore } from "@/entities/pattern/model/savedPatternStore";
@@ -270,8 +270,8 @@ export const App = () => {
     const setChannelVolume = useChannelsStore((s) => s.setVolume);
   const { setContextAudioBuffer } = useSegment();
   const { setMelodySegments, setBars: setChordBars, setChordAt, setSlotPlayType } = usePatternEditor();
-  const setArrangementPatterns = useArrangementPatternsStore((s) => s.setPatterns);
-  const resetArrangementPatterns = useArrangementPatternsStore((s) => s.resetPatterns);
+  const setArrangementSlot = useArrangementStore((s) => s.setSlot);
+  const resetArrangementSlots = useArrangementStore((s) => s.resetArrangement);
     const { barCount } = useBarCount();
     const assemble = useAssembleProjectData();
     const project = useProjectState();
@@ -370,7 +370,7 @@ export const App = () => {
       try { setScaleMode('major' as any); } catch { }
       try { setChordPattern('pattern1' as any); } catch { }
       try { setDrumPattern('basic' as any); } catch { }
-      try { resetArrangementPatterns(); } catch { }
+      try { resetArrangementSlots(); } catch { }
       try { setHold(false); } catch { }
       try { setMuted('melody', false); setMuted('chord', false); setMuted('drum', false); setMuted('sampler', false); } catch { }
       try {
@@ -455,10 +455,17 @@ export const App = () => {
           } catch {}
         }
         if (d.drumPattern) setDrumPattern(d.drumPattern as any);
-        if (Array.isArray(d.arrangements)) {
-          try { setArrangementPatterns(d.arrangements as any); } catch { }
+        if (Array.isArray(d.arrangementSlots)) {
+          try {
+            resetArrangementSlots();
+            d.arrangementSlots.forEach((slotId, idx) => {
+              if (typeof slotId === 'string') {
+                setArrangementSlot(idx, slotId);
+              }
+            });
+          } catch {}
         } else {
-          try { resetArrangementPatterns(); } catch { }
+          try { resetArrangementSlots(); } catch {}
         }
         if (d.effects) setEffects(d.effects as any);
         if (d.effectsHold) {

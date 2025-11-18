@@ -13,7 +13,7 @@ import { VerticalFader } from '@features/effects/ui/VerticalFader';
 import { TopPlaybackBar } from '@widgets/top-playback-bar';
 import { VolumeControlPanel } from '@features/volume';
 import { SavedPatternPanel } from '@/widgets/saved-patterns';
-import { ArrangementPlaybackToggle, ArrangementQueueBoard } from '@features/arrangement-performance';
+import { ArrangementPlaybackToggle, ArrangementPanel } from '@features/arrangement-performance';
 
 import { useChannelsStore } from '@/entities/audio';
 import { useEffectsUiStore } from '@/features/effects';
@@ -155,7 +155,7 @@ export const PerformancePage = () => {
 				<VolumeControlPanel />
 			</div>
 		</div>
-		<ArrangementQueueBoard />
+		<ArrangementPanel />
 		<SavedPatternPanel />
 		</div>
 	);

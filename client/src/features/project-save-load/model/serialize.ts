@@ -8,8 +8,8 @@ import { useDrumPattern } from '@/entities/pattern';
 import { useEditingPatternStore } from '@/entities/pattern/model/editingPatternStore';
 import { useSavedPatternStore } from '@/entities/pattern/model/savedPatternStore';
 import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
-import { useArrangementPatternsStore } from '@/entities/arrangement';
-import type { ProjectData, MelodyPitchItem, ProjectArrangementPattern } from '@/entities/project';
+import { useArrangementStore } from '@/entities/pattern/model/arrangementStore';
+import type { ProjectData, MelodyPitchItem } from '@/entities/project';
 import { useScaleMode } from '@/entities/scale-mode';
 import { useTempo } from '@/entities/tempo';
 import { useVolume } from '@/entities/volume';
@@ -36,35 +36,8 @@ export function useAssembleProjectData(): () => ProjectData {
 	const { chordPattern } = useChordPattern();
 	const { bars: chordBars, chordsPerBar, chordSlots, melodySegments } = usePatternEditor();
 	const { drumPattern } = useDrumPattern();
-	const arrangementPatterns = useArrangementPatternsStore((state) => state.patterns);
+	const arrangementSlots = useArrangementStore((state) => state.slots);
 	const { barCount } = useBarCount();
-
-	const serializeArrangements = (): Array<ProjectArrangementPattern | null> =>
-		arrangementPatterns.map((pattern) => {
-			if (!pattern) return null;
-			return {
-				id: pattern.id,
-				name: pattern.name,
-				savedAt: pattern.savedAt,
-				snapshot: {
-					chordPattern: pattern.snapshot.chordPattern,
-					drumPattern: pattern.snapshot.drumPattern,
-					chords: {
-						bars: pattern.snapshot.chords.bars,
-						chordsPerBar: pattern.snapshot.chords.chordsPerBar,
-						slots: pattern.snapshot.chords.slots.map((s) => ({
-							chord: { ...s.chord },
-							plays: [...s.plays] as ['chord' | 'root' | 'rest', 'chord' | 'root' | 'rest'],
-						})),
-					},
-					melody: {
-						barCount: pattern.snapshot.melody.barCount,
-						segments: pattern.snapshot.melody.segments.map((seg) => ({ ...seg })),
-					},
-					rhythmSegments: pattern.snapshot.rhythmSegments.map((seg) => ({ ...seg })),
-				},
-			} satisfies ProjectArrangementPattern;
-		});
 
 	const serializeSavedPatterns = () => {
 		const { patterns } = useSavedPatternStore.getState();
@@ -130,7 +103,7 @@ export function useAssembleProjectData(): () => ProjectData {
 				const length = Math.max(1, (barCount ?? 2) * 4); // デフォルト2小節 x 4拍
 				return Array.from({ length }, (): MelodyPitchItem => ({ note: 'rest' }));
 			})(),
-			arrangements: serializeArrangements(),
+			arrangementSlots: arrangementSlots.map((slot) => slot.patternId),
 			savedPatterns: serializeSavedPatterns(),
 			lastEditingPatternId: editingPattern?.id ?? null,
 		};

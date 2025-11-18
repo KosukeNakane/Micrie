@@ -1,8 +1,8 @@
 // [Model] features/model - arrangementPlaybackBuilder.ts
-// 役割: ArrangementSnapshot から再生用タイムラインを構築
+// 役割: Saved Pattern から再生用タイムラインを構築
 import * as Tone from 'tone';
 
-import type { ArrangementSnapshot } from '@/entities/arrangement';
+import type { Pattern } from '@/entities/pattern/model/patternTypes';
 
 const ORIGINAL_BAR_DURATION_SECONDS = 2; // 旧セグメントは 1 bar = 2s を前提に作成されている
 
@@ -80,7 +80,7 @@ const makeChordNotes = (
 const scaleTime = (value: number, factor: number) => value * factor;
 
 export const buildArrangementPlayback = (
-  snapshot: ArrangementSnapshot,
+  pattern: Pattern,
   { tempo }: { tempo: number },
 ): ArrangementPlaybackTimeline => {
   const events: ArrangementPlaybackEvent[] = [];
@@ -90,7 +90,7 @@ export const buildArrangementPlayback = (
   let maxEnd = 0;
 
   // Melody
-  snapshot.melody.segments.forEach((segment) => {
+  pattern.melodySegments.forEach((segment) => {
     const note = typeof segment.note === 'string' ? segment.note : null;
     if (!note || note.toLowerCase() === 'rest') return;
     const start = scaleTime(segment.start ?? 0, scaleFactor);
@@ -107,7 +107,7 @@ export const buildArrangementPlayback = (
   });
 
   // Drums
-  snapshot.rhythmSegments.forEach((segment) => {
+  pattern.rhythmSegments.forEach((segment) => {
     const label = typeof segment.label === 'string' ? segment.label : '';
     if (label !== 'kick' && label !== 'snare' && label !== 'hihat') return;
     const config = DRUM_DEFAULTS[label];
@@ -124,9 +124,9 @@ export const buildArrangementPlayback = (
   });
 
   // Chords
-  const slots = snapshot.chords.slots ?? [];
-  const chordsPerBar = Math.max(snapshot.chords.chordsPerBar ?? 4, 1);
-  const bars = Math.max(snapshot.chords.bars ?? 1, 1);
+  const slots = pattern.chordSlots ?? [];
+  const chordsPerBar = Math.max(pattern.chordsPerBar ?? 4, 1);
+  const bars = Math.max(pattern.bars ?? 1, 1);
   const slotDuration = barDuration / chordsPerBar;
 
   slots.forEach((slot, index) => {

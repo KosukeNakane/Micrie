@@ -2,15 +2,13 @@
 // 役割: アレンジメント再生モードの UI 用ヘルパー
 import { useCallback } from 'react';
 
-import {
-  useArrangementPlayerStore,
-  selectArrangementPlaybackMode,
-  type ArrangementPlaybackMode,
-} from '@/entities/arrangement';
+import { useArrangementStore } from '@/entities/pattern/model/arrangementStore';
+
+type ArrangementPlaybackMode = 'arrangement' | 'off';
 
 export const useArrangementPlaybackMode = () => {
-  const mode = useArrangementPlayerStore(selectArrangementPlaybackMode);
-  const setMode = useArrangementPlayerStore((state) => state.setPlaybackMode);
+  const mode = useArrangementStore((state) => state.playbackMode);
+  const setMode = useArrangementStore((state) => state.setPlaybackMode);
 
   const handleChange = useCallback((next: ArrangementPlaybackMode) => {
     setMode(next);
