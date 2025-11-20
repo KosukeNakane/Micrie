@@ -36,9 +36,13 @@ export type ArrangementPerformanceCallbacks = {
   onAllComplete?: () => void;
 };
 
+export type ArrangementPerformanceOptions = {
+  loop?: boolean;
+};
+
 export const useArrangementPerformancePlayer = () => {
   const { playMelody } = useMelodyPlayer();
-  const { playChordAt } = useChordsPlayer();
+  const { playChordAt, chordToNotes } = useChordsPlayer();
   const { playDrumHit } = useDrumPlayer();
 
   const scheduledEventIdsRef = useRef<number[]>([]);
@@ -49,7 +53,7 @@ export const useArrangementPerformancePlayer = () => {
     scheduledEventIdsRef.current = [];
   }, []);
 
-  const playArrangement = useCallback(async (items: ArrangementPlaybackItem[], callbacks: ArrangementPerformanceCallbacks) => {
+  const playArrangement = useCallback(async (items: ArrangementPlaybackItem[], callbacks: ArrangementPerformanceCallbacks, options?: ArrangementPerformanceOptions) => {
     cleanup();
     if (!items.length) return;
 
@@ -68,10 +72,14 @@ export const useArrangementPerformancePlayer = () => {
 
     const lookAhead = 0.05;
     let offset = 0;
+    const totalDuration = items.reduce((sum, item) => sum + item.timeline.length, 0);
+    const loopInterval = options?.loop && totalDuration > 0 ? totalDuration : null;
 
     const schedule = (secondsFromNow: number, handler: (time: number) => void) => {
       const normalized = Math.max(secondsFromNow + lookAhead, 0);
-      const id = transport.scheduleOnce(handler, `+${normalized}`);
+      const id = loopInterval
+        ? transport.scheduleRepeat(handler, loopInterval, normalized)
+        : transport.scheduleOnce(handler, `+${normalized}`);
       scheduledEventIdsRef.current.push(id);
     };
 
@@ -89,7 +97,22 @@ export const useArrangementPerformancePlayer = () => {
           } else if (event.type === 'drum') {
             playDrumHit(event.label, scheduledTime);
           } else if (event.type === 'chord') {
-            playChordAt(event.notes, scheduledTime, event.duration);
+            const chordData = event.chord ?? { rootIndex: 0, quality: 'maj', tension: '' };
+            const allNotes = chordToNotes(
+              chordData.rootIndex,
+              chordData.quality,
+              chordData.tension,
+            );
+            const notesToPlay = event.playType === 'root' ? allNotes.slice(0, 1) : allNotes;
+            const shiftedNotes = notesToPlay.map((n) => {
+              try {
+                const midi = Tone.Frequency(n).toMidi();
+                return Tone.Frequency(midi + 12, 'midi').toNote();
+              } catch {
+                return n;
+              }
+            });
+            playChordAt(shiftedNotes, scheduledTime, event.duration);
           }
         });
       });
@@ -98,14 +121,14 @@ export const useArrangementPerformancePlayer = () => {
       schedule(segmentEndOffset, (scheduledTime) => {
         const isLast = idx === items.length - 1;
         callbacks.onSegmentComplete?.(item.slotIndex, isLast);
-        if (isLast) {
+        if (!loopInterval && isLast) {
           callbacks.onAllComplete?.();
         }
       });
 
       offset += item.timeline.length;
     });
-  }, [cleanup, playChordAt, playDrumHit, playMelody]);
+  }, [cleanup, chordToNotes, playChordAt, playDrumHit, playMelody]);
 
   const stopAll = useCallback(() => {
     cleanup();

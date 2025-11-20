@@ -19,7 +19,7 @@ export type SavedPatternSlotViewModel = {
 	pattern: Pattern | null;
 };
 
-const defaultSlotName = (slotNumber: number) => `スロット ${slotNumber}`;
+const defaultSlotName = (slotNumber: number) => `Pattern ${slotNumber}`;
 
 const markProjectDirty = () => {
 	try {
@@ -46,16 +46,16 @@ export const useSavedPatterns = () => {
 
 	const viewModel = useMemo<SavedPatternSlotViewModel[]>(
 		() =>
-			slots.map((pattern, index) => {
-				const hasData = Boolean(pattern);
+			slots.map((slot, index) => {
+				const hasData = Boolean(slot?.pattern);
 				const slotNumber = index + 1;
 				return {
 					index,
-					pattern,
-					name: pattern?.name ?? defaultSlotName(slotNumber),
+					pattern: slot?.pattern ?? null,
+					name: slot?.name ?? defaultSlotName(slotNumber),
 					hasData,
 					description: hasData
-						? `${pattern?.bars ?? 0} Bars / ${pattern?.chordsPerBar ?? 0} Chords`
+						? `${slot?.pattern?.bars ?? 0} Bars / ${slot?.pattern?.chordsPerBar ?? 0} Chords`
 						: '未保存',
 				};
 			}),
@@ -74,16 +74,24 @@ export const useSavedPatterns = () => {
 
 	const loadFromSlot = useCallback(
 		(index: number) => {
-			const pattern = slots[index];
-			if (!pattern) return false;
-			loadEditingPattern(pattern);
-			setBarCount(pattern.bars);
+			const slot = slots[index];
+			if (!slot?.pattern) return false;
+			loadEditingPattern(slot.pattern);
+			setBarCount(slot.pattern.bars);
 			setChordPattern(chordPattern);
 			setDrumPattern(drumPattern);
 			markProjectDirty();
 			return true;
 		},
-		[slots, loadEditingPattern, setBarCount, setChordPattern, chordPattern, setDrumPattern, drumPattern]
+		[
+			slots,
+			loadEditingPattern,
+			setBarCount,
+			setChordPattern,
+			chordPattern,
+			setDrumPattern,
+			drumPattern,
+		]
 	);
 
 	const renameSlot = useCallback(

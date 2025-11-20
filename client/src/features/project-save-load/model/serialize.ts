@@ -41,19 +41,19 @@ export function useAssembleProjectData(): () => ProjectData {
 
 	const serializeSavedPatterns = () => {
 		const { patterns } = useSavedPatternStore.getState();
-		return patterns.map((pattern) => {
-			if (!pattern) return null;
+		return patterns.map((slot) => {
+			if (!slot.pattern) return null;
 			return {
-				id: pattern.id,
-				name: pattern.name,
-				bars: pattern.bars,
-				chordsPerBar: pattern.chordsPerBar,
-				chordSlots: pattern.chordSlots.map((slot) => ({
-					chord: { ...slot.chord },
-					plays: [...slot.plays] as ['chord' | 'root' | 'rest', 'chord' | 'root' | 'rest'],
+				id: slot.pattern.id,
+				name: slot.name,
+				bars: slot.pattern.bars,
+				chordsPerBar: slot.pattern.chordsPerBar,
+				chordSlots: slot.pattern.chordSlots.map((entry) => ({
+					chord: { ...entry.chord },
+					plays: [...entry.plays] as ['chord' | 'root' | 'rest', 'chord' | 'root' | 'rest'],
 				})),
-				melodySegments: cloneSegments(pattern.melodySegments),
-				rhythmSegments: cloneSegments(pattern.rhythmSegments),
+				melodySegments: cloneSegments(slot.pattern.melodySegments),
+				rhythmSegments: cloneSegments(slot.pattern.rhythmSegments),
 			};
 		});
 	};

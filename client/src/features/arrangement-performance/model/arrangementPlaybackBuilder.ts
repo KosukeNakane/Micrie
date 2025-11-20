@@ -1,8 +1,6 @@
 // [Model] features/model - arrangementPlaybackBuilder.ts
 // 役割: Saved Pattern から再生用タイムラインを構築
-import * as Tone from 'tone';
-
-import type { Pattern } from '@/entities/pattern/model/patternTypes';
+import type { Pattern, PlayType } from '@/entities/pattern/model/patternTypes';
 
 const ORIGINAL_BAR_DURATION_SECONDS = 2; // 旧セグメントは 1 bar = 2s を前提に作成されている
 const DEFAULT_MELODY_STEPS_PER_BAR = 16;
@@ -28,30 +26,14 @@ export type ArrangementPlaybackEvent =
 			type: 'chord';
 			start: number;
 			duration: number;
-			notes: string[];
+			chord: Pattern['chordSlots'][number]['chord'];
+			playType: Exclude<PlayType, 'rest'>;
 			velocity: number;
 	  };
 
 export type ArrangementPlaybackTimeline = {
 	events: ArrangementPlaybackEvent[];
 	length: number;
-};
-
-const CHORD_QUALITY_INTERVALS: Record<string, number[]> = {
-	maj: [0, 4, 7],
-	min: [0, 3, 7],
-	dim: [0, 3, 6],
-	aug: [0, 4, 8],
-};
-
-const CHORD_TENSION_INTERVALS: Record<string, number[]> = {
-	'': [],
-	maj7: [11],
-	'7': [10],
-	'6': [9],
-	'9': [14],
-	'11': [17],
-	'13': [21],
 };
 
 const DRUM_DEFAULTS: Record<'kick' | 'snare' | 'hihat', { frequency: number; duration: number }> = {
@@ -159,22 +141,6 @@ const computeRhythmSecondsPerUnit = (
 	return pickSecondsPerUnit(avgLength, candidates, beatDuration);
 };
 
-const makeChordNotes = (
-	rootIndex: number,
-	quality: string,
-	tension: string,
-	octave = 4
-): string[] => {
-	const baseIntervals = CHORD_QUALITY_INTERVALS[quality] ?? CHORD_QUALITY_INTERVALS.maj;
-	const tensionIntervals = CHORD_TENSION_INTERVALS[tension] ?? [];
-	const intervals = Array.from(new Set([...baseIntervals, ...tensionIntervals])).sort(
-		(a, b) => a - b
-	);
-	return intervals.map((interval) => {
-		const midi = octave * 12 + rootIndex + interval;
-		return Tone.Frequency(midi, 'midi').toNote();
-	});
-};
 // 指定された秒数を変換する
 const convertTime = (value: number | null | undefined, secondsPerUnit: number) =>
 	toFiniteNumber(value) * secondsPerUnit;
@@ -241,16 +207,14 @@ export const buildArrangementPlayback = (
 		plays.forEach((playType, pos) => {
 			if (playType === 'rest') return;
 			const start = baseStart + pos * subDuration;
-			const notes = makeChordNotes(
-				slot.chord?.rootIndex ?? 0,
-				slot.chord?.quality ?? 'maj',
-				slot.chord?.tension ?? ''
-			);
+			const chord = slot.chord ?? { rootIndex: 0, quality: 'maj', tension: '' };
+			const resolvedPlayType: Exclude<PlayType, 'rest'> = playType === 'root' ? 'root' : 'chord';
 			events.push({
 				type: 'chord',
 				start,
 				duration: clampDuration(subDuration),
-				notes,
+				chord,
+				playType: resolvedPlayType,
 				velocity: playType === 'root' ? 0.7 : 0.9,
 			});
 			maxEnd = Math.max(maxEnd, start + subDuration);

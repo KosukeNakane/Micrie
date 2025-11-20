@@ -36,8 +36,6 @@ export interface ChordSlot {
 // Pattern — 音源データの唯一のドメインモデル
 export interface Pattern {
 	id: string;
-	name: string;
-
 	bars: number;
 	chordsPerBar: number;
 

@@ -1,5 +1,6 @@
 // [UI] features/ui - ArrangementPanel.tsx
 // 役割: アレンジメントスロットの設定と制御を提供
+import { keyframes } from '@emotion/react';
 import { Box, Button, Flex, Text } from '@chakra-ui/react';
 import { useMemo, type ChangeEvent } from 'react';
 
@@ -10,6 +11,12 @@ import { useProjectState } from '@/features/project-save-load';
 import { useArrangementPerformer } from '../model/useArrangementPerformer';
 import { ArrangementPlaybackToggle } from './ArrangementPlaybackToggle';
 
+const slotGlow = keyframes`
+  0% { opacity: 0.25; transform: scale(0.96); }
+  50% { opacity: 0.75; transform: scale(1); }
+  100% { opacity: 0.25; transform: scale(0.96); }
+`;
+
 export const ArrangementPanel = () => {
   const slots = useArrangementStore((state) => state.slots);
   const setSlot = useArrangementStore((state) => state.setSlot);
@@ -18,7 +25,10 @@ export const ArrangementPanel = () => {
 
   const savedPatterns = useSavedPatternStore((state) => state.patterns);
   const availablePatterns = useMemo(
-    () => savedPatterns.filter((pattern): pattern is NonNullable<typeof pattern> => !!pattern),
+    () =>
+      savedPatterns
+        .map((slot) => (slot.pattern ? { id: slot.pattern.id, name: slot.name } : null))
+        .filter((entry): entry is { id: string; name: string } => Boolean(entry)),
     [savedPatterns],
   );
 
@@ -65,13 +75,39 @@ export const ArrangementPanel = () => {
               flex="1 1 0"
               minW="150px"
               maxW="200px"
-              border="1px solid rgba(76, 106, 255, 0.4)"
+              border="1px solid"
+              borderColor={isActive ? 'rgba(76, 106, 255, 0.85)' : 'rgba(76, 106, 255, 0.4)'}
               borderRadius="12px"
               padding="16px"
               textAlign="center"
-              background={isActive ? 'rgba(76, 106, 255, 0.18)' : 'rgba(255, 255, 255, 0.24)'}
-              boxShadow={isActive ? '0 0 12px rgba(76, 106, 255, 0.45)' : 'inset 0 0 0 1px rgba(255,255,255,0.2)'}
+              background={
+                isActive
+                  ? 'linear-gradient(135deg, rgba(81, 113, 255, 0.4), rgba(44, 86, 196, 0.35))'
+                  : 'rgba(255, 255, 255, 0.24)'
+              }
+              boxShadow={
+                isActive
+                  ? '0 0 18px rgba(76, 106, 255, 0.45), inset 0 0 0 1px rgba(255,255,255,0.35)'
+                  : 'inset 0 0 0 1px rgba(255,255,255,0.2)'
+              }
+              transition="background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease"
               position="relative"
+              overflow="visible"
+              _after={
+                isActive
+                  ? {
+                      content: '""',
+                      position: 'absolute',
+                      inset: '-10px',
+                      borderRadius: 'inherit',
+                      background: 'radial-gradient(circle, rgba(76,106,255,0.32) 0%, rgba(76,106,255,0) 70%)',
+                      filter: 'blur(6px)',
+                      animation: `${slotGlow} 1.6s ease-in-out infinite`,
+                      pointerEvents: 'none',
+                      zIndex: -1,
+                    }
+                  : undefined
+              }
             >
               <Text fontSize="13px" fontWeight="600" color="rgba(5,4,69,0.65)">
                 SLOT {visualIndex + 1}

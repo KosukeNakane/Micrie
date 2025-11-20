@@ -91,6 +91,7 @@ export const TopPlaybackBar = () => {
     status: arrangementStatus,
     playArrangement,
     stopArrangement,
+    pauseArrangement,
   } = useArrangementPerformer();
   const [ratio, setRatio] = useState(0);
   const rafRef = useRef<number | null>(null);
@@ -184,8 +185,7 @@ export const TopPlaybackBar = () => {
   const onToggle = async () => {
     if (isArrangementMode) {
       if (isArrangementPlaying) {
-        stopArrangement();
-        setRatio(0);
+        pauseArrangement();
       } else {
         await playArrangement();
       }

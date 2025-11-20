@@ -4,98 +4,99 @@
 // 録音、再生、リアルタイムラベル表示、解析結果表示などの要素を統合
 
 /** @jsxImportSource @emotion/react */
-import styled from "@emotion/styled";
-import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import styled from '@emotion/styled';
+import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { useGlobalAudio } from "@entities/audio/model/GlobalAudioContext";
-import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";
-import { useTempo } from "@entities/tempo/model/TempoContext";
-import { RealtimeLabel, useAudioRecorder } from "@features/recording";
-import { TopPlaybackBar } from "@widgets/top-playback-bar";
-import { WaveformDisplay } from "@widgets/waveform";
-import { SavedPatternPanel } from "@/widgets/saved-patterns";
+import { useGlobalAudio } from '@entities/audio/model/GlobalAudioContext';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
+import { useTempo } from '@entities/tempo/model/TempoContext';
+import { RealtimeLabel, useAudioRecorder } from '@features/recording';
+import { TopPlaybackBar } from '@widgets/top-playback-bar';
+import { WaveformDisplay } from '@widgets/waveform';
 
-import { useAudioStore } from "@/entities/audio";
+import { useAudioStore } from '@/entities/audio';
 const PageBody = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 32px;
-  padding: 0 32px 32px;
-  box-sizing: border-box;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	gap: 32px;
+	padding: 0 32px 32px;
+	box-sizing: border-box;
 `;
 
 const MainColumn = styled.div`
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  align-items: center;
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	align-items: center;
 `;
 export const RecordingPage = () => {
+	const engine = useGlobalAudio();
 
-  const engine = useGlobalAudio();
+	// 録音状態・音声データ・リアルタイムラベルを管理するカスタムフック
+	const { toggleRecording, realtimeLabel } = useAudioRecorder();
+	const audioBlob = useAudioStore((state) => state.audioBlob);
+	const audioBlobSource = useAudioStore((state) => state.audioBlobSource);
+	const shouldNavigateToEdit = useAudioStore((state) => state.shouldNavigateToEdit);
+	const markNavigateToEditHandled = useAudioStore((state) => state.markNavigateToEditHandled);
 
-  // 録音状態・音声データ・リアルタイムラベルを管理するカスタムフック
-  const {
-    toggleRecording,
-    realtimeLabel,
-  } = useAudioRecorder();
-  const audioBlob = useAudioStore((state) => state.audioBlob);
-  const audioBlobSource = useAudioStore((state) => state.audioBlobSource);
-  const shouldNavigateToEdit = useAudioStore((state) => state.shouldNavigateToEdit);
-  const markNavigateToEditHandled = useAudioStore((state) => state.markNavigateToEditHandled);
+	// テンポ（BPM）を取得するカスタムフック
+	const { tempo } = useTempo();
+	const { rhythmSegments, melodySegments } = usePatternEditor();
+	const navigate = useNavigate();
+	const hasNavigatedRef = useRef(false);
 
-  // テンポ（BPM）を取得するカスタムフック
-  const { tempo } = useTempo();
-  const { rhythmSegments, melodySegments } = usePatternEditor();
-  const navigate = useNavigate();
-  const hasNavigatedRef = useRef(false);
+	// 音声分析が完了し、Flaskサーバーから結果が返ったらEditへ自動遷移
+	useEffect(() => {
+		if (hasNavigatedRef.current) return;
+		const hasResults = (rhythmSegments?.length ?? 0) > 0 || (melodySegments?.length ?? 0) > 0;
+		// 録音完了時のみ自動遷移（Editのアップロード由来では発火しない）
+		if (audioBlob && audioBlobSource === 'recorded' && hasResults && shouldNavigateToEdit) {
+			hasNavigatedRef.current = true;
+			markNavigateToEditHandled();
+			navigate('/edit');
+		}
+	}, [
+		audioBlob,
+		audioBlobSource,
+		rhythmSegments?.length,
+		melodySegments?.length,
+		navigate,
+		shouldNavigateToEdit,
+		markNavigateToEditHandled,
+	]);
 
-  // 音声分析が完了し、Flaskサーバーから結果が返ったらEditへ自動遷移
-  useEffect(() => {
-    if (hasNavigatedRef.current) return;
-    const hasResults = (rhythmSegments?.length ?? 0) > 0 || (melodySegments?.length ?? 0) > 0;
-    // 録音完了時のみ自動遷移（Editのアップロード由来では発火しない）
-    if (audioBlob && audioBlobSource === 'recorded' && hasResults && shouldNavigateToEdit) {
-      hasNavigatedRef.current = true;
-      markNavigateToEditHandled();
-      navigate('/edit');
-    }
-  }, [audioBlob, audioBlobSource, rhythmSegments?.length, melodySegments?.length, navigate, shouldNavigateToEdit, markNavigateToEditHandled]);
+	// Developer Tools 関連状態は Sidebar に移行
 
+	useEffect(() => {
+		(async () => {
+			await engine.ensureStarted();
+			// 既に読み込み済みなら二重ロードしない。GlobalAudioEngine 側で同一URLはスキップされる想定。
+			await engine.loadLoop('/audio/your-loop.wav', { loop: true, volume: 0.8 });
+			engine.playLoop();
+		})();
+		// ★遷移しても鳴り続けさせるため、ここでのクリーンアップで停止はしない
+	}, [engine]);
 
-  // Developer Tools 関連状態は Sidebar に移行
+	// 録音の開始・停止をtempoに基づいてトグル
+	const handleToggleRecording = () => {
+		if (!tempo) return;
+		toggleRecording(tempo);
+	};
 
-  useEffect(() => {
-    (async () => {
-      await engine.ensureStarted();
-      // 既に読み込み済みなら二重ロードしない。GlobalAudioEngine 側で同一URLはスキップされる想定。
-      await engine.loadLoop("/audio/your-loop.wav", { loop: true, volume: 0.8 });
-      engine.playLoop();
-    })();
-    // ★遷移しても鳴り続けさせるため、ここでのクリーンアップで停止はしない
-  }, [engine]);
-
-  // 録音の開始・停止をtempoに基づいてトグル
-  const handleToggleRecording = () => {
-    if (!tempo) return;
-    toggleRecording(tempo);
-  };
-
-  return (
-    // <div css={[glassBackground, css`& > *:last-child { margin-bottom: 0 !important; }`]}>
-    <div>
-      <TopPlaybackBar />
-      <PageBody>
-        <MainColumn>
-          <RealtimeLabel label={realtimeLabel} />
-          <WaveformDisplay audioBlob={audioBlob} onToggleRecording={handleToggleRecording} />
-        </MainColumn>
-        <SavedPatternPanel />
-      </PageBody>
-    </div>
-  );
+	return (
+		// <div css={[glassBackground, css`& > *:last-child { margin-bottom: 0 !important; }`]}>
+		<div>
+			<TopPlaybackBar />
+			<PageBody>
+				<MainColumn>
+					<RealtimeLabel label={realtimeLabel} />
+					<WaveformDisplay audioBlob={audioBlob} onToggleRecording={handleToggleRecording} />
+				</MainColumn>
+			</PageBody>
+		</div>
+	);
 };

@@ -16,7 +16,6 @@ const cloneChordSlot = (slot: ChordSlot): ChordSlot => ({
 
 const clonePattern = (pattern: Pattern): Pattern => ({
   id: pattern.id,
-  name: pattern.name,
   bars: pattern.bars,
   chordsPerBar: pattern.chordsPerBar,
   chordSlots: pattern.chordSlots.map(cloneChordSlot),
@@ -48,8 +47,18 @@ const resolvePatternId = (
   return candidate;
 };
 
-const createEmptyPatterns = (): Array<Pattern | null> =>
-  Array.from({ length: PATTERN_CAPACITY }, () => null);
+export type SavedPatternSlot = {
+  name: string;
+  pattern: Pattern | null;
+};
+
+const defaultSlotName = (index: number) => `Pattern ${index + 1}`;
+
+const createEmptyPatterns = (): SavedPatternSlot[] =>
+  Array.from({ length: PATTERN_CAPACITY }, (_, idx) => ({
+    name: defaultSlotName(idx + 1),
+    pattern: null,
+  }));
 
 export const useSavedPatternStore = create(
   combine(
@@ -61,15 +70,16 @@ export const useSavedPatternStore = create(
         if (index < 0 || index >= PATTERN_CAPACITY) {
           throw new Error(`savedPattern index out of range: ${index}`);
         }
-        const existing = get().patterns[index];
+        const existing = get().patterns[index]?.pattern ?? null;
         const isIdInUse = (id: string) =>
-          get().patterns.some((item, idx) => idx !== index && item?.id === id);
+          get().patterns.some((item, idx) => idx !== index && item.pattern?.id === id);
         const stored = clonePattern(pattern);
         stored.id = resolvePatternId(existing, stored.id, isIdInUse);
         const cloneForReturn = clonePattern(stored);
         set((state) => {
           const next = state.patterns.slice();
-          next[index] = stored;
+          const slot = next[index];
+          next[index] = { ...slot, pattern: stored };
           return { patterns: next };
         });
         return cloneForReturn;
@@ -88,16 +98,24 @@ export const useSavedPatternStore = create(
         if (index < 0 || index >= PATTERN_CAPACITY) return;
         set((state) => {
           const next = state.patterns.slice();
-          next[index] = null;
+          const slot = next[index];
+          next[index] = slot ? { ...slot, pattern: null } : slot;
           return { patterns: next };
         });
       },
-      setPatterns: (list: Array<Pattern | null>) => {
-        const next: Array<Pattern | null> = Array.from({ length: PATTERN_CAPACITY }, (_, idx) => {
-          const item = list[idx] ?? null;
-          return item ? clonePattern(item) : null;
+      setSlots: (list: Array<{ name?: string; pattern: Pattern | null }>) => {
+        const emptySlots = createEmptyPatterns();
+        const pad = Array.from({ length: PATTERN_CAPACITY }, (_, idx) => {
+          const item = list[idx];
+          if (!item) return { ...emptySlots[idx] };
+          return {
+            name: (typeof item.name === 'string' && item.name.trim().length > 0)
+              ? item.name
+              : defaultSlotName(idx + 1),
+            pattern: item.pattern ? clonePattern(item.pattern) : null,
+          };
         });
-        set({ patterns: next });
+        set({ patterns: pad });
       },
       resetPatterns: () => {
         set({ patterns: createEmptyPatterns() });

@@ -5,6 +5,7 @@ import { combine } from 'zustand/middleware';
 
 type ArrangementSlot = { patternId: string | null };
 type PlaybackMode = 'arrangement' | 'off';
+type PlaybackStatus = 'stopped' | 'playing' | 'paused';
 
 const SLOT_COUNT = 4;
 
@@ -19,6 +20,7 @@ export const useArrangementStore = create(
 			slots: createEmptySlots(),
 			currentIndex: null as number | null,
 			playbackMode: 'off' as PlaybackMode,
+			status: 'stopped' as PlaybackStatus,
 		},
 		(set, get) => ({
 			setSlot: (index: number, patternId: string | null) => {
@@ -55,6 +57,7 @@ export const useArrangementStore = create(
 					slots: createEmptySlots(),
 					currentIndex: null,
 					playbackMode: 'off',
+					status: 'stopped',
 				});
 			},
 			setCurrentIndex: (index: number | null) => {
@@ -63,6 +66,9 @@ export const useArrangementStore = create(
 			},
 			setPlaybackMode: (mode: PlaybackMode) => {
 				set({ playbackMode: mode });
+			},
+			setStatus: (next: PlaybackStatus) => {
+				set({ status: next });
 			},
 			isSlotEmpty: (index: number): boolean => {
 				if (index < 0 || index >= SLOT_COUNT) return true;
