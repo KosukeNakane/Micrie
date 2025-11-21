@@ -2,11 +2,15 @@
 // 役割: 表示・入力のUIコンポーネント
 // 波形表示・再生・ループ・セグメントラベル描画を担うメインUIコンポーネント
 import styled from '@emotion/styled';
-import { StyledArea } from '@shared/ui';
+
 import { useRecording } from '@entities/audio';
+import { StyledArea } from '@shared/ui';
+
+import { SamplerPads, useSamplerRecorder } from '@/features/sampler';
+
 import { ModeSelectArea } from './ModeSelectArea';
 import { RecordingControlArea } from './RecordingControlArea';
-import { SamplerPads, useSamplerRecorder } from '@/features/sampler';
+
 
 export const CenteredArea = styled(StyledArea)`
 	position: relative;

@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 
 import { useAudioBuffer } from "@entities/audio/model/useAudioBuffer";
 import { useBarCount } from "@entities/bar-count/model/BarCountContext";
-import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";
 import { useSegment } from "@entities/segment/model/SegmentContext";
 import { useTempo } from "@entities/tempo/model/TempoContext";
 import { apiFetch } from "@shared/api/apiClient";
+
+import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";
 
 const DEBUG = false;
 type TrimMemo = { duration: number; trimmed: Blob };

@@ -3,8 +3,9 @@
 import { Box, Text } from '@chakra-ui/react';
 import { createPortal } from 'react-dom';
 
-import { usePortalRoot } from '@/app/providers/PortalRootContext';
 import { StyledArea } from '@shared/ui';
+
+import { usePortalRoot } from '@/app/providers/PortalRootContext';
 
 type Props = {
   isOpen: boolean;

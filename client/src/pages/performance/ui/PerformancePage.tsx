@@ -6,13 +6,13 @@ import { useEffect } from 'react';
 
 import { useGlobalAudio } from '@entities/audio/model/GlobalAudioContext';
 import { useEffects, type EffectKey } from '@entities/effects/model/EffectsContext';
+import { ArrangementPanel } from '@features/arrangement-performance';
 import EffectsButton from '@features/effects/ui/EffectsButton';
 import EffectsPanel from '@features/effects/ui/EffectsPanel';
 import SplitHoldResetButton from '@features/effects/ui/SplitHoldResetButton';
 import { VerticalFader } from '@features/effects/ui/VerticalFader';
-import { TopPlaybackBar } from '@widgets/top-playback-bar';
 import { VolumeControlPanel } from '@features/volume';
-import { ArrangementPanel } from '@features/arrangement-performance';
+import { TopPlaybackBar } from '@widgets/top-playback-bar';
 
 import { useChannelsStore } from '@/entities/audio';
 import { useEffectsUiStore } from '@/features/effects';

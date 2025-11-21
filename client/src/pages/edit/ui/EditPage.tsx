@@ -4,14 +4,15 @@ import { Box } from '@chakra-ui/react';
 import styled from '@emotion/styled';
 import { useState } from 'react';
 
+import { TopPlaybackBar } from '@widgets/top-playback-bar';
+import { BarWaveformContainer, MelodyCards, ChordsCards, DrumsCards } from '@widgets/waveform';
+
 import { useAudioStore } from '@/entities/audio';
 import { ChordsEditor } from '@/features/chords-editor';
 import { DrumsEditor } from '@/features/drums-editor';
+import { MelodyEditor } from '@/features/melody-editor';
 import { MoodSelect } from '@/features/mood-select';
 import { ChordPatternSelect, DrumPatternSelect } from '@/features/pattern-select';
-import { MelodyEditor } from '@/features/melody-editor';
-import { TopPlaybackBar } from '@widgets/top-playback-bar';
-import { BarWaveformContainer, MelodyCards, ChordsCards, DrumsCards } from '@widgets/waveform';
 import { AudioFileUploader, MelodyReanalysisPanel } from '@/widgets/recording/audio-analysis-tools';
 
 const PageBody = styled.div`

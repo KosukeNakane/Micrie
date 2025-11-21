@@ -3,11 +3,11 @@
 
 import styled from "@emotion/styled";
 
-import { StyledArea } from "@/shared/ui";
 
 import { MoodSelect } from "@/features/mood-select";
-import { SoundSelect } from "@/features/sound-select";
 import { ChordPatternSelect, DrumPatternSelect } from "@/features/pattern-select";
+import { SoundSelect } from "@/features/sound-select";
+import { StyledArea } from "@/shared/ui";
 
 const Container = styled(StyledArea)`
   display: grid;

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import type { PointerEvent as ReactPointerEvent } from "react";
+
 
 import { StyledArea } from "@/shared/ui";
 
@@ -7,6 +7,7 @@ import type {
   SamplerPad,
   SamplerPadStatus,
 } from "@entities/audio/model/useSamplerStore";
+import type { PointerEvent as ReactPointerEvent } from "react";
 
 const padBackground: Record<SamplerPadStatus, string> = {
   empty: "rgba(255, 255, 255, 0.08)",

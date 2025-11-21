@@ -4,12 +4,12 @@ import React from 'react';
 import * as Tone from 'tone';
 
 import { useGlobalAudio, useChannelsStore } from '@/entities/audio';
-import { useScaleMode } from '@/entities/scale-mode';
-import { useTempo } from '@/entities/tempo';
-import { useTransportStore } from '@/entities/transport';
 import { useArrangementStore } from '@/entities/pattern/model/arrangementStore';
 import { useEditingPatternStore } from '@/entities/pattern/model/editingPatternStore';
 import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
+import { useScaleMode } from '@/entities/scale-mode';
+import { useTempo } from '@/entities/tempo';
+import { useTransportStore } from '@/entities/transport';
 import { extractQuantizedNotes } from '@/shared/lib/noteSegmentation';
 import { majorPentatonicMap, minorPentatonicMap } from '@/shared/lib/pitchMaps';
 

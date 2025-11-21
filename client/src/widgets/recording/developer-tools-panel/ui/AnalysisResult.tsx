@@ -4,8 +4,9 @@
 
 import { useState } from 'react';
 
-import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { RectButton } from '@shared/ui/RectButton';
+
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 
 export const AnalysisResult = () => {
     // MelodyおよびRhythmのセグメント配列をコンテキストから取得

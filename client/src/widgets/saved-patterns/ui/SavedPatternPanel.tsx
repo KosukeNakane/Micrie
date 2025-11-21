@@ -1,7 +1,7 @@
 // [UI] widgets/ui - SavedPatternPanel.tsx
 // 役割: SavedPatternStore の6スロットを操作するサイドバー
-import styled from '@emotion/styled';
 import { Box, Button, Icon, Text } from '@chakra-ui/react';
+import styled from '@emotion/styled';
 import { PiFloppyDiskDuotone } from 'react-icons/pi';
 
 import { StyledArea } from '@/shared/ui';

@@ -1,8 +1,10 @@
 // [UI] features/ui - ArrangementPanel.tsx
 // 役割: アレンジメントスロットの設定と制御を提供
+import { Box, Button, Flex, Text } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
-import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { useMemo } from 'react';
 
 import {
@@ -14,9 +16,9 @@ import { useProjectState } from '@/features/project-save-load';
 import { StyledArea, GlassSelect } from '@/shared/ui';
 
 import { useArrangementPerformer } from '../model/useArrangementPerformer';
+
 import { ArrangementPlaybackToggle } from './ArrangementPlaybackToggle';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+
 
 const slotGlow = keyframes`
   0% { opacity: 0.25; transform: scale(0.96); }

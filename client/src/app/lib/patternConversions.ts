@@ -1,9 +1,9 @@
 import { useEditingPatternStore } from '@/entities/pattern/model/editingPatternStore';
 import { useSavedPatternStore, type SavedPatternSlot } from '@/entities/pattern/model/savedPatternStore';
 import type { ProjectArrangementPattern, ProjectData, ProjectSegment } from '@/entities/project';
-import type { Pattern, Segment, ChordSlot, PlayType } from '@/types/pattern';
-import { PRESETS } from '@/shared/lib/chord-presets';
 import { PATTERNS as DRUM_PATTERNS } from '@/features/drums-playback/lib/patterns';
+import { PRESETS } from '@/shared/lib/chord-presets';
+import type { Pattern, Segment, ChordSlot, PlayType } from '@/types/pattern';
 import {
 	normalizePlayType,
 	normalizeQuality,

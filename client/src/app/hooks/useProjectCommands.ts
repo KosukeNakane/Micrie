@@ -1,18 +1,18 @@
 import { useState } from 'react';
 
-import { useBarCount } from '@/entities/bar-count';
 import { useChannelsStore } from '@/entities/audio';
-import { useArrangementStore } from '@/entities/pattern/model/arrangementStore';
-import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
-import { useSegment } from '@/entities/segment';
-import type { ProjectData } from '@/entities/project';
+import { useBarCount } from '@/entities/bar-count';
 import { useEffects } from '@/entities/effects';
 import { useChordPattern, useDrumPattern } from '@/entities/pattern';
+import { useArrangementStore } from '@/entities/pattern/model/arrangementStore';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
+import type { ProjectData } from '@/entities/project';
 import { useScaleMode } from '@/entities/scale-mode';
+import { useSegment } from '@/entities/segment';
 import { useTempo } from '@/entities/tempo';
 import { useVolume } from '@/entities/volume';
-import { useEffectsUiStore } from '@/features/effects';
 import { openLoginModal } from '@/features/auth';
+import { useEffectsUiStore } from '@/features/effects';
 import {
 	downloadLocalProject,
 	ensureAuth,

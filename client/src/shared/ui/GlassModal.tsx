@@ -1,10 +1,11 @@
 // [UI] shared/ui - GlassModal.tsx
 // 役割: ガラス風の共通モーダルコンテナ（オーバーレイ + StyledArea）
 import { Box, Button, Text } from '@chakra-ui/react';
-import { createPortal } from 'react-dom';
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 import { usePortalRoot } from '@/app/providers/PortalRootContext';
+
 import { StyledArea } from './StyledArea';
 
 type Props = {

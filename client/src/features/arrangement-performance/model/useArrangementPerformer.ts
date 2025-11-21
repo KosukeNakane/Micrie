@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import * as Tone from 'tone';
 
+import { GlobalAudioEngine } from '@/entities/audio';
 import { useArrangementStore } from '@/entities/pattern/model/arrangementStore';
 import { useSavedPatternStore } from '@/entities/pattern/model/savedPatternStore';
 import { useTempo } from '@/entities/tempo';
-import { GlobalAudioEngine } from '@/entities/audio';
 
 import { buildArrangementPlayback } from './arrangementPlaybackBuilder';
 import {

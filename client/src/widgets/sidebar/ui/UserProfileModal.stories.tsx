@@ -1,7 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { UserProfileModal } from './UserProfileModal';
-import { useAuthStore } from '@/entities/user';
 import { useEffect } from 'react';
+
+import { useAuthStore } from '@/entities/user';
+
+import { UserProfileModal } from './UserProfileModal';
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
+
 
 const meta = {
   title: 'widgets/UserProfileModal',

@@ -1,14 +1,15 @@
 // [UI] features/ui - VolumeControlPanel.tsx
 // 役割: 表示・入力のUIコンポーネント（EffectsPanelのフェーダーUIをVolume用に）
-import EffectsPanel from '@features/effects/ui/EffectsPanel';
-import { VerticalFader } from '@features/effects/ui/VerticalFader';
-import { useVolume, VOLUME_MIN as MIN, VOLUME_MAX as MAX } from '@entities/volume/model/VolumeContext';
-import { useChannelsStore } from '@entities/audio';
-import VolumeOffIcon from '@mui/icons-material/VolumeOff';
-import VolumeMuteIcon from '@mui/icons-material/VolumeMute';
 import VolumeDownIcon from '@mui/icons-material/VolumeDown';
+import VolumeMuteIcon from '@mui/icons-material/VolumeMute';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import React from 'react';
+
+import { useChannelsStore } from '@entities/audio';
+import { useVolume, VOLUME_MIN as MIN, VOLUME_MAX as MAX } from '@entities/volume/model/VolumeContext';
+import EffectsPanel from '@features/effects/ui/EffectsPanel';
+import { VerticalFader } from '@features/effects/ui/VerticalFader';
 
 type Props = {
   width?: number;

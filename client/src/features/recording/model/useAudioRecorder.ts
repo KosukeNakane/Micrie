@@ -13,12 +13,13 @@ import { useAnalysisMode } from '@entities/analysis/model/AnalysisModeContext';
 import { useRecording } from '@entities/audio/model/RecordingContext';
 import { useBarCount } from '@entities/bar-count/model/BarCountContext';
 import { useMode } from '@entities/mode/model/ModeContext';
-import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
-import { useEditingPatternStore } from '@/entities/pattern/model/editingPatternStore';
 import { useSegment } from '@entities/segment/model/SegmentContext';
 import { useTeachableModel } from '@features/analysis/model/useTeachableModel';
 import { apiFetch } from '@shared/api/apiClient';
+
 import { useAudioStore } from '@/entities/audio';
+import { useEditingPatternStore } from '@/entities/pattern/model/editingPatternStore';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 
 // 音声Blobの末尾に無音を追加して、期待される録音時間に調整する
 const appendSilenceToBlob = async (

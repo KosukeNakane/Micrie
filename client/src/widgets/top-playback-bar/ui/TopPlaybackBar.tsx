@@ -14,8 +14,8 @@ import { VolumeControl } from '@features/volume';
 import { StyledArea } from '@shared/ui';
 
 
-import { scalePx } from '@/shared/lib/scale';
 import { useArrangementPerformer } from '@/features/arrangement-performance';
+import { scalePx } from '@/shared/lib/scale';
 
 const BarWrapper = styled(StyledArea)`
   box-sizing: border-box;

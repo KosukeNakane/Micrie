@@ -66,7 +66,7 @@ const getAverageSegmentLength = (segments: Array<{ start?: number; end?: number 
 	if (!count) return null;
 	return total / count;
 };
-//　秒数／単位を決定する
+// 秒数／単位を決定する
 const pickSecondsPerUnit = (
 	avgLength: number | null,
 	candidates: Array<{ expectedLength: number; secondsPerUnit: number }>,

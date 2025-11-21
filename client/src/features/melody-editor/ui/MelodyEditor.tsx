@@ -10,11 +10,11 @@ import * as Tone from 'tone';
 
 import { useGlobalAudio } from '@/entities/audio';
 import { useEditingPatternStore } from '@/entities/pattern/model/editingPatternStore';
+import type { Segment } from '@/entities/pattern/model/patternTypes';
 import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { StyledArea } from '@/shared/ui';
 
 import type { FC } from 'react';
-import type { Segment } from '@/entities/pattern/model/patternTypes';
 
 type Props = { barIndex: number; width?: number };
 

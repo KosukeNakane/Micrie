@@ -9,13 +9,13 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useGlobalAudio } from '@entities/audio/model/GlobalAudioContext';
-import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { useTempo } from '@entities/tempo/model/TempoContext';
 import { RealtimeLabel, useAudioRecorder } from '@features/recording';
 import { TopPlaybackBar } from '@widgets/top-playback-bar';
 import { WaveformDisplay } from '@widgets/waveform';
 
 import { useAudioStore } from '@/entities/audio';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 const PageBody = styled.div`
 	display: flex;
 	align-items: flex-start;

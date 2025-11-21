@@ -1,7 +1,8 @@
 // [UI] widgets/ui - MelodyReanalysisPanel.tsx
 // 役割: 表示・入力のUIコンポーネント
-import { RectButton } from "@shared/ui/RectButton";
 import React, { useState } from "react";
+
+import { RectButton } from "@shared/ui/RectButton";
 
 import { useBarCount } from "@/entities/bar-count/model/BarCountContext";
 import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";

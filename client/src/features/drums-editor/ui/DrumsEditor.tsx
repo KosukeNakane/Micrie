@@ -2,13 +2,12 @@ import styled from '@emotion/styled';
 import React, { useEffect, useMemo, useRef } from 'react';
 import * as Tone from 'tone';
 
-import { StyledArea } from '@/shared/ui';
+import { useDrumPattern } from '@/entities/pattern';
 import { useEditingPatternStore } from '@/entities/pattern/model/editingPatternStore';
 import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { useTransportStore } from '@/entities/transport';
-import { useDrumPattern } from '@/entities/pattern';
-
 import { getDrumEvents } from '@/features/drums-playback/model/drumEvents';
+import { StyledArea } from '@/shared/ui';
 
 const STEPS = 16;
 const ROWS = [
