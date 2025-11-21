@@ -56,7 +56,7 @@ const defaultSlotName = (index: number) => `Pattern ${index + 1}`;
 
 const createEmptyPatterns = (): SavedPatternSlot[] =>
   Array.from({ length: PATTERN_CAPACITY }, (_, idx) => ({
-    name: defaultSlotName(idx + 1),
+    name: defaultSlotName(idx),
     pattern: null,
   }));
 
@@ -111,7 +111,7 @@ export const useSavedPatternStore = create(
           return {
             name: (typeof item.name === 'string' && item.name.trim().length > 0)
               ? item.name
-              : defaultSlotName(idx + 1),
+              : defaultSlotName(idx),
             pattern: item.pattern ? clonePattern(item.pattern) : null,
           };
         });

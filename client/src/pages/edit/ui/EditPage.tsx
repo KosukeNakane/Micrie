@@ -12,7 +12,6 @@ import { ChordPatternSelect, DrumPatternSelect } from '@/features/pattern-select
 import { MelodyEditor } from '@/features/melody-editor';
 import { TopPlaybackBar } from '@widgets/top-playback-bar';
 import { BarWaveformContainer, MelodyCards, ChordsCards, DrumsCards } from '@widgets/waveform';
-import { SavedPatternPanel } from '@/widgets/saved-patterns';
 import { AudioFileUploader, MelodyReanalysisPanel } from '@/widgets/recording/audio-analysis-tools';
 
 const PageBody = styled.div`
@@ -92,7 +91,6 @@ export const EditPage = () => {
 						</div>
 					)}
 				</MainColumn>
-				<SavedPatternPanel />
 			</PageBody>
 		</div>
 	);

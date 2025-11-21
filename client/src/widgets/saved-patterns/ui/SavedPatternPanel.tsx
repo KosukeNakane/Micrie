@@ -43,6 +43,7 @@ const PatternCard = styled(StyledArea)`
 	justify-content: flex-start;
 	background: rgba(255, 255, 255, 0.32);
 	border: 1px solid rgba(255, 255, 255, 0.42);
+	box-shadow: none;
 `;
 
 const PatternHeader = styled.div`
@@ -79,14 +80,9 @@ export const SavedPatternPanel = () => {
 
 	return (
 		<Box
-			position="fixed"
-			top={0}
-			bottom={0}
-			right={220}
-			width="320px"
-			maxWidth="85vw"
-			zIndex={5}
+			width="100%"
 			height="100%"
+			maxHeight="100%"
 			padding="20px"
 			display="flex"
 			flexDirection="column"
@@ -95,8 +91,8 @@ export const SavedPatternPanel = () => {
 			<SidebarRoot>
 				<SidebarTitle>Saved Patterns</SidebarTitle>
 				<PatternList>
-					{slots.map((slot) => (
-						<PatternCard key={slot.index}>
+					{slots.map((slot, i) => (
+						<PatternCard key={i + 1}>
 							<PatternHeader>
 								<PatternName>{slot.name}</PatternName>
 								<Icon
