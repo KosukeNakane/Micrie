@@ -2,11 +2,14 @@
 // 役割: SavedPatternStore の6スロットを操作するサイドバー
 import { Box, Button, Icon, Text } from '@chakra-ui/react';
 import styled from '@emotion/styled';
+import { useState } from 'react';
 import { PiFloppyDiskDuotone } from 'react-icons/pi';
 
 import { StyledArea } from '@/shared/ui';
 
 import { useSavedPatterns } from '../model/useSavedPatterns';
+
+import { RenamePatternModal } from './RenamePatternModal';
 
 const SidebarRoot = styled.div`
 	display: flex;
@@ -71,11 +74,10 @@ const ButtonGrid = styled.div`
 
 export const SavedPatternPanel = () => {
 	const { slots, canSave, saveToSlot, loadFromSlot, renameSlot, clearSlot } = useSavedPatterns();
+	const [renameTarget, setRenameTarget] = useState<{ index: number; name: string } | null>(null);
 
 	const handleRename = (index: number, currentName: string) => {
-		const next = window.prompt('パターン名を入力', currentName);
-		if (typeof next !== 'string') return;
-		renameSlot(index, next);
+		setRenameTarget({ index, name: currentName });
 	};
 
 	return (
@@ -149,6 +151,16 @@ export const SavedPatternPanel = () => {
 						</PatternCard>
 					))}
 				</PatternList>
+				<RenamePatternModal
+					isOpen={Boolean(renameTarget)}
+					initialName={renameTarget?.name ?? ''}
+					onClose={() => setRenameTarget(null)}
+					onSubmit={(name) => {
+						if (!renameTarget) return;
+						renameSlot(renameTarget.index, name);
+						setRenameTarget(null);
+					}}
+				/>
 			</SidebarRoot>
 		</Box>
 	);
