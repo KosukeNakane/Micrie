@@ -1,14 +1,15 @@
 // [UI] features/ui - VolumeControlPanel.tsx
 // 役割: 表示・入力のUIコンポーネント（EffectsPanelのフェーダーUIをVolume用に）
-import EffectsPanel from '@features/effects/ui/EffectsPanel';
-import { VerticalFader } from '@features/effects/ui/VerticalFader';
-import { useVolume, VOLUME_MIN as MIN, VOLUME_MAX as MAX } from '@entities/volume/model/VolumeContext';
-import { useChannelsStore } from '@entities/audio';
-import VolumeOffIcon from '@mui/icons-material/VolumeOff';
-import VolumeMuteIcon from '@mui/icons-material/VolumeMute';
 import VolumeDownIcon from '@mui/icons-material/VolumeDown';
+import VolumeMuteIcon from '@mui/icons-material/VolumeMute';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import React from 'react';
+
+import { useChannelsStore } from '@entities/audio';
+import { useVolume, VOLUME_MIN as MIN, VOLUME_MAX as MAX } from '@entities/volume/model/VolumeContext';
+import EffectsPanel from '@features/effects/ui/EffectsPanel';
+import { VerticalFader } from '@features/effects/ui/VerticalFader';
 
 type Props = {
   width?: number;
@@ -20,10 +21,12 @@ const VolumeControlPanel: React.FC<Props> = ({ width = 360 }) => {
   const melodyVol = useChannelsStore((s) => s.melodyVolume);
   const drumVol = useChannelsStore((s) => s.drumVolume);
   const chordVol = useChannelsStore((s) => s.chordVolume);
+  const samplerVol = useChannelsStore((s) => s.samplerVolume);
   const setChannelVolume = useChannelsStore((s) => s.setVolume);
   const melodyMuted = useChannelsStore((s) => s.melodyMuted);
   const drumMuted = useChannelsStore((s) => s.drumMuted);
   const chordMuted = useChannelsStore((s) => s.chordMuted);
+  const samplerMuted = useChannelsStore((s) => s.samplerMuted);
   const toggleMuted = useChannelsStore((s) => s.toggleMuted);
   const masterMuted = useChannelsStore((s) => s.masterMuted);
   const toggleMasterMuted = useChannelsStore((s) => s.toggleMasterMuted);
@@ -103,6 +106,23 @@ const VolumeControlPanel: React.FC<Props> = ({ width = 360 }) => {
             style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#fff', paddingTop: 4 }}
           >
             {iconFor(drumMuted, Math.max(0, Math.min(1, drumVol / 100)))}
+          </button>
+        </div>
+        {/* Sampler */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+          <VerticalFader
+            label="SAMPLER"
+            value={Math.max(0, Math.min(1, samplerVol / 100))}
+            onChange={(v) => setChannelVolume('sampler', Math.round(v * 100))}
+            width={60}
+            height={180}
+          />
+          <button
+            aria-label={samplerMuted ? 'Unmute sampler' : 'Mute sampler'}
+            onClick={() => toggleMuted('sampler')}
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#fff', paddingTop: 4 }}
+          >
+            {iconFor(samplerMuted, Math.max(0, Math.min(1, samplerVol / 100)))}
           </button>
         </div>
       </div>

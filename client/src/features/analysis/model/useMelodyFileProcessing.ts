@@ -8,13 +8,16 @@ import { useSegment } from "@entities/segment/model/SegmentContext";
 import { useTempo } from "@entities/tempo/model/TempoContext";
 import { apiFetch } from "@shared/api/apiClient";
 
+import { usePatternEditor } from "@/entities/pattern/model/usePatternEditor";
+
 const DEBUG = false;
 type TrimMemo = { duration: number; trimmed: Blob };
 const trimMemo = new WeakMap<Blob, TrimMemo>();
 const processedDuration = new WeakMap<Blob, number>();
 
 export const useMelodyFileProcessing = (audioBlob: Blob | null, triggerKey?: number, enableTrimming: boolean = false) => {
-  const { setMelodySegments, setContextAudioBuffer, setLoopMode } = useSegment();
+  const { setContextAudioBuffer, setLoopMode } = useSegment();
+  const { setMelodySegments } = usePatternEditor();
   const { barCount } = useBarCount();
   const { tempo } = useTempo();
   const [trimmedBlob, setTrimmedBlob] = useState<Blob | null>(null);

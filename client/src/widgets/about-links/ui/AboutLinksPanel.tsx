@@ -1,8 +1,8 @@
 // [UI] widgets/ui - AboutLinksPanel.tsx
 // 役割: 表示・入力のUIコンポーネント
 import { Box, Link, Text } from '@chakra-ui/react';
-import { useState } from 'react';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { useState } from 'react';
 
 export const AboutLinksPanel = () => {
   // 連続角度（ラップさせない）にして、360→0の境界での補間による色ブレを防ぐ

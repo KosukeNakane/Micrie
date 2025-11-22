@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { GlassModal } from "@shared/ui";
 import { DeveloperToolsPanel } from "@widgets/recording/developer-tools-panel";
-import { AboutLinksPanel, AboutLinksModal } from "@/widgets/about-links";
+
 
 import { BASE_W, BASE_H } from "@/app/providers/Scaler";
 import { useAuthStore, getDisplayName } from "@/entities/user";
@@ -20,10 +20,11 @@ import {
   registerWithEmailPassword,
 } from "@/features/auth";
 import { useProjectState } from "@/features/project-save-load";
+import { AboutLinksPanel, AboutLinksModal } from "@/widgets/about-links";
+import { LogoutConfirmModal } from "@/widgets/logout-confirm-modal";
 
 import { LoginModal } from "./LoginModal";
 import { UserProfileModal } from "./UserProfileModal";
-import { LogoutConfirmModal } from "@/widgets/logout-confirm-modal";
 
 
 type Props = {

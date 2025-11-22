@@ -1,4 +1,4 @@
 // [Model] entities - index.ts
 // 役割: ビジネスロジック/状態操作
 export { SegmentProvider, useSegment } from './model/SegmentContext';
-
+export type { Segment } from './model/SegmentContext';

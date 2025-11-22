@@ -1,6 +1,7 @@
 
-import type { Meta, StoryObj } from '@storybook/react-vite'
 import { OpenProjectModal } from './OpenProjectModal';
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta = {
   title: 'features/OpenProjectModal',

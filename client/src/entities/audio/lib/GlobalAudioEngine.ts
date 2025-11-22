@@ -22,6 +22,8 @@ export class GlobalAudioEngine {
   private melodyGain: GainNode | null = null;
   private drumGain: GainNode | null = null;
   private chordGain: GainNode | null = null;
+  private samplerGain: GainNode | null = null;
+  private arrangementGain: GainNode | null = null;
   // preview channels (editor preview sounds)
   private melodyPreviewGain: GainNode | null = null;
   private drumPreviewGain: GainNode | null = null;
@@ -29,6 +31,8 @@ export class GlobalAudioEngine {
   private melodyMuted = false;
   private drumMuted = false;
   private chordMuted = false;
+  private samplerMuted = false;
+  private arrangementMuted = false;
 
   private wafPlayer: any | null = null;
   private wafLoaded = false;
@@ -100,9 +104,15 @@ export class GlobalAudioEngine {
       this.melodyGain.gain.value = 1;
       this.drumGain.gain.value = 1;
       this.chordGain.gain.value = 1;
+      this.samplerGain = this.ctx.createGain();
+      this.samplerGain.gain.value = 1;
+      this.arrangementGain = this.ctx.createGain();
+      this.arrangementGain.gain.value = 1;
       this.melodyGain.connect(this.masterGain);
       this.drumGain.connect(this.masterGain);
       this.chordGain.connect(this.masterGain);
+      this.samplerGain.connect(this.masterGain);
+      this.arrangementGain.connect(this.masterGain);
 
       // preview channels -> master
       this.melodyPreviewGain = this.ctx.createGain();
@@ -198,10 +208,14 @@ export class GlobalAudioEngine {
   get masterInput(): AudioNode | null { return this.masterGain; }
 
   // Per-channel volume (0..1)
-  async setChannelVolume(kind: 'melody' | 'drum' | 'chord', v: number) {
+  async setChannelVolume(kind: 'melody' | 'drum' | 'chord' | 'sampler', v: number) {
     await this.ensureStarted();
     const clamped = Math.max(0, Math.min(1, v));
-    const gain = kind === 'melody' ? this.melodyGain : (kind === 'drum' ? this.drumGain : this.chordGain);
+    let gain: GainNode | null;
+    if (kind === 'melody') gain = this.melodyGain;
+    else if (kind === 'drum') gain = this.drumGain;
+    else if (kind === 'chord') gain = this.chordGain;
+    else gain = this.samplerGain;
     const ctx = this.ctx;
     if (!gain || !ctx) return;
     const now = ctx.currentTime;
@@ -214,28 +228,68 @@ export class GlobalAudioEngine {
   }
 
   // Channel I/O accessors — route new sources here (future: insert per-channel effects)
-  getChannelInput(kind: 'melody' | 'drum' | 'chord' | 'melody-preview' | 'drum-preview' | 'chord-preview'): AudioNode | null {
+  getChannelInput(kind: 'melody' | 'drum' | 'chord' | 'sampler' | 'melody-preview' | 'drum-preview' | 'chord-preview'): AudioNode | null {
     if (kind === 'melody') return this.melodyGain ?? this.masterGain;
     if (kind === 'drum') return this.drumGain ?? this.masterGain;
     if (kind === 'chord') return this.chordGain ?? this.masterGain;
+    if (kind === 'sampler') return this.samplerGain ?? this.masterGain;
     if (kind === 'melody-preview') return this.melodyPreviewGain ?? this.masterGain;
     if (kind === 'drum-preview') return this.drumPreviewGain ?? this.masterGain;
     if (kind === 'chord-preview') return this.chordPreviewGain ?? this.masterGain;
     return this.masterGain;
   }
 
-  // Per-source mute controls
-  getChannelMuted(kind: 'melody' | 'drum' | 'chord') {
-    if (kind === 'melody') return this.melodyMuted;
-    if (kind === 'drum') return this.drumMuted;
-    return this.chordMuted;
+  getArrangementPerformanceInput(): AudioNode | null {
+    return this.arrangementGain ?? this.masterGain;
   }
 
-  async setChannelMuted(kind: 'melody' | 'drum' | 'chord', muted: boolean) {
+  async setArrangementPerformanceVolume(volume: number) {
+    await this.ensureStarted();
+    if (!this.arrangementGain || !this.ctx) return;
+    const clamped = Math.max(0, Math.min(1, volume));
+    const now = this.ctx.currentTime;
+    try {
+      this.arrangementGain.gain.cancelScheduledValues(now);
+      this.arrangementGain.gain.setTargetAtTime(clamped, now, 0.02);
+    } catch {
+      this.arrangementGain.gain.value = clamped;
+    }
+  }
+
+  async setArrangementPerformanceMuted(muted: boolean) {
+    await this.ensureStarted();
+    if (!this.arrangementGain || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    try {
+      this.arrangementGain.gain.cancelScheduledValues(now);
+      this.arrangementGain.gain.setTargetAtTime(muted ? 0 : 1, now, 0.02);
+    } catch {
+      this.arrangementGain.gain.value = muted ? 0 : 1;
+    }
+    this.arrangementMuted = muted;
+  }
+
+  get arrangementPerformanceMuted() {
+    return this.arrangementMuted;
+  }
+
+  // Per-source mute controls
+  getChannelMuted(kind: 'melody' | 'drum' | 'chord' | 'sampler') {
+    if (kind === 'melody') return this.melodyMuted;
+    if (kind === 'drum') return this.drumMuted;
+    if (kind === 'chord') return this.chordMuted;
+    return this.samplerMuted;
+  }
+
+  async setChannelMuted(kind: 'melody' | 'drum' | 'chord' | 'sampler', muted: boolean) {
     await this.ensureStarted();
     if (!this.ctx) return;
     const now = this.ctx.currentTime;
-    const gain = kind === 'melody' ? this.melodyGain : kind === 'drum' ? this.drumGain : this.chordGain;
+    let gain: GainNode | null;
+    if (kind === 'melody') gain = this.melodyGain;
+    else if (kind === 'drum') gain = this.drumGain;
+    else if (kind === 'chord') gain = this.chordGain;
+    else gain = this.samplerGain;
     if (gain) {
       gain.gain.cancelScheduledValues(now);
       gain.gain.setTargetAtTime(muted ? 0 : 1, now, 0.01);
@@ -247,7 +301,8 @@ export class GlobalAudioEngine {
     }
     if (kind === 'melody') this.melodyMuted = muted;
     else if (kind === 'drum') this.drumMuted = muted;
-    else this.chordMuted = muted;
+    else if (kind === 'chord') this.chordMuted = muted;
+    else this.samplerMuted = muted;
   }
 
   // 即時ミュート/解除（現在鳴っている音も即サイレンス化）。

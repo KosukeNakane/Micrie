@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react'
 
 import { GlobalAudioProvider } from '@/entities/audio'
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor'
 import { SegmentProvider, useSegment } from '@/entities/segment'
 
 import { MelodyEditor } from './MelodyEditor'
@@ -11,7 +12,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 // Storybook 用の初期状態セットアップ（Zustand ストアにダミーのメロディーセグメントを投入）
 const SetupState: React.FC = () => {
-  const { setLoopMode, setMelodySegments } = useSegment()
+  const { setLoopMode } = useSegment()
+  const { setMelodySegments } = usePatternEditor()
   useEffect(() => {
     setLoopMode('melody')
     const notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5']

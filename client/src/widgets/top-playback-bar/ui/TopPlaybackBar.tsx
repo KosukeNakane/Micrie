@@ -14,6 +14,7 @@ import { VolumeControl } from '@features/volume';
 import { StyledArea } from '@shared/ui';
 
 
+import { useArrangementPerformer } from '@/features/arrangement-performance';
 import { scalePx } from '@/shared/lib/scale';
 
 const BarWrapper = styled(StyledArea)`
@@ -85,8 +86,17 @@ const IconButton = styled(StyledArea)`
 
 export const TopPlaybackBar = () => {
   const { loopPlay, stop, reset, isLoopPlaying } = usePlaybackController();
+  const {
+    playbackMode,
+    status: arrangementStatus,
+    playArrangement,
+    stopArrangement,
+    pauseArrangement,
+  } = useArrangementPerformer();
   const [ratio, setRatio] = useState(0);
   const rafRef = useRef<number | null>(null);
+  const isArrangementMode = playbackMode === 'arrangement';
+  const isArrangementPlaying = isArrangementMode && arrangementStatus === 'playing';
 
   // スクラブ中はrAFからの上書きを止める
   const [isScrubbing, setIsScrubbing] = useState(false);
@@ -141,11 +151,11 @@ export const TopPlaybackBar = () => {
       }
       rafRef.current = requestAnimationFrame(tick);
     };
-    if (isLoopPlaying) {
+    if (isArrangementPlaying || isLoopPlaying) {
       rafRef.current = requestAnimationFrame(tick);
     }
     return () => { if (rafRef.current != null) cancelAnimationFrame(rafRef.current); rafRef.current = null; };
-  }, [isLoopPlaying]);
+  }, [isArrangementPlaying, isLoopPlaying]);
 
   // Pointer handlers for scrubbing
   function onPointerDown(e: any) {
@@ -173,16 +183,37 @@ export const TopPlaybackBar = () => {
   }
 
   const onToggle = async () => {
-    if (isLoopPlaying) stop();
-    else await loopPlay();
+    if (isArrangementMode) {
+      if (isArrangementPlaying) {
+        pauseArrangement();
+      } else {
+        await playArrangement();
+      }
+    } else if (isLoopPlaying) {
+      stop();
+    } else {
+      await loopPlay();
+    }
   };
-  const onStop = () => { reset(); setRatio(0); };
+  const onStop = () => {
+    if (isArrangementMode) {
+      stopArrangement();
+      setRatio(0);
+    } else {
+      reset();
+      setRatio(0);
+    }
+  };
 
   return (
     <BarWrapper>
       <ControlsRow>
-        <IconButton as="button" aria-label={isLoopPlaying ? 'Pause' : 'Play'} onClick={onToggle}>
-          {isLoopPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+        <IconButton
+          as="button"
+          aria-label={isArrangementMode ? (isArrangementPlaying ? 'Pause Arrangement' : 'Play Arrangement') : (isLoopPlaying ? 'Pause' : 'Play')}
+          onClick={onToggle}
+        >
+          {(isArrangementMode ? isArrangementPlaying : isLoopPlaying) ? <PauseIcon /> : <PlayArrowIcon />}
         </IconButton>
         <IconButton as="button" aria-label={'Stop'} onClick={onStop}>
           <StopIcon />

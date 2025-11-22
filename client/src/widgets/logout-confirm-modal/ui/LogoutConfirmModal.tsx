@@ -1,6 +1,8 @@
 // [UI] widgets/logout-confirm-modal/ui/LogoutConfirmModal.tsx
 import { Box, Button, Text } from "@chakra-ui/react";
+
 import { GlassModal } from "@shared/ui";
+
 import { signOut } from "@/features/auth"; // signOut 関数をインポート
 
 type Props = {

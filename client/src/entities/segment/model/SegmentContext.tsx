@@ -15,19 +15,13 @@ export type Segment = {
 };
 
 type StoreState = {
-  rhythmSegments: Segment[];
-  melodySegments: Segment[];
   loopMode: 'rhythm' | 'melody' | 'both';
   melodyBuffer: AudioBuffer | null;
   rhythmBuffer: AudioBuffer | null;
   recMode: 'melody' | 'rhythm';
   // 事前レンダリングした小節ごとの波形画像（dataURL）
   waveformByBar: Record<number, string>;
-  setRhythmSegments: (segments: Segment[]) => void;
-  setMelodySegments: (segments: Segment[]) => void;
   setLoopMode: (mode: 'rhythm' | 'melody' | 'both') => void;
-  updateMelodySegment: (index: number, newData: Partial<Segment>) => void;
-  updateRhythmSegment: (index: number, newData: Partial<Segment>) => void;
   setContextAudioBuffer: (mode: 'melody' | 'rhythm', buffer: AudioBuffer | null) => void;
   setRecMode: (mode: 'melody' | 'rhythm') => void;
   setWaveformForBar: (barIndex: number, dataUrl: string) => void;
@@ -35,26 +29,12 @@ type StoreState = {
 };
 
 export const useSegmentStore = create<StoreState>((set) => ({
-  rhythmSegments: [],
-  melodySegments: [],
   loopMode: 'melody',
   melodyBuffer: null,
   rhythmBuffer: null,
   recMode: 'melody',
   waveformByBar: {},
-  setRhythmSegments: (segments) => set({ rhythmSegments: segments }),
-  setMelodySegments: (segments) => set({ melodySegments: segments }),
   setLoopMode: (mode) => set({ loopMode: mode }),
-  updateMelodySegment: (index, newData) => set((s) => {
-    const next = [...s.melodySegments];
-    next[index] = { ...next[index], ...newData } as Segment;
-    return { melodySegments: next };
-  }),
-  updateRhythmSegment: (index, newData) => set((s) => {
-    const next = [...s.rhythmSegments];
-    next[index] = { ...next[index], ...newData } as Segment;
-    return { rhythmSegments: next };
-  }),
   setContextAudioBuffer: (mode, buffer) => set((s) => ({
     melodyBuffer: mode === 'melody' ? buffer : s.melodyBuffer,
     rhythmBuffer: mode === 'rhythm' ? buffer : s.rhythmBuffer,
@@ -72,20 +52,9 @@ export const useSegment = () => {
   const state = useSegmentStore();
   const currentBuffer = state.loopMode === 'melody' ? state.melodyBuffer
     : state.loopMode === 'rhythm' ? state.rhythmBuffer : null;
-  const currentSegments = {
-    rhythm: state.loopMode === 'melody' ? [] : state.rhythmSegments,
-    melody: state.loopMode === 'rhythm' ? [] : state.melodySegments,
-  };
   return {
-    rhythmSegments: state.rhythmSegments,
-    melodySegments: state.melodySegments,
     loopMode: state.loopMode,
-    setRhythmSegments: state.setRhythmSegments,
-    setMelodySegments: state.setMelodySegments,
     setLoopMode: state.setLoopMode,
-    currentSegments,
-    updateMelodySegment: state.updateMelodySegment,
-    updateRhythmSegment: state.updateRhythmSegment,
     audioBuffers: { melody: state.melodyBuffer, rhythm: state.rhythmBuffer },
     setContextAudioBuffer: state.setContextAudioBuffer,
     currentBuffer,

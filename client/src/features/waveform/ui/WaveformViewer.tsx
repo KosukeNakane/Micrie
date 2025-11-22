@@ -18,7 +18,7 @@ type Props = { barIndex: number; totalBars: number };
 
 export const WaveformViewer = ({ barIndex, totalBars }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { audioBuffers, loopMode, currentSegments, setWaveformForBar } = useSegment();
+  const { audioBuffers, loopMode, setWaveformForBar } = useSegment();
   const { melody: melodyBuffer, rhythm: rhythmBuffer } = audioBuffers;
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export const WaveformViewer = ({ barIndex, totalBars }: Props) => {
 
     // 描画後にDataURLをZustandへキャッシュ
     try { const url = canvas.toDataURL('image/png'); setWaveformForBar(barIndex, url); } catch {}
-  }, [melodyBuffer, rhythmBuffer, loopMode, barIndex, totalBars, JSON.stringify(currentSegments), setWaveformForBar]);
+  }, [melodyBuffer, rhythmBuffer, loopMode, barIndex, totalBars, setWaveformForBar]);
 
   return <Canvas ref={canvasRef} width={600} height={150} />;
 };

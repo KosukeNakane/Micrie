@@ -40,7 +40,9 @@ const createSampler = () => new Tone.Sampler({
     onload: () => {},
   });
 
-export const usePianoSampler = (kind: Exclude<ChannelKind, 'drum'> = 'melody') => {
+type PianoSamplerKind = Exclude<ChannelKind, 'drum' | 'sampler'>;
+
+export const usePianoSampler = (kind: PianoSamplerKind = 'melody') => {
   const samplerRef = useRef<Tone.Sampler | null>(null);
   const engine = useGlobalAudio();
 

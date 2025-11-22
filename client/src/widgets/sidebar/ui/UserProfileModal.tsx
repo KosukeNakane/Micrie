@@ -4,9 +4,10 @@ import { Box, Button, Input, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
 
+import { GlassModal } from "@shared/ui";
+
 import { useAuthStore } from "@/entities/user";
 import { updateDisplayName, linkCurrentUserWithProvider, linkCurrentUserWithPassword, unlinkCurrentUserProvider } from "@/features/auth";
-import { GlassModal } from "@shared/ui";
 
 type Props = {
   isOpen: boolean;

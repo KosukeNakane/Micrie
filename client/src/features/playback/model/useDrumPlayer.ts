@@ -5,17 +5,17 @@ import * as Tone from 'tone';
 
 import { useGlobalAudio } from '@entities/audio';
 import { useDrumPattern } from '@entities/pattern';
-import { useSegment } from '@entities/segment';
 import { useTempo } from '@entities/tempo';
 
 import { useDrumPlayers } from '@/entities/audio/model/useDrumSampler';
+import { usePatternEditor } from '@/entities/pattern/model/usePatternEditor';
 import { getDrumEvents, type DrumEvent } from '@/features/drums-playback/model/drumEvents';
 
 type DrumType = 'kick' | 'snare' | 'hihat';
 
 export const useDrumPlayer = () => {
   const { drumPattern } = useDrumPattern();
-  const { rhythmSegments } = useSegment();
+  const { rhythmSegments } = usePatternEditor();
   const { tempo } = useTempo();
   const engine = useGlobalAudio();
   const { trigger } = useDrumPlayers();
