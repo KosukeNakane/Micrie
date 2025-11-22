@@ -105,39 +105,45 @@ export const SavedPatternPanel = () => {
 							<ButtonGrid>
 								<Button
 									size="sm"
-									variant="solid"
-									colorScheme="blue"
+									variant="ghost"
+									color="rgba(5, 4, 69, 0.8)"
+									_hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+									borderColor="rgba(255, 255, 255, 0.3)"
 									disabled={!canSave}
 									onClick={() => saveToSlot(slot.index)}
 								>
-									保存
+									Save
 								</Button>
 								<Button
 									size="sm"
-									variant="outline"
-									colorScheme="blue"
+									variant="ghost"
+									color="rgba(5, 4, 69, 0.8)"
+									_hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
+									borderColor="rgba(255, 255, 255, 0.3)"
 									disabled={!slot.hasData}
 									onClick={() => loadFromSlot(slot.index)}
 								>
-									読み込み
+									Load
 								</Button>
 								<Button
 									size="sm"
 									variant="ghost"
-									colorScheme="blue"
+									color="rgba(5, 4, 69, 0.8)"
+									_hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
 									disabled={!slot.hasData}
 									onClick={() => handleRename(slot.index, slot.name)}
 								>
-									改名
+									Rename
 								</Button>
 								<Button
 									size="sm"
 									variant="ghost"
-									colorScheme="red"
+									color="rgba(251, 24, 24, 0.8)"
+									_hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
 									disabled={!slot.hasData}
 									onClick={() => clearSlot(slot.index)}
 								>
-									クリア
+									Clear
 								</Button>
 							</ButtonGrid>
 						</PatternCard>
