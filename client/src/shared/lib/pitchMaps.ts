@@ -16,3 +16,17 @@ export const minorPentatonicMap: { [note: string]: string } = {
     'F': 'F', 'F#': 'G', 'G': 'G', 'G#': 'A#', 'A': 'A#',
     'A#': 'A#', 'B': 'C',
 };
+
+// クロマチックスケール用の恒等マッピング
+export const chromaticMap: { [note: string]: string } = {
+    'C': 'C', 'C#': 'C#', 'D': 'D', 'D#': 'D#', 'E': 'E',
+    'F': 'F', 'F#': 'F#', 'G': 'G', 'G#': 'G#', 'A': 'A',
+    'A#': 'A#', 'B': 'B',
+};
+
+// スケールモード別のマッピングセット
+export const scalePitchMaps = {
+    major: majorPentatonicMap,
+    minor: minorPentatonicMap,
+    chromatic: chromaticMap,
+} as const;
