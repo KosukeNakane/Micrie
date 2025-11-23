@@ -41,8 +41,14 @@ export const useSamplerRecorder = () => {
 	const [isSamplerRecording, setIsSamplerRecording] = useState(false);
 	const [recordingPadIndex, setRecordingPadIndex] = useState<number | null>(null);
 	const [trimEnabled, setTrimEnabled] = useState(true);
+	const [lastPlayedBuffer, setLastPlayedBuffer] = useState<AudioBuffer | null>(null);
+	const [playbackProgress, setPlaybackProgress] = useState<number | null>(null);
+	const [lastPlayedPadIndex, setLastPlayedPadIndex] = useState<number | null>(null);
+	const [lastPlayedPadSeq, setLastPlayedPadSeq] = useState(0);
+	const progressRafRef = useRef<number | null>(null);
 
 	const engine = useGlobalAudio();
+	const resetPad = useSamplerStore((state) => state.resetPad);
 
 	const recorderRef = useRef<MediaRecorder | null>(null);
 	const recorderStreamRef = useRef<MediaStream | null>(null);
@@ -61,12 +67,12 @@ export const useSamplerRecorder = () => {
 	}, [pads]);
 
 	useEffect(() => {
-	if (suppressClickRef.current.length !== pads.length) {
-		suppressClickRef.current = Array.from(
-			{ length: pads.length },
-			(_, index) => suppressClickRef.current[index] ?? false
-		);
-	}
+		if (suppressClickRef.current.length !== pads.length) {
+			suppressClickRef.current = Array.from(
+				{ length: pads.length },
+				(_, index) => suppressClickRef.current[index] ?? false
+			);
+		}
 	}, [pads.length]);
 
 	const setActiveRecorderPad = useCallback((index: number | null) => {
@@ -82,15 +88,15 @@ export const useSamplerRecorder = () => {
 				/* no-op */
 			}
 		});
-	recorderStreamRef.current = null;
-	recorderRef.current = null;
-	recorderChunksRef.current = [];
-	samplerRecordingRef.current = false;
-	skipFinalizeRef.current = false;
-	recordingStartRef.current = null;
-	shortPlaybackIndexRef.current = null;
-	setIsSamplerRecording(false);
-	setActiveRecorderPad(null);
+		recorderStreamRef.current = null;
+		recorderRef.current = null;
+		recorderChunksRef.current = [];
+		samplerRecordingRef.current = false;
+		skipFinalizeRef.current = false;
+		recordingStartRef.current = null;
+		shortPlaybackIndexRef.current = null;
+		setIsSamplerRecording(false);
+		setActiveRecorderPad(null);
 	}, [setActiveRecorderPad]);
 
 	const finalizePadRecording = useCallback(
@@ -117,7 +123,9 @@ export const useSamplerRecorder = () => {
 					ctx.decodeAudioData(arrayBuffer.slice(0), resolve, reject);
 				});
 
-				const trimmed = trimEnabled ? trimAudioBuffer(decoded) : { buffer: decoded, trimmed: false, removedSamples: 0 };
+				const trimmed = trimEnabled
+					? trimAudioBuffer(decoded)
+					: { buffer: decoded, trimmed: false, removedSamples: 0 };
 				let finalBlob = blob;
 				try {
 					finalBlob = audioBufferToWavBlob(trimmed.buffer);
@@ -169,6 +177,28 @@ export const useSamplerRecorder = () => {
 				}
 				const source = ctx.createBufferSource();
 				source.buffer = pad.buffer;
+				setLastPlayedBuffer(pad.buffer);
+				setLastPlayedPadIndex(index);
+				setLastPlayedPadSeq((prev) => prev + 1);
+				if (progressRafRef.current != null) {
+					cancelAnimationFrame(progressRafRef.current);
+					progressRafRef.current = null;
+				}
+				const durationMs = Math.max(1, pad.buffer.duration * 1000);
+				const startedAt = performance.now();
+				const tick = () => {
+					const elapsed = performance.now() - startedAt;
+					const ratio = elapsed / durationMs;
+					if (ratio >= 1) {
+						setPlaybackProgress(null);
+						progressRafRef.current = null;
+						return;
+					}
+					setPlaybackProgress(ratio);
+					progressRafRef.current = requestAnimationFrame(tick);
+				};
+				setPlaybackProgress(0);
+				progressRafRef.current = requestAnimationFrame(tick);
 				const destination = engine.getChannelInput('sampler');
 				if (destination) {
 					source.connect(destination);
@@ -235,24 +265,24 @@ export const useSamplerRecorder = () => {
 						? PREFERRED_MIME_TYPES.find((type) => MediaRecorder.isTypeSupported(type))
 						: undefined;
 
-		const recorder = selectedType
-			? new MediaRecorder(stream, { mimeType: selectedType })
-			: new MediaRecorder(stream);
+				const recorder = selectedType
+					? new MediaRecorder(stream, { mimeType: selectedType })
+					: new MediaRecorder(stream);
 
-		recorderRef.current = recorder;
-		setActiveRecorderPad(index);
-		setSamplerPad(index, (prev) => ({
-			...prev,
-			status: 'recording',
-			error: undefined,
-		}));
-		recordingStartRef.current = performance.now();
-		shortPlaybackIndexRef.current = null;
+				recorderRef.current = recorder;
+				setActiveRecorderPad(index);
+				setSamplerPad(index, (prev) => ({
+					...prev,
+					status: 'recording',
+					error: undefined,
+				}));
+				recordingStartRef.current = performance.now();
+				shortPlaybackIndexRef.current = null;
 
-		recorder.ondataavailable = (event) => {
-			if (event.data && event.data.size > 0) {
-				recorderChunksRef.current.push(event.data);
-			}
+				recorder.ondataavailable = (event) => {
+					if (event.data && event.data.size > 0) {
+						recorderChunksRef.current.push(event.data);
+					}
 				};
 
 				recorder.onerror = (event) => {
@@ -373,7 +403,6 @@ export const useSamplerRecorder = () => {
 
 	const handlePadPointerLeave = useCallback(
 		(index: number) => (event: ReactPointerEvent<HTMLButtonElement>) => {
-
 			const element = event.currentTarget as HTMLButtonElement;
 			const hasCapture =
 				typeof element.hasPointerCapture === 'function' &&
@@ -459,8 +488,8 @@ export const useSamplerRecorder = () => {
 
 	// クリーンアップ: コンポーネントアンマウント時に録音を停止・リソース解放
 	useEffect(() => {
-	return () => {
-		suppressClickRef.current.fill(false);
+		return () => {
+			suppressClickRef.current.fill(false);
 			const activeIndex = activeRecorderPadRef.current;
 			const padBeforeCleanup =
 				typeof activeIndex === 'number' ? padsRef.current[activeIndex] : undefined;
@@ -491,15 +520,15 @@ export const useSamplerRecorder = () => {
 
 	const getPadHint = useCallback((pad: SamplerPad): string => {
 		if (pad.status === 'recording') {
-			return SIMPLE_TOGGLE_MODE ? 'Tap to stop' : 'Holdして録音中…';
+			return SIMPLE_TOGGLE_MODE ? 'Tap to stop' : 'Now recording...';
 		}
 		if (pad.status === 'ready') {
-			return SIMPLE_TOGGLE_MODE ? 'Tap to play' : 'タップで再生 / 長押しで再録音';
+			return SIMPLE_TOGGLE_MODE ? 'Tap to play' : 'Tap to play';
 		}
 		if (pad.status === 'error') {
-			return SIMPLE_TOGGLE_MODE ? 'Tap to retry' : '長押しで再録音';
+			return SIMPLE_TOGGLE_MODE ? 'Tap to retry' : 'Tap to retry';
 		}
-		return SIMPLE_TOGGLE_MODE ? 'Tap to record' : '長押しで録音';
+		return SIMPLE_TOGGLE_MODE ? 'Tap to record' : 'Hold to record';
 	}, []);
 
 	const getPadMeta = useCallback(
@@ -528,6 +557,11 @@ export const useSamplerRecorder = () => {
 			recordingPadIndex,
 			trimEnabled,
 			setTrimEnabled,
+			lastPlayedBuffer,
+			playbackProgress,
+			lastPlayedPadIndex,
+			lastPlayedPadSeq,
+			clearPadAt: resetPad,
 			handlePadPointerDown,
 			handlePadPointerUp,
 			handlePadPointerLeave,
@@ -549,6 +583,11 @@ export const useSamplerRecorder = () => {
 			handlePadClick,
 			getPadHint,
 			getPadMeta,
+			lastPlayedBuffer,
+			playbackProgress,
+			lastPlayedPadIndex,
+			lastPlayedPadSeq,
+			resetPad,
 		]
 	);
 };
