@@ -17,6 +17,8 @@ import {
 	type SamplerPad,
 } from '@entities/audio';
 
+import { audioBufferToWavBlob, trimAudioBuffer } from '@/features/sampler/lib/audioTrim';
+
 const SIMPLE_TOGGLE_MODE = false;
 const SHORT_PRESS_MS = 200;
 
@@ -38,6 +40,7 @@ export const useSamplerRecorder = () => {
 	const setSamplerPad = useSamplerStore((state) => state.setPad);
 	const [isSamplerRecording, setIsSamplerRecording] = useState(false);
 	const [recordingPadIndex, setRecordingPadIndex] = useState<number | null>(null);
+	const [trimEnabled, setTrimEnabled] = useState(true);
 
 	const engine = useGlobalAudio();
 
@@ -114,10 +117,18 @@ export const useSamplerRecorder = () => {
 					ctx.decodeAudioData(arrayBuffer.slice(0), resolve, reject);
 				});
 
+				const trimmed = trimEnabled ? trimAudioBuffer(decoded) : { buffer: decoded, trimmed: false, removedSamples: 0 };
+				let finalBlob = blob;
+				try {
+					finalBlob = audioBufferToWavBlob(trimmed.buffer);
+				} catch {
+					finalBlob = blob;
+				}
+
 				setSamplerPad(index, () => ({
 					status: 'ready',
-					buffer: decoded,
-					blob,
+					buffer: trimmed.buffer,
+					blob: finalBlob,
 					error: undefined,
 					updatedAt: Date.now(),
 				}));
@@ -132,7 +143,7 @@ export const useSamplerRecorder = () => {
 				}));
 			}
 		},
-		[engine, setSamplerPad]
+		[engine, setSamplerPad, trimEnabled]
 	);
 
 	const stopPadRecording = useCallback(() => {
@@ -424,6 +435,28 @@ export const useSamplerRecorder = () => {
 		[playPad, startPadRecording, stopPadRecording]
 	);
 
+	// キーボード 1-9 -> Pad1-9, 0 -> Pad10 の再生
+	useEffect(() => {
+		const handleKey = (event: KeyboardEvent) => {
+			const target = event.target as HTMLElement | null;
+			if (target) {
+				const tag = target.tagName;
+				if (tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable) return;
+			}
+			const key = event.key;
+			let index: number | null = null;
+			if (key >= '1' && key <= '9') {
+				index = Number(key) - 1;
+			} else if (key === '0') {
+				index = 9;
+			}
+			if (index == null) return;
+			void playPad(index);
+		};
+		window.addEventListener('keydown', handleKey);
+		return () => window.removeEventListener('keydown', handleKey);
+	}, [playPad]);
+
 	// クリーンアップ: コンポーネントアンマウント時に録音を停止・リソース解放
 	useEffect(() => {
 	return () => {
@@ -493,6 +526,8 @@ export const useSamplerRecorder = () => {
 			pads,
 			isSamplerRecording,
 			recordingPadIndex,
+			trimEnabled,
+			setTrimEnabled,
 			handlePadPointerDown,
 			handlePadPointerUp,
 			handlePadPointerLeave,
@@ -505,6 +540,8 @@ export const useSamplerRecorder = () => {
 			pads,
 			isSamplerRecording,
 			recordingPadIndex,
+			trimEnabled,
+			setTrimEnabled,
 			handlePadPointerDown,
 			handlePadPointerUp,
 			handlePadPointerLeave,
