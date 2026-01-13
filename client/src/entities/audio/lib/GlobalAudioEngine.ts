@@ -162,7 +162,7 @@ export class GlobalAudioEngine {
     try {
       // WebAudioFont のキューを masterGain（全体出力）に対して一括キャンセルする。
       this.wafPlayer.cancelQueue(this.ctx, this.masterGain);
-    } catch (e) {
+    } catch {
       // UI/UX を中断させないための意図的な no-op。
     }
   }

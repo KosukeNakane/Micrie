@@ -72,7 +72,7 @@ function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit & { timeo
   const timeoutMs = init?.timeoutMs ?? 10000;
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
-  const { signal, timeoutMs: _omit, ...rest } = init || {} as any;
+  const { signal: _signal, timeoutMs: _omit, ...rest } = init || {} as any;
   return fetch(input, { ...rest, signal: controller.signal }).finally(() => clearTimeout(id));
 }
 

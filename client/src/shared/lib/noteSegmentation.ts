@@ -20,7 +20,11 @@ export type QuantizedNote = {
 export function extractQuantizedNotes(
     melodySegments: string[],
     scaleMode: 'major' | 'minor' | 'chromatic',
-    pitchMaps: { major: { [note: string]: string }, minor: { [note: string]: string } }
+    pitchMaps: {
+        major: { [note: string]: string };
+        minor: { [note: string]: string };
+        chromatic: { [note: string]: string };
+    }
 ): QuantizedNote[] {
     // 出力となる定量化された音符の配列
     const result: QuantizedNote[] = [];
@@ -32,10 +36,10 @@ export function extractQuantizedNotes(
         const note = melodySegments[i];
 
         // スケールに応じて音名を補正
-        const correctedNote =
-            scaleMode === 'chromatic'
-                ? note
-                : pitchMaps[scaleMode][note.replace(/\d/, '')] + (note.match(/\d/)?.[0] || '4');
+        const base = note.replace(/\d/, '');
+        const octave = note.match(/\d/)?.[0] || '4';
+        const mappedBase = pitchMaps[scaleMode]?.[base] ?? base;
+        const correctedNote = `${mappedBase}${octave}`;
 
         // 音が休符でない場合、現在の音符と比較して処理
         if (note !== 'rest') {

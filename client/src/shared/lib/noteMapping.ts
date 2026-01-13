@@ -1,7 +1,7 @@
 // [Lib] shared/lib - noteMapping.ts
 // 役割: メロディノートのスケール変換・オクターブシフト（純関数）
 
-import { majorPentatonicMap, minorPentatonicMap } from '@shared/lib/pitchMaps';
+import { scalePitchMaps } from '@shared/lib/pitchMaps';
 
 export type ScaleMode = 'major' | 'minor' | 'chromatic';
 
@@ -9,9 +9,7 @@ export const mapNoteToScale = (note: string, scaleMode: ScaleMode): string => {
   const match = note.match(/^([A-G]#?)(\d)$/);
   if (!match) return note;
   const [, base, octave] = match;
-  const mappedBase = scaleMode === 'major'
-    ? (majorPentatonicMap[base] || base)
-    : (scaleMode === 'minor' ? (minorPentatonicMap[base] || base) : base);
+  const mappedBase = scalePitchMaps[scaleMode]?.[base] || base;
   return `${mappedBase}${octave}`;
 };
 

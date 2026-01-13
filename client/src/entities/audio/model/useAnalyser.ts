@@ -56,7 +56,7 @@ export const useAnalyser = (): React.RefObject<HTMLCanvasElement | null> => {
             }
             ctx.lineTo(canvas.width, canvas.height / 2);
             ctx.stroke();
-          } catch (e) {
+          } catch {
             // Safari などで一時的に取得に失敗するケースを安全にスキップ
             // 次フレームで再試行する
           }

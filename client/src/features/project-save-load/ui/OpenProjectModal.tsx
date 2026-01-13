@@ -126,7 +126,7 @@ export function OpenProjectModal({ isOpen, onClose, fetchItems, onSelect, onSele
                 const text = await file.text();
                 const obj = JSON.parse(text);
                 await onSelectLocal?.(obj);
-              } catch (err) {
+              } catch {
                 toaster.error({ title: '無効なプロジェクトファイルです' });
               } finally {
                 onClose();

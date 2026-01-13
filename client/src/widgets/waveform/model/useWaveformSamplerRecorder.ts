@@ -17,6 +17,8 @@ import {
   type SamplerPad,
 } from "@entities/audio";
 
+import { audioBufferToWavBlob, trimAudioBuffer } from "@/features/sampler/lib/audioTrim";
+
 const RE_RECORD_LONG_PRESS_MS = 320;
 const SIMPLE_TOGGLE_MODE = true;
 
@@ -38,6 +40,8 @@ export const useWaveformSamplerRecorder = () => {
   const setSamplerPad = useSamplerStore((state) => state.setPad);
   const [isSamplerRecording, setIsSamplerRecording] = useState(false);
   const [recordingPadIndex, setRecordingPadIndex] = useState<number | null>(null);
+  const [trimEnabled, setTrimEnabled] = useState(true);
+  const [lastPlayedBuffer, setLastPlayedBuffer] = useState<AudioBuffer | null>(null);
 
   const engine = useGlobalAudio();
 
@@ -121,10 +125,14 @@ export const useWaveformSamplerRecorder = () => {
           ctx.decodeAudioData(arrayBuffer.slice(0), resolve, reject);
         });
 
+        const trimmed = trimEnabled ? trimAudioBuffer(decoded) : { buffer: decoded, trimmed: false, removedSamples: 0 };
+        let finalBlob = blob;
+        try { finalBlob = audioBufferToWavBlob(trimmed.buffer); } catch { finalBlob = blob; }
+
         setSamplerPad(index, () => ({
           status: "ready",
-          buffer: decoded,
-          blob,
+          buffer: trimmed.buffer,
+          blob: finalBlob,
           error: undefined,
           updatedAt: Date.now(),
         }));
@@ -142,7 +150,7 @@ export const useWaveformSamplerRecorder = () => {
         }));
       }
     },
-    [engine, setSamplerPad]
+    [engine, setSamplerPad, trimEnabled]
   );
 
   const stopPadRecording = useCallback(() => {
@@ -168,6 +176,7 @@ export const useWaveformSamplerRecorder = () => {
         }
         const source = ctx.createBufferSource();
         source.buffer = pad.buffer;
+        setLastPlayedBuffer(pad.buffer);
         const destination = engine.getChannelInput("sampler");
         if (destination) {
           source.connect(destination);
@@ -487,6 +496,8 @@ export const useWaveformSamplerRecorder = () => {
       pads,
       isSamplerRecording,
       recordingPadIndex,
+      trimEnabled,
+      setTrimEnabled,
       handlePadPointerDown,
       handlePadPointerUp,
       handlePadPointerLeave,
@@ -494,11 +505,14 @@ export const useWaveformSamplerRecorder = () => {
       handlePadClick,
       getPadHint,
       getPadMeta,
+      lastPlayedBuffer,
     }),
     [
       pads,
       isSamplerRecording,
       recordingPadIndex,
+      trimEnabled,
+      setTrimEnabled,
       handlePadPointerDown,
       handlePadPointerUp,
       handlePadPointerLeave,
@@ -506,6 +520,7 @@ export const useWaveformSamplerRecorder = () => {
       handlePadClick,
       getPadHint,
       getPadMeta,
+      lastPlayedBuffer,
     ]
   );
 

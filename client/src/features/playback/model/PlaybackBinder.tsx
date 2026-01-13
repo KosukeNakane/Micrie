@@ -11,7 +11,7 @@ import { useScaleMode } from '@/entities/scale-mode';
 import { useTempo } from '@/entities/tempo';
 import { useTransportStore } from '@/entities/transport';
 import { extractQuantizedNotes } from '@/shared/lib/noteSegmentation';
-import { majorPentatonicMap, minorPentatonicMap } from '@/shared/lib/pitchMaps';
+import { scalePitchMaps } from '@/shared/lib/pitchMaps';
 
 import { useChordsPlayer } from './useChordsPlayer';
 import { useDrumPlayer } from './useDrumPlayer';
@@ -38,9 +38,7 @@ export const PlaybackBinder: React.FC = () => {
   )), [activeMelodySegments]);
 
   const quantizedMelody = React.useMemo(() => (
-    scaleMode === 'chromatic'
-      ? extractQuantizedNotes(rawMelody, 'major', { major: {}, minor: {} })
-      : extractQuantizedNotes(rawMelody, scaleMode, { major: majorPentatonicMap, minor: minorPentatonicMap })
+    extractQuantizedNotes(rawMelody, scaleMode as any, scalePitchMaps as any)
   ), [rawMelody, scaleMode]);
 
   const { playMelody } = useMelodyPlayer();

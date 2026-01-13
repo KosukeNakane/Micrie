@@ -5,7 +5,7 @@ import { combine } from 'zustand/middleware';
 
 import type { Pattern, ChordSlot, Segment, PlayType } from './patternTypes';
 
-const PATTERN_CAPACITY = 6;
+const PATTERN_CAPACITY = 64;
 
 const cloneSegment = (segment: Segment): Segment => ({ ...segment });
 

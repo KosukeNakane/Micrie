@@ -300,7 +300,7 @@ export const LoginModal = ({ isOpen, onClose, onSubmit, onRegister, onForgotPass
                   try {
                     await linkAccountsWithPassword(linkInfo.email, password, linkInfo.pendingCredential);
                     onClose();
-                  } catch (e) {
+                  } catch {
                     setError('リンクに失敗しました。パスワードを確認してください。');
                   }
                 }}
