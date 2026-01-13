@@ -16,7 +16,7 @@ export async function saveProject(uid: string, name: string) {
       createdAt: now,
       updatedAt: now,
     });
-  } catch (e) {
+  } catch {
     // SDK 経路が不安定/失敗した場合のフォールバック
     const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID!;
     // 生成IDを安定させるため docId を付与

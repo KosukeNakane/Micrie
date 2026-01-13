@@ -30,7 +30,7 @@ export async function apiFetch(endpoint: keyof typeof endpoints, options?: Reque
     if (ct.includes('application/json') || ct.includes('text/json') || text.trim().startsWith('{') || text.trim().startsWith('[')) {
         try {
             return JSON.parse(text);
-        } catch (e) {
+        } catch {
             // Sanitize non-JSON tokens like NaN/Infinity that some backends may emit
             const sanitized = text
                 .replace(/\bNaN\b/g, 'null')

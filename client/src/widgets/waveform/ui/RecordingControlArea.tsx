@@ -11,6 +11,7 @@ import { useTempo } from '@entities/tempo';
 import { RecordingBeatIndicator } from '@features/recording';
 import { RecButton } from '@features/recording/ui/RecButton';
 import { StyledArea } from '@shared/ui';
+
 import { WaveformViewer } from '@/features/waveform';
 
 type Props = {

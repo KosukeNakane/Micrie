@@ -16,6 +16,7 @@ import {
   useGlobalAudio,
   type SamplerPad,
 } from "@entities/audio";
+
 import { audioBufferToWavBlob, trimAudioBuffer } from "@/features/sampler/lib/audioTrim";
 
 const RE_RECORD_LONG_PRESS_MS = 320;

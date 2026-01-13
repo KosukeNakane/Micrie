@@ -2,9 +2,9 @@
 // 役割: 表示・入力のUIコンポーネント
 // 波形表示・再生・ループ・セグメントラベル描画を担うメインUIコンポーネント
 import styled from '@emotion/styled';
+import { useRef } from 'react';
 
 import { useRecording } from '@entities/audio';
-import { useRef } from 'react';
 import { StyledArea } from '@shared/ui';
 
 import { SamplerPads, useSamplerRecorder } from '@/features/sampler';
@@ -53,7 +53,6 @@ export const WaveformDisplay = ({ audioBlob: _audioBlob, onToggleRecording }: Pr
 		setTrimEnabled,
 		lastPlayedBuffer,
 		playbackProgress,
-		clearPadAt,
 		lastPlayedPadIndex,
 		lastPlayedPadSeq,
 		handlePadPointerDown,
@@ -67,17 +66,6 @@ export const WaveformDisplay = ({ audioBlob: _audioBlob, onToggleRecording }: Pr
 	const { isRecording: globalRecording } = useRecording();
 	const isRecording = globalRecording;
 	const centerRef = useRef<HTMLDivElement | null>(null);
-
-	const handlePadDropOutside = (index: number, pos: { x: number; y: number }) => {
-		const el = centerRef.current;
-		if (!el) return;
-		const rect = el.getBoundingClientRect();
-		const outside =
-			pos.x < rect.left || pos.x > rect.right || pos.y < rect.top || pos.y > rect.bottom;
-		if (outside) {
-			clearPadAt?.(index);
-		}
-	};
 
 	return (
 		<CenteredArea ref={centerRef}>
